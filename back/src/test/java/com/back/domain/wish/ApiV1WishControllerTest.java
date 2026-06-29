@@ -40,8 +40,8 @@ public class ApiV1WishControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(
-                    get("/api/v1/wishes/mine")
-                            .contentType(MediaType.APPLICATION_JSON))
+                        get("/api/v1/wishes/mine")
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
 
         resultActions
@@ -74,8 +74,8 @@ public class ApiV1WishControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(
-                    post("/api/v1/wishes/of-book-%d".formatted(bookId))
-                            .contentType(MediaType.APPLICATION_JSON))
+                        post("/api/v1/wishes/book/%d".formatted(bookId))
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
 
         resultActions
@@ -95,7 +95,7 @@ public class ApiV1WishControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(
-                        delete("/api/v1/wishes/of-book-%d".formatted(bookId)))
+                        delete("/api/v1/wishes/book/%d".formatted(bookId)))
                 .andDo(print());
 
         resultActions
