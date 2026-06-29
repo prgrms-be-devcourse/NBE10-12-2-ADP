@@ -37,8 +37,7 @@ public class ApiV1MemberControllerTest {
 
     @Test
     @DisplayName("내 정보 조회")
-    @WithMockUser("user1")
-    // @WithUserDetails("user1")
+    @WithUserDetails("user1")
     void t1() throws Exception {
 
         ResultActions resultActions = mvc
@@ -85,8 +84,7 @@ public class ApiV1MemberControllerTest {
 
     @Test
     @DisplayName("회원 탈퇴")
-    @WithMockUser("user1")
-    // @WithUserDetails("user1")
+    @WithUserDetails("user1")
     void t3() throws Exception {
 
         Long id = 1L;
@@ -205,8 +203,7 @@ public class ApiV1MemberControllerTest {
 
     @Test
     @DisplayName("로그아웃")
-    @WithMockUser("user1")
-    // @WithUserDetails("user1")
+    @WithUserDetails("user1")
     void t6() throws Exception {
 
         ResultActions resultActions = mvc
