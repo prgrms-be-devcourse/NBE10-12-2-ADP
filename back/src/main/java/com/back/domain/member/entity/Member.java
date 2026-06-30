@@ -1,8 +1,12 @@
 package com.back.domain.member.entity;
 
+import com.back.domain.book.entity.Book;
+import com.back.domain.wish.entity.Wish;
 import com.back.global.jpa.entity.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,10 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -33,6 +34,9 @@ public class Member extends BaseEntity {
     private String refreshToken;
     @Setter
     private LocalDateTime deletedDate;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wish> wishes = new ArrayList<>();
 
     public Member(long id, String username, String name) {
         setId(id);
@@ -86,4 +90,14 @@ public class Member extends BaseEntity {
         return authorities;
     }
 
+    public void addWish(Book book) {
+        wishes.add(new Wish(this, book));
+    }
+
+    public void deleteWish(Book book) {
+        wishes = wishes
+                .stream()
+                .filter(w -> !w.getBook().equals(book))
+                .toList();
+    }
 }

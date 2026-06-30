@@ -1,11 +1,18 @@
 package com.back.domain.wish;
 
+import com.back.domain.book.entity.Book;
+import com.back.domain.member.entity.Member;
+import com.back.domain.member.service.MemberService;
+import com.back.domain.wish.controller.ApiV1WishController;
+import com.back.domain.wish.entity.Wish;
+import com.back.domain.wish.service.WishService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -13,6 +20,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,6 +36,11 @@ public class ApiV1WishControllerTest {
     private WebApplicationContext context;
     private MockMvc mvc;
 
+    @Autowired
+    private WishService wishService;
+    @Autowired
+    private MemberService memberService;
+
     @BeforeEach
     void setup() {
         mvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -33,10 +48,13 @@ public class ApiV1WishControllerTest {
 
     @Test
     @DisplayName("찜 목록 조회")
+    @WithUserDetails("user1")
     void t1() throws Exception {
 
-        // List<Wish> wishes = wishServivce.findAll();
-        int wishesSize = 0; // wishes.size();
+        Member actor = memberService.findByUsername("user1");
+
+        List<Wish> wishes = wishService.findByMember(actor);
+        int wishesSize = wishes.size();
 
         ResultActions resultActions = mvc
                 .perform(
@@ -45,22 +63,24 @@ public class ApiV1WishControllerTest {
                 .andDo(print());
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1WishController.class))
-                //.andExpect(handler().methodName("getWishes"))
+                .andExpect(handler().handlerType(ApiV1WishController.class))
+                .andExpect(handler().methodName("getWishes"))
                 .andExpect(status().isOk());
 
         for (int i = 0; i < wishesSize; i++) {
-            // List<String> tags = wishes.get(i).getTags();
-            int tagCount = 0; // tags.size();
+            Book book = wishes.get(i).getBook();
+            List<String> tags = List.of(); //book.getTags();
+            int tagCount = tags.size();
             resultActions
-                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(0))
-                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(""))
-                    .andExpect(jsonPath("$[%d].imgUrl".formatted(i)).value(""))
-                    .andExpect(jsonPath("$[%d].averageRating".formatted(i)).value(""));
+                    .andExpect(jsonPath("$.[%d].id".formatted(i)).value(book.getId()))
+                    .andExpect(jsonPath("$.[%d].title".formatted(i)).value(book.getTitle()))
+                    .andExpect(jsonPath("$.[%d].imgUrl".formatted(i)).value(book.getImgUrl()));
+                    //.andExpect(jsonPath("$[%d].averageRating".formatted(i)).value(book.getAverateRating()));
+
             for (int j = 0; j < tagCount; j++) {
 
                 resultActions
-                        .andExpect(jsonPath("$[%d].tags[%d]".formatted(i, j)).value("tags.get(j)"));
+                        .andExpect(jsonPath("$[%d].tags[%d]".formatted(i, j)).value(tags.get(j)));
 
             }
         }
@@ -68,9 +88,10 @@ public class ApiV1WishControllerTest {
 
     @Test
     @DisplayName("찜 추가")
+    @WithUserDetails("user1")
     void t2() throws Exception {
 
-        Long bookId = 1L;
+        Long bookId = 2L;
 
         ResultActions resultActions = mvc
                 .perform(
@@ -79,8 +100,8 @@ public class ApiV1WishControllerTest {
                 .andDo(print());
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1WishController.class))
-                //.andExpect(handler().methodName("addWish"))
+                .andExpect(handler().handlerType(ApiV1WishController.class))
+                .andExpect(handler().methodName("addWish"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.resultCode").value("201-1"))
                 .andExpect(jsonPath("$.message").value("찜 추가 성공"));
@@ -89,6 +110,7 @@ public class ApiV1WishControllerTest {
 
     @Test
     @DisplayName("찜 삭제")
+    @WithUserDetails("user1")
     void t3() throws Exception {
 
         Long bookId = 1L;
@@ -99,8 +121,8 @@ public class ApiV1WishControllerTest {
                 .andDo(print());
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1WishController.class))
-                //.andExpect(handler().methodName("deleteWish"))
+                .andExpect(handler().handlerType(ApiV1WishController.class))
+                .andExpect(handler().methodName("deleteWish"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.message").value("찜 삭제 성공"));
