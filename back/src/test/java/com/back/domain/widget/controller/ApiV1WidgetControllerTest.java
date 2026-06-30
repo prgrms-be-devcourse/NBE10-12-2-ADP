@@ -29,7 +29,7 @@ class ApiV1WidgetControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(
-                        get("/widgets/%s".formatted(githubId)))
+                        get("/api/v1/widgets/%s".formatted(githubId)))
                 .andDo(print());
 
         resultActions
