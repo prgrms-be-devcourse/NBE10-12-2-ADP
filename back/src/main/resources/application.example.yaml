@@ -31,3 +31,5 @@ custom:
     secretKey:
   accessToken:
     expirationSeconds:
+  book-fetch:
+    api-keys: abcde
