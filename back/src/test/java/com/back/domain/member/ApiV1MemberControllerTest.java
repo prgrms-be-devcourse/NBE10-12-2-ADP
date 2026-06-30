@@ -1,5 +1,7 @@
 package com.back.domain.member;
 
+import com.back.domain.member.controller.ApiV1MemberController;
+import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,17 +47,17 @@ public class ApiV1MemberControllerTest {
                         get("/api/v1/members/me"))
                 .andDo(print());
 
-        // Member member = memberService.findByUsername("user1").get();
+        Member member = memberService.findByUsername("user1");
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1MemberController.class))
-                //.andExpect(handler().methodName("me"))
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("me"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("member.getId()"))
-                .andExpect(jsonPath("$.username").value("member.getUsername()"))
-                .andExpect(jsonPath("$.githubId").value("member.getGithubId()"))
-                .andExpect(jsonPath("$.githubLink").value("member.getGithubLink()"))
-                .andExpect(jsonPath("$.widgetLink").value("member.getWidgetLink()"));
+                .andExpect(jsonPath("$.id").value(member.getId()))
+                .andExpect(jsonPath("$.username").value(member.getUsername()))
+                .andExpect(jsonPath("$.githubId").value(member.getGithubId()))
+                .andExpect(jsonPath("$.githubLink").value(member.getGithubLink()))
+                .andExpect(jsonPath("$.widgetLink").value(member.getWidgetLink()));
 
     }
 
@@ -70,15 +72,15 @@ public class ApiV1MemberControllerTest {
                         get("/api/v1/members/%d".formatted(id)))
                 .andDo(print());
 
-        // Member member = memberService.findById(id).get();
+        Member member = memberService.findById(id);
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1MemberController.class))
-                //.andExpect(handler().methodName("getUser"))
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("getUser"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("member.getId()"))
-                .andExpect(jsonPath("$.githubId").value("member.getGithubId()"))
-                .andExpect(jsonPath("$.githubLink").value("member.getGithubLink()"));
+                .andExpect(jsonPath("$.id").value(member.getId()))
+                .andExpect(jsonPath("$.githubId").value(member.getGithubId()))
+                .andExpect(jsonPath("$.githubLink").value(member.getGithubLink()));
 
     }
 
@@ -95,12 +97,29 @@ public class ApiV1MemberControllerTest {
                 .andDo(print());
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1MemberController.class))
-                //.andExpect(handler().methodName("delete"))
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("delete"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.message").value("회원 탈퇴 성공"));
 
+        resultActions.andExpect(
+                result -> {
+                    Cookie refreshTokenCookie = result.getResponse().getCookie("refreshToken");
+
+                    assertThat(refreshTokenCookie.getValue()).isEmpty();
+                    assertThat(refreshTokenCookie.getMaxAge()).isEqualTo(0);
+                    assertThat(refreshTokenCookie.getPath()).isEqualTo("/");
+                    assertThat(refreshTokenCookie.isHttpOnly()).isTrue();
+
+                    Cookie accessTokenCookie = result.getResponse().getCookie("accessToken");
+
+                    assertThat(accessTokenCookie.getValue()).isEmpty();
+                    assertThat(accessTokenCookie.getMaxAge()).isEqualTo(0);
+                    assertThat(accessTokenCookie.getPath()).isEqualTo("/");
+                    assertThat(accessTokenCookie.isHttpOnly()).isTrue();
+                }
+        );
     }
 
     @Test
@@ -121,23 +140,23 @@ public class ApiV1MemberControllerTest {
                                         """))
                 .andDo(print());
 
-        // Member member = memberService.findByUsername("user1").get();
+        Member member = memberService.findByUsername("user1");
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1MemberController.class))
-                //.andExpect(handler().methodName("login"))
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("login"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.message").value("로그인 성공"))
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.data.refreshToken").value("member.getRefreshToken()"));
+                .andExpect(jsonPath("$.data.refreshToken").value(member.getRefreshToken()));
 
         resultActions.andExpect(
                 result -> {
                     Cookie refreshTokenCookie = result.getResponse().getCookie("refreshToken");
 
-                    assertThat(refreshTokenCookie.getValue()).isEqualTo("member.getRefreshToken()");
+                    assertThat(refreshTokenCookie.getValue()).isEqualTo(member.getRefreshToken());
                     assertThat(refreshTokenCookie.getPath()).isEqualTo("/");
                     assertThat(refreshTokenCookie.isHttpOnly()).isTrue();
 
@@ -156,38 +175,36 @@ public class ApiV1MemberControllerTest {
     @DisplayName("회원가입")
     void t5() throws Exception {
 
-        Long id = 1L;
-
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/members")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                            "username": "user1",
+                                            "username": "user7",
                                             "password": "1234",
-                                            "githubId": ""
+                                            "githubId": "easy-h"
                                         }
                                         """))
                 .andDo(print());
 
-        // Member member = memberService.findByUsername("user1").get();
+        Member member = memberService.findByUsername("user7");
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1MemberController.class))
-                //.andExpect(handler().methodName("join"))
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("join"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.message").value("회원가입 성공"))
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.data.refreshToken").value("member.getRefreshToken()"));
+                .andExpect(jsonPath("$.data.refreshToken").value(member.getRefreshToken()));
 
         resultActions.andExpect(
                 result -> {
                     Cookie refreshTokenCookie = result.getResponse().getCookie("refreshToken");
 
-                    assertThat(refreshTokenCookie.getValue()).isEqualTo("member.getRefreshToken()");
+                    assertThat(refreshTokenCookie.getValue()).isEqualTo(member.getRefreshToken());
                     assertThat(refreshTokenCookie.getPath()).isEqualTo("/");
                     assertThat(refreshTokenCookie.isHttpOnly()).isTrue();
 
@@ -212,8 +229,8 @@ public class ApiV1MemberControllerTest {
                 .andDo(print());
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1MemberController.class))
-                //.andExpect(handler().methodName("logout"))
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("logout"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.message").value("로그아웃 성공"));

@@ -5,9 +5,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,11 +31,14 @@ public class Member extends BaseEntity {
     private String nickname;
     @Column(unique = true)
     private String refreshToken;
+    @Setter
+    private LocalDateTime deletedDate;
 
     public Member(long id, String username, String name) {
         setId(id);
         this.username = username;
         setName(name);
+        this.deletedDate = null;
     }
 
     public Member(String username, String password, String nickname) {
@@ -41,6 +46,7 @@ public class Member extends BaseEntity {
         this.password = password;
         this.nickname = nickname;
         this.refreshToken = UUID.randomUUID().toString();
+        this.deletedDate = null;
     }
 
     public String getName() {
@@ -60,6 +66,10 @@ public class Member extends BaseEntity {
         return "admin".equals(username);
     }
 
+    public boolean isDeleted() {
+        return deletedDate != null;
+    }
+
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getAuthoritiesAsStringList()
                 .stream()
@@ -75,4 +85,5 @@ public class Member extends BaseEntity {
 
         return authorities;
     }
+
 }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public record RsData<T>(
         String resultCode,
         @JsonIgnore int statusCode,
-        String msg,
+        String message,
         T data
 ) {
     public RsData(String resultCode, String msg) {

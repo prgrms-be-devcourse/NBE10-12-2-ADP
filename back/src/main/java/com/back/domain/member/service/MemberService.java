@@ -3,11 +3,15 @@ package com.back.domain.member.service;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
 import com.back.global.exception.ServiceException;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,19 +23,43 @@ public class MemberService {
     private final AuthTokenService authTokenService;
     private final PasswordEncoder passwordEncoder;
 
-    public Optional<Member> findById(Long id) {
-        return memberRepository.findById(id);
+    public Member findById(Long id) {
+
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (member.isDeleted()) {
+            throw new ServiceException("404-1", "사용자를 찾을 수 없습니다.");
+        }
+
+        return member;
     }
-    public Optional<Member> findByUsername(String username) { return memberRepository.findByUsername(username); }
+
+    public Member findByUsername(String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (member.isDeleted()) {
+            throw new ServiceException("404-1", "사용자를 찾을 수 없습니다.");
+        }
+        return member;
+    }
+
     public Member join(String username, String password, String nickname) {
 
-        findByUsername(username)
+        memberRepository.findByUsername(username)
                 .ifPresent(_ -> {
                     throw new ServiceException("409-1", "이미 존재하는 아이디입니다.");
                 });
 
         password = passwordEncoder.encode(password);
         return memberRepository.save(new Member(username, password, nickname));
+    }
+
+    public void delete(Long id) {
+        Member member = findById(id);
+
+        member.setDeletedDate(LocalDateTime.now());
     }
 
     public Optional<Member> findByRefreshToken(String apiKey) {
@@ -48,5 +76,11 @@ public class MemberService {
 
     public long count() {
         return memberRepository.count();
+    }
+
+    public void checkPassword(Member member, String password) {
+        if (!passwordEncoder.matches(password, member.getPassword()))
+            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
+
     }
 }
