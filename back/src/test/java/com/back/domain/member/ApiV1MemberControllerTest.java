@@ -89,8 +89,6 @@ public class ApiV1MemberControllerTest {
     @WithUserDetails("user1")
     void t3() throws Exception {
 
-        Long id = 1L;
-
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/members"))
