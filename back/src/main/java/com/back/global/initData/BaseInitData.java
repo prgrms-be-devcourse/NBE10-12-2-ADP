@@ -40,22 +40,17 @@ public class BaseInitData {
 
         Member memberSystem = memberService.join("system", "1234", "시스템");
         memberSystem.modifyRefreshToken(memberSystem.getUsername());
-        memberSystem.modifyRefreshToken(memberSystem.getUsername());
 
         Member memberAdmin = memberService.join("admin", "1234", "관리자");
-        memberAdmin.modifyRefreshToken(memberAdmin.getUsername());
         memberAdmin.modifyRefreshToken(memberAdmin.getUsername());
 
         Member memberUser1 = memberService.join("user1", "1234", "유저1");
         memberUser1.modifyRefreshToken(memberUser1.getUsername());
-        memberUser1.modifyRefreshToken(memberUser1.getUsername());
 
         Member memberUser2 = memberService.join("user2", "1234", "유저2");
         memberUser2.modifyRefreshToken(memberUser2.getUsername());
-        memberUser2.modifyRefreshToken(memberUser2.getUsername());
 
         Member memberUser3 = memberService.join("user3", "1234", "유저3");
-        memberUser3.modifyRefreshToken(memberUser3.getUsername());
         memberUser3.modifyRefreshToken(memberUser3.getUsername());
 
         Book book1 = bookRepository.save(new Book(
