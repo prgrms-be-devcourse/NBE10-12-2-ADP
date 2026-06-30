@@ -14,7 +14,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.JsonNode;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -30,11 +32,9 @@ public class BookFetchService {
     @Value("${custom.book-fetch.api-keys}")
     private List<String> apiKeys;
 
-    private static final String API_URL = "https://apis.data.go.kr/1371029/BookInformationService_v2/getBookInfo";
-    private static final int PAGE_SIZE = 20;
+    private static final String API_URL = "https://www.nl.go.kr/seoji/SearchApi.do";
+    private static final int PAGE_SIZE = 500;
     private static final int DAILY_LIMIT = 10_000;
-
-    private int callCount = 0;
 
     @Transactional
     public void fetch() {
@@ -52,12 +52,14 @@ public class BookFetchService {
 
         String apiKey = apiKeys.get(progress.getCurrentApiKeyIndex());
 
+        // 국립중앙도서관 api 요청변수에 맞게 변경
         String url = UriComponentsBuilder.fromUriString(API_URL)
-                .queryParam("serviceKey", apiKey)
-                .queryParam("pageNo", progress.getCurrentPage())
-                .queryParam("numOfRows", PAGE_SIZE)
-                .queryParam("type", "json")
-                .queryParam("label", "자바")
+                .queryParam("cert_Key", apiKey)
+                .queryParam("result_style", "json")
+                .queryParam("page_no", progress.getCurrentPage())
+                .queryParam("page_size", PAGE_SIZE)
+                .queryParam("sort", "INPUT_DATE")
+                .queryParam("order_by", "DESC")
                 .build(true)
                 .toUriString();
 
@@ -65,7 +67,7 @@ public class BookFetchService {
             String response = restTemplate.getForObject(url, String.class);
             JsonNode root = objectMapper.readTree(response);
 
-            JsonNode items = root.path("body").path("items").path("item");
+            JsonNode items = root.path("docs");
 
             if (items.isMissingNode() || items.isEmpty()) {
                 log.info("더 이상 수집할 데이터가 없습니다. page: {}", progress.getCurrentPage());
@@ -80,18 +82,17 @@ public class BookFetchService {
                 saveBook(items);
             }
 
-            callCount++;
+            progress.incrementCallCount();
             progress.nextPage();
             bookFetchProgressRepository.save(progress);
 
             log.info("수집 완료 - apiKeyIndex: {}, page: {}, callCount: {}",
-                    progress.getCurrentApiKeyIndex(), progress.getCurrentPage(), callCount);
+                    progress.getCurrentApiKeyIndex(), progress.getCurrentPage(), progress.getDailyCallCount());
 
-            if (callCount >= DAILY_LIMIT) {
+            if (progress.getDailyCallCount() >= DAILY_LIMIT) {
                 log.info("API 키 {} 한도 소진. 다음 키로 전환합니다.", progress.getCurrentApiKeyIndex());
                 progress.nextApiKeyIndex();
                 bookFetchProgressRepository.save(progress);
-                callCount = 0;
             }
 
         } catch (Exception e) {
@@ -100,30 +101,35 @@ public class BookFetchService {
     }
 
     private void saveBook(JsonNode item) {
-        String isbn = item.path("BIBO_isbn").asText();
+        String isbn = item.path("EA_ISBN").asText();
 
         if (isbn.isBlank() || bookRepository.existsByIsbn(isbn)) {
             return;
         }
 
-        String issuedYear = item.path("NLON_issuedYear").asText();
+        String publishPredate = item.path("PUBLISH_PREDATE").asText();
         LocalDateTime publishedDate = null;
-        if (!issuedYear.isBlank()) {
+        if (!publishPredate.isBlank()) {
             try {
-                publishedDate = LocalDateTime.of(Integer.parseInt(issuedYear), 1, 1, 0, 0);
-            } catch (NumberFormatException e) {
-                log.warn("발행연도 파싱 실패: {}", issuedYear);
+                if (publishPredate.length() == 8) {
+                    LocalDate date = LocalDate.parse(publishPredate, DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    publishedDate = date.atStartOfDay();
+                } else if (publishPredate.length() >= 4) {
+                    publishedDate = LocalDateTime.of(Integer.parseInt(publishPredate.substring(0, 4)), 1, 1, 0, 0);
+                }
+            } catch (Exception e) {
+                log.warn("발행일 파싱 실패: {}", publishPredate);
             }
         }
 
         Book book = new Book(
-                item.path("DCTERMS_title").asText(),
-                item.path("DCTERMS_abstract").asText(null),
+                item.path("TITLE").asText(),
+                item.path("BOOK_INTRODUCTION_URL").asText(null),
                 isbn,
-                item.path("DC_creator").asText(null),
+                item.path("AUTHOR").asText(null),
                 publishedDate,
-                item.path("DC_publisher").asText(null),
-                null
+                item.path("PUBLISHER").asText(null),
+                item.path("TITLE_URL").asText(null)
         );
 
         bookRepository.save(book);

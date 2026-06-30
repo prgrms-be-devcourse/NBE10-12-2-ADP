@@ -5,6 +5,7 @@ import com.back.domain.book.repository.BookRepository;
 import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
+import com.back.domain.review.service.ReviewService;
 import com.back.domain.wish.service.WishService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class BaseInitData {
     private final MemberService memberService;
     private final BookRepository bookRepository;
     private final WishService wishService;
+    private final ReviewService reviewService;
     private final BookService bookService;
 
     @Bean
@@ -40,22 +43,17 @@ public class BaseInitData {
 
         Member memberSystem = memberService.join("system", "1234", "시스템");
         memberSystem.modifyRefreshToken(memberSystem.getUsername());
-        memberSystem.modifyRefreshToken(memberSystem.getUsername());
 
         Member memberAdmin = memberService.join("admin", "1234", "관리자");
-        memberAdmin.modifyRefreshToken(memberAdmin.getUsername());
         memberAdmin.modifyRefreshToken(memberAdmin.getUsername());
 
         Member memberUser1 = memberService.join("user1", "1234", "유저1");
         memberUser1.modifyRefreshToken(memberUser1.getUsername());
-        memberUser1.modifyRefreshToken(memberUser1.getUsername());
 
         Member memberUser2 = memberService.join("user2", "1234", "유저2");
         memberUser2.modifyRefreshToken(memberUser2.getUsername());
-        memberUser2.modifyRefreshToken(memberUser2.getUsername());
 
         Member memberUser3 = memberService.join("user3", "1234", "유저3");
-        memberUser3.modifyRefreshToken(memberUser3.getUsername());
         memberUser3.modifyRefreshToken(memberUser3.getUsername());
 
         Book book1 = bookRepository.save(new Book(
@@ -72,6 +70,8 @@ public class BaseInitData {
         wishService.addWish(memberUser1, book1);
         wishService.addWish(memberUser2, book2);
         wishService.addWish(memberUser3, book3);
+
+        reviewService.addReview(book1, memberUser1, 4.0f, "comment", List.of("a","b"));
     }
 
 }
