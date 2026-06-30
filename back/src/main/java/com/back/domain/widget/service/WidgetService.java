@@ -1,25 +1,71 @@
 package com.back.domain.widget.service;
 
+import com.back.domain.book.entity.Book;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
+import com.back.domain.review.entity.Review;
+import com.back.domain.review.service.ReviewService;
+import com.back.domain.wish.service.WishService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class WidgetService {
+    private final int VISIBLE_BOOK_MAX_COUNT = 5;
+
     private final MemberService memberService;
+    private final ReviewService reviewService;
+    private final WishService wishService;
 
     public String createWidget(String githubId) {
         Member member = memberService.findById(3L); // memberService.findByGithubId(githubId);
 
-        String bookElementsString = "";
-        int reviewCount = 0;
-        int reviewWithContentCount = 0;
-        int wishCount = 0;
+        StringBuilder bookComponentsStringBuilder = new StringBuilder();
+        List<Review> reviews = reviewService.findByMember(member);
+        int startIndex = Math.max(0, reviews.size() - VISIBLE_BOOK_MAX_COUNT);
+        for (int i = startIndex; i < reviews.size(); i++) {
+            Book currentBook = reviews.get(i).getBook();
 
+            int x = 250 - (reviews.size() - 1 - i) * 16;
+            int y = 260 + (reviews.size() - 1 - i) * 75;
+            int w = 400;
+            int h = 56;
+            String color = "pink";
+            String title = currentBook.getTitle();
+            StringBuilder lineComponentsStringBuilder = new StringBuilder();
+            for (int j = 0; j < 8; j++) {
+                lineComponentsStringBuilder.append("""
+                        <line x1="%d" y1="0" x2="%d" y2="%d" stroke="#fff" stroke-width="2" />
+                        """.formatted(j * 3, j * 3, h - 12));
+            }
+            bookComponentsStringBuilder.append("""
+                    <g>
+                      <rect x="%d" y="%d" width="%d" height="%d" rx="10" fill="%s" filter="url(#shadow)" />
+                      <text x="%d" y="%d" class="book-title">%s</text>
+                        <g transform="translate(%d, %d)">
+                          %s
+                        </g>
+                    </g>
+                    """.formatted(
+                    x, y, w, h, color,
+                    x + 30, y + 36, title,
+                    x + w - 18, y + 6,
+                    lineComponentsStringBuilder.toString()
+            ));
+        }
+
+        int reviewCount = reviews.size();
+
+        long reviewWithContentCount = reviews.stream()
+                .filter(review -> review.getContent() != null)
+                .count();
+
+        int wishCount = wishService.findByMember(member).size();
 
         return """
                 <svg viewBox="0 0 1600 720" xmlns="http://www.w3.org/2000/svg">
@@ -130,6 +176,11 @@ public class WidgetService {
                     .peach { fill: #ffd79f; }
                   </style>
                 </svg>
-                """.formatted(bookElementsString, reviewCount, reviewWithContentCount, wishCount);
+                """.formatted(
+                bookComponentsStringBuilder.toString(),
+                reviewCount,
+                reviewWithContentCount,
+                wishCount
+        );
     }
 }
