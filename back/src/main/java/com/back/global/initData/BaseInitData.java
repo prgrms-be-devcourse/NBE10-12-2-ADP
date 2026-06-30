@@ -5,6 +5,7 @@ import com.back.domain.book.repository.BookRepository;
 import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
+import com.back.domain.review.service.ReviewService;
 import com.back.domain.wish.service.WishService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class BaseInitData {
     private final MemberService memberService;
     private final BookRepository bookRepository;
     private final WishService wishService;
+    private final ReviewService reviewService;
     private final BookService bookService;
 
     @Bean
@@ -67,6 +70,8 @@ public class BaseInitData {
         wishService.addWish(memberUser1, book1);
         wishService.addWish(memberUser2, book2);
         wishService.addWish(memberUser3, book3);
+
+        reviewService.addReview(book1, memberUser1, 4.0f, "comment", List.of("a","b"));
     }
 
 }

@@ -15,7 +15,7 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
-    public void post(@NotBlank String name) {
+    public void post(String name) {
 
         Optional<Tag> tag = tagRepository.findByName(name);
 
@@ -24,5 +24,10 @@ public class TagService {
         }
 
         tagRepository.save(new Tag(name));
+    }
+
+    public Tag findByNameOrSave(String name) {
+        return tagRepository.findByName(name)
+                .orElseGet(() -> tagRepository.save(new Tag(name)));
     }
 }
