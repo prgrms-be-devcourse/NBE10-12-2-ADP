@@ -12,6 +12,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Component
 @RequiredArgsConstructor
@@ -29,11 +31,23 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
         Member actor = rq.getActor();
 
         String accessToken = memberService.genAccessToken(actor);
+        String redirectUrl = "/";
 
-        rq.setCookie("refreshToken", actor.getRefreshToken());
+        // ✅ state 파라미터 확인
+        String stateParam = request.getParameter("state");
 
-        rq.setCookie("accessToken", accessToken);
-        rq.sendRedirect("http://hocalhost:3000");
+        if (stateParam != null) {
+            // 1️⃣ Base64 URL-safe 디코딩
+            String decodedStateParam = new String(
+                    Base64.getUrlDecoder().decode(stateParam),
+                    StandardCharsets.UTF_8);
+
+            // 2️⃣ '#' 앞은 redirectUrl, 뒤는 originState
+            redirectUrl = decodedStateParam.split("#", 2)[0];
+        }
+
+        // ✅ 최종 리다이렉트
+        rq.sendRedirect(redirectUrl);
 
     }
 
