@@ -45,9 +45,10 @@ public class Member extends BaseEntity {
         this.deletedDate = null;
     }
 
-    public Member(String username, String password, String nickname) {
+    public Member(String username, String password, String githubId, String nickname) {
         this.username = username;
         this.password = password;
+        this.githubId = githubId;
         this.nickname = nickname;
         this.refreshToken = UUID.randomUUID().toString();
         this.deletedDate = null;
