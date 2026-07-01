@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +54,9 @@ public class ApiV1ReviewController {
     }
 
     public record ReviewsByMemberDto(
+            @NotNull
             Map<String, Object> rating,
+            @NotNull
             List<ReviewDto> results
     ) {
 

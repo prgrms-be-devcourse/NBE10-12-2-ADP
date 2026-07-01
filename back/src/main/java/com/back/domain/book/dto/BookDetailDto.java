@@ -2,23 +2,38 @@ package com.back.domain.book.dto;
 
 import com.back.domain.book.entity.Book;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record BookDetailDto(
+        @NotNull
         Long id,
+        @NotNull
         String title,
+        @NotNull
         String description,
+        @NotNull
         String isbn,
+        @NotNull
         String publishedDate,
+        @NotNull
         List<String> authors,
+        @NotNull
         String publisher,
+        @NotNull
         List<String> translators,
+        @NotNull
         String imgUrl,
-        int reviewCount,
+        @NotNull
+        Integer reviewCount,
+        @NotNull
         Map<String, Object> rating,
+        @NotNull
         List<String> tags,
+        @NotNull
         Boolean isWished
 ) {
     public BookDetailDto(Book book, Boolean isWished, Map<String, Object> ratingMap, List<String> tags) {

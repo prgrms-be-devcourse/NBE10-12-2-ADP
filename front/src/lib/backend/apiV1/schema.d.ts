@@ -257,33 +257,33 @@ export interface components {
         };
         MemberDto: {
             /** Format: int64 */
-            id?: number;
-            githubId?: string;
-            githubLink?: string;
+            id: number;
+            githubId: string;
+            githubLink: string;
         };
         ReviewDto: {
             /** Format: int64 */
-            id?: number;
+            id: number;
             /** Format: int64 */
-            bookId?: number;
+            bookId: number;
             /** Format: float */
-            rating?: number;
-            content?: string;
+            rating: number;
+            content: string;
             /** Format: date-time */
-            modifiedDate?: string;
+            modifiedDate: string;
             /** Format: date-time */
-            createdDate?: string;
-            reviewer?: components["schemas"]["MemberDto"];
-            tags?: string[];
+            createdDate: string;
+            reviewer: components["schemas"]["MemberDto"];
+            tags: string[];
         };
         RsDataReviewDto: {
-            resultCode?: string;
-            message?: string;
+            resultCode: string;
+            message: string;
             data?: components["schemas"]["ReviewDto"];
         };
         RsDataVoid: {
-            resultCode?: string;
-            message?: string;
+            resultCode: string;
+            message: string;
             data?: Record<string, never>;
         };
         TagPostReqBody: {
@@ -299,8 +299,8 @@ export interface components {
             refreshToken?: string;
         };
         RsDataMemberLoginResBody: {
-            resultCode?: string;
-            message?: string;
+            resultCode: string;
+            message: string;
             data?: components["schemas"]["MemberLoginResBody"];
         };
         MemberLoginReqBody: {
@@ -309,42 +309,44 @@ export interface components {
         };
         BookDto: {
             /** Format: int64 */
-            id?: number;
-            title?: string;
-            imgUrl?: string;
+            id: number;
+            title: string;
+            imgUrl: string;
+            /** Format: double */
+            averageRating: number;
         };
         ReviewsByMemberDto: {
-            rating?: {
+            rating: {
                 [key: string]: Record<string, never>;
             };
-            results?: components["schemas"]["ReviewDto"][];
+            results: components["schemas"]["ReviewDto"][];
         };
         MemberWithUsernameAndWidgetLinkDto: {
             /** Format: int64 */
-            id?: number;
-            username?: string;
-            githubId?: string;
-            githubLink?: string;
-            widgetLink?: string;
+            id: number;
+            username: string;
+            githubId: string;
+            githubLink: string;
+            widgetLink: string;
         };
         BookDetailDto: {
             /** Format: int64 */
-            id?: number;
-            title?: string;
-            description?: string;
-            isbn?: string;
-            publishedDate?: string;
-            authors?: string[];
-            publisher?: string;
-            translators?: string[];
-            imgUrl?: string;
+            id: number;
+            title: string;
+            description: string;
+            isbn: string;
+            publishedDate: string;
+            authors: string[];
+            publisher: string;
+            translators: string[];
+            imgUrl: string;
             /** Format: int32 */
-            reviewCount?: number;
-            rating?: {
+            reviewCount: number;
+            rating: {
                 [key: string]: Record<string, never>;
             };
-            tags?: string[];
-            isWished?: boolean;
+            tags: string[];
+            isWished: boolean;
         };
     };
     responses: never;
