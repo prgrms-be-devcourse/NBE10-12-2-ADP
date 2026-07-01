@@ -9,4 +9,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByRefreshToken(String apiKey);
 
     Optional<Member> findByUsername(String username);
+
+    Optional<Member> findByGithubId(String githubId);
 }
