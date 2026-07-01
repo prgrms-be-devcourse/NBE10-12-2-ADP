@@ -10,11 +10,15 @@ import com.back.domain.review.entity.Review;
 import com.back.domain.review.service.ReviewService;
 import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,6 +28,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/reviews")
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Tag(name = "ApiV1ReviewController", description = "API 리뷰 컨트롤러")
 public class ApiV1ReviewController {
     private final ReviewService reviewService;
     private final BookRepository bookRepository;
@@ -33,6 +39,7 @@ public class ApiV1ReviewController {
     // private final BookService bookService;
 
     @GetMapping("/book/{bookId}")
+    @Operation(summary = "리뷰 다건 조회")
     public List<ReviewDto> getReviewsByBook(
             @PathVariable @Valid long bookId
     ) {
@@ -53,6 +60,7 @@ public class ApiV1ReviewController {
     }
 
     @GetMapping("/member/{memberId}")
+    @Operation(summary = "특정 회원이 작성한 리뷰 다건 조회")
     public ReviewsByMemberDto getReviewsByMember(
             @PathVariable @Valid long memberId
     ) {
@@ -68,6 +76,8 @@ public class ApiV1ReviewController {
     }
 
     @GetMapping("/member/mine")
+    @Operation(summary = "내가 작성한 리뷰 다건 조회")
+    @SecurityRequirement(name = "bearerAuth")
     public ReviewsByMemberDto mine() {
         return getReviewsByMember(rq.getActor().getId());
     }
@@ -85,6 +95,9 @@ public class ApiV1ReviewController {
     }
 
     @PostMapping("/book/{bookId}")
+    @Transactional
+    @Operation(summary = "리뷰 작성")
+    @SecurityRequirement(name = "bearerAuth")
     public RsData<ReviewDto> post(
             @PathVariable long bookId,
             @RequestBody @Valid PostReviewsReqBody req
@@ -103,6 +116,9 @@ public class ApiV1ReviewController {
 
 
     @PutMapping("/{id}")
+    @Transactional
+    @Operation(summary = "리뷰 수정")
+    @SecurityRequirement(name = "bearerAuth")
     public RsData<ReviewDto> edit(
             @PathVariable long id,
             @RequestBody @Valid PostReviewsReqBody req
@@ -110,7 +126,7 @@ public class ApiV1ReviewController {
         Review review = reviewService.findById(id);
         Member reviewer = memberService.findById(rq.getActor().getId());
 
-        reviewService.editReview(review,
+        reviewService.editReview(review, reviewer,
                 req.rating(), req.content(), req.tags());
 
         return new RsData<>(
@@ -119,10 +135,16 @@ public class ApiV1ReviewController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
+    @Operation(summary = "리뷰 삭제")
+    @SecurityRequirement(name = "bearerAuth")
     public RsData<Void> delete(
             @PathVariable long id
     ) {
-        reviewService.deleteReview(id);
+        Review review = reviewService.findById(id);
+        Member reviewer = memberService.findById(rq.getActor().getId());
+
+        reviewService.deleteReview(review, reviewer);
 
         return new RsData<>(
                 "200-1", "리뷰 삭제 완료");
