@@ -87,7 +87,7 @@ public class ApiV1ReviewController {
 
     public record PostReviewsReqBody(
             @NotNull
-            float rating,
+            Float rating,
             @NotBlank
             @Size(min = 2, max = 30)
             String content,
