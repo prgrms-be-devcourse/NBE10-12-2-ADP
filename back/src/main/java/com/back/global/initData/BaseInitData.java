@@ -67,11 +67,18 @@ public class BaseInitData {
                 "책제목3", "책설명", "isbn3", "작가",
                 LocalDateTime.now(), "출판사", ""));
 
+        Book book4 = bookRepository.save(new Book(
+                "책제목4", "책설명", "isbn4", "작가",
+                LocalDateTime.now(), "출판사", ""));
+
         wishService.addWish(memberUser1, book1);
         wishService.addWish(memberUser2, book2);
         wishService.addWish(memberUser3, book3);
 
-        reviewService.addReview(book1, memberUser1, 4.0f, "comment", List.of("a","b"));
+        reviewService.addReview(book1, memberUser1, 4.0f, "comment", List.of("a", "b"));
+        reviewService.addReview(book2, memberUser1, 3.5f, "", List.of("Java", "Spring", "신입 개발자"));
+        reviewService.addReview(book3, memberUser1, 1.5f, "많이 아쉬운 책입니다..", List.of("소설", "감자"));
+        reviewService.addReview(book4, memberUser1, 4.5f, "", List.of("소설"));
     }
 
 }
