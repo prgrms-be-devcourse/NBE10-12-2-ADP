@@ -101,4 +101,8 @@ public class Member extends BaseEntity {
                 .filter(w -> !w.getBook().equals(book))
                 .toList();
     }
+
+    public void modify(String nickname) {
+        this.nickname = nickname;
+    }
 }

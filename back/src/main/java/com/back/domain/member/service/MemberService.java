@@ -3,6 +3,9 @@ package com.back.domain.member.service;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
 import com.back.global.exception.ServiceException;
+import com.back.global.rsData.RsData;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -87,8 +90,24 @@ public class MemberService {
 
     public Member findByGithubId(String githubId) throws NoSuchElementException {
         return memberRepository
-                .findByGithubId(githubId)
                 .orElseThrow(() ->
                         new NoSuchElementException("githubId가 %s인 회원을 찾을 수 없습니다.".formatted(githubId)));
+    
+    }
+    
+    public RsData<Member> modifyOrJoin(String username, String password, String nickname, String profileImgUrl) {
+        Optional<Member> member = memberRepository.findByUsername(username);
+        if (member.isEmpty()) {
+            Member m = join(username, password, nickname);
+            return new RsData<>("201-1", "회원가입이 완료되었습니다.", m);
+        }
+
+        modify(member.get(), nickname);
+
+        return new RsData<>("200-1", "회원 정보가 수정되었습니다.", member.get());
+    }
+
+    private void modify(Member member, String nickname) {
+        member.modify(nickname);
     }
 }
