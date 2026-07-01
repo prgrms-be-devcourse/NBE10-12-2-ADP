@@ -23,7 +23,7 @@ public class WidgetService {
     private final WishService wishService;
 
     public String createWidget(String githubId) {
-        Member member = memberService.findById(3L); // memberService.findByGithubId(githubId);
+        Member member = memberService.findByGithubId(githubId);
 
         StringBuilder bookComponentsStringBuilder = new StringBuilder();
         List<Review> reviews = reviewService.findByMember(member);
