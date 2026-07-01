@@ -20,4 +20,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     float getAverageRatingByMember(Member member);
 
     Optional<Review> findFirstByOrderByIdDesc();
+
+    int countByBookAndRating(Book book, float rating);
 }
