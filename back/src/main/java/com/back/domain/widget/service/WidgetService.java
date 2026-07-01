@@ -24,25 +24,51 @@ public class WidgetService {
 
     public String createWidget(String githubId) {
         Member member = memberService.findByGithubId(githubId);
+        List<Review> reviews = reviewService.findByMember(member);
 
         StringBuilder bookComponentsStringBuilder = new StringBuilder();
-        List<Review> reviews = reviewService.findByMember(member);
+        int reviewCount = reviews.size();
+        long reviewWithContentCount = 0L;
+        int wishCount = wishService.findByMember(member).size();
+
         int startIndex = Math.max(0, reviews.size() - VISIBLE_BOOK_MAX_COUNT);
         for (int i = startIndex; i < reviews.size(); i++) {
-            Book currentBook = reviews.get(i).getBook();
+            Review currentReview = reviews.get(i);
 
             int x = 250 - (reviews.size() - 1 - i) * 16;
             int y = 260 + (reviews.size() - 1 - i) * 75;
             int w = 400;
             int h = 56;
             String color = "pink";
-            String title = currentBook.getTitle();
+            String title = currentReview.getBook().getTitle();
+            boolean hasContent = !currentReview.getContent().isBlank();
+
+            if (hasContent) reviewWithContentCount++;
+
             StringBuilder lineComponentsStringBuilder = new StringBuilder();
             for (int j = 0; j < 8; j++) {
                 lineComponentsStringBuilder.append("""
                         <line x1="%d" y1="0" x2="%d" y2="%d" stroke="#fff" stroke-width="2" />
                         """.formatted(j * 3, j * 3, h - 12));
             }
+
+            String ribbonComponent = hasContent ? """
+                    <path d="
+                        M %d %d
+                        H %d
+                        L %d %d
+                        L %d %d
+                        H %d
+                        Z
+                        " fill="yellow" />
+                    """.formatted(
+                    x + w - 18, y + 18,
+                    x + w + 38,
+                    x + w + 22, y + 30,
+                    x + w + 38, y + 42,
+                    x + w - 18
+            ) : "";
+
             bookComponentsStringBuilder.append("""
                     <g>
                       <rect x="%d" y="%d" width="%d" height="%d" rx="10" fill="%s" filter="url(#shadow)" />
@@ -50,22 +76,16 @@ public class WidgetService {
                         <g transform="translate(%d, %d)">
                           %s
                         </g>
+                        %s
                     </g>
                     """.formatted(
                     x, y, w, h, color,
                     x + 30, y + 36, title,
                     x + w - 18, y + 6,
-                    lineComponentsStringBuilder.toString()
+                    lineComponentsStringBuilder.toString(),
+                    ribbonComponent
             ));
         }
-
-        int reviewCount = reviews.size();
-
-        long reviewWithContentCount = reviews.stream()
-                .filter(review -> review.getContent() != null)
-                .count();
-
-        int wishCount = wishService.findByMember(member).size();
 
         return """
                 <svg viewBox="0 0 1600 720" xmlns="http://www.w3.org/2000/svg">
