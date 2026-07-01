@@ -110,7 +110,7 @@ public class ApiV1BookControllerTest {
     @DisplayName("도서 검색")
     void t4() throws Exception {
 
-        String searchTerm = "자바";
+        String searchTerm = "책제목";
 
         ResultActions resultActions = mvc
                 .perform(
@@ -118,15 +118,19 @@ public class ApiV1BookControllerTest {
                                 .param("searchTerm", searchTerm))
                 .andDo(print());
 
-        // List<Book> books = bookService.search(searchTerm);
+        List<Book> expectedBooks = bookRepository.findByTitleContaining(searchTerm);
 
         resultActions
-                //.andExpect(handler().handlerType(ApiV1BookController.class))
-                //.andExpect(handler().methodName("search"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].title").exists())
-                .andExpect(jsonPath("$[0].imgUrl").exists())
-                .andExpect(jsonPath("$[0].averageRating").exists());
+                .andExpect(jsonPath("$.length()").value(expectedBooks.size()));
+
+        for (int i = 0; i < expectedBooks.size(); i++) {
+            Book expected = expectedBooks.get(i);
+            resultActions
+                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(expected.getId()))
+                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(expected.getTitle()))
+                    .andExpect(jsonPath("$[%d].imgUrl".formatted(i)).value(expected.getImgUrl()))
+                    .andExpect(jsonPath("$[%d].averageRating".formatted(i)).value(expected.getAverageRating()));
+        }
     }
 }
