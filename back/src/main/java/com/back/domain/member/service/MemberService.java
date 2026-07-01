@@ -44,15 +44,18 @@ public class MemberService {
         return member;
     }
 
-    public Member join(String username, String password, String nickname) {
+    public Member join(String username, String password, String githubId) {
+        return join(username, password, githubId, githubId);
+    }
 
+    public Member join(String username, String password, String githubId, String nickname) {
         memberRepository.findByUsername(username)
                 .ifPresent(_ -> {
                     throw new ServiceException("409-1", "이미 존재하는 아이디입니다.");
                 });
 
         password = passwordEncoder.encode(password);
-        return memberRepository.save(new Member(username, password, nickname));
+        return memberRepository.save(new Member(username, password, githubId, nickname));
     }
 
     public void delete(Long id) {
