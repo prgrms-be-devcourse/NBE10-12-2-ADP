@@ -1,6 +1,7 @@
 package com.back.domain.review.service;
 
 import com.back.domain.book.entity.Book;
+import com.back.domain.book.repository.BookRepository;
 import com.back.domain.member.entity.Member;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.repository.ReviewRepository;
@@ -20,6 +21,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
+    private final BookRepository bookRepository;
     private final TagService tagService;
 
     public List<Review> findByBook(Book book) {
@@ -30,9 +32,14 @@ public class ReviewService {
         return reviewRepository.findByReviewer(member);
     }
 
+    @Transactional
     public Review addReview(Book book, Member actor, float rating, String comment, List<String> tags) {
-        return reviewRepository.save(new Review(book, actor, rating, comment,
+        Review review = reviewRepository.save(new Review(book, actor, rating, comment,
                 tags.stream().map(tagService::findByNameOrSave).toList()));
+
+        book.addReviewRating(rating);
+
+        return review;
     }
 
 
@@ -61,12 +68,27 @@ public class ReviewService {
         );
     }
 
+    @Transactional
     public void editReview(Review review, float rating, String content, List<String> tags) {
+
+        float oldRating = review.getRating();
+
         review.modify(rating, content,
                 tags.stream().map(tagService::findByNameOrSave).toList());
+
+        Book book = review.getBook();
+        book.removeReviewRating(oldRating);
+        book.addReviewRating(rating);
     }
 
+    @Transactional
     public void deleteReview(long id) {
+
+        Review review = findById(id);
+
+        Book book = review.getBook();
+        book.removeReviewRating(review.getRating());
+
         reviewRepository.deleteById(id);
     }
 }

@@ -3,8 +3,6 @@ package com.back.domain.member.service;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
 import com.back.global.exception.ServiceException;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -82,5 +81,12 @@ public class MemberService {
         if (!passwordEncoder.matches(password, member.getPassword()))
             throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
 
+    }
+
+    public Member findByGithubId(String githubId) throws NoSuchElementException {
+        return memberRepository
+                .findByGithubId(githubId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("githubId가 %s인 회원을 찾을 수 없습니다."));
     }
 }
