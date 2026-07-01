@@ -27,7 +27,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/reviews")
-@RequiredArgsConstructor@Transactional(readOnly = true)
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Tag(name = "ApiV1ReviewController", description = "API 리뷰 컨트롤러")
 public class ApiV1ReviewController {
     private final ReviewService reviewService;
@@ -125,7 +126,7 @@ public class ApiV1ReviewController {
         Review review = reviewService.findById(id);
         Member reviewer = memberService.findById(rq.getActor().getId());
 
-        reviewService.editReview(review,
+        reviewService.editReview(review, reviewer,
                 req.rating(), req.content(), req.tags());
 
         return new RsData<>(
@@ -140,7 +141,10 @@ public class ApiV1ReviewController {
     public RsData<Void> delete(
             @PathVariable long id
     ) {
-        reviewService.deleteReview(id);
+        Review review = reviewService.findById(id);
+        Member reviewer = memberService.findById(rq.getActor().getId());
+
+        reviewService.deleteReview(review, reviewer);
 
         return new RsData<>(
                 "200-1", "리뷰 삭제 완료");
