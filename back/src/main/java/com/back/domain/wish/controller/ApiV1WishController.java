@@ -1,6 +1,6 @@
 package com.back.domain.wish.controller;
 
-import com.back.domain.book.entity.Book;
+import com.back.domain.book.dto.BookDto;
 import com.back.domain.book.repository.BookRepository;
 import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
@@ -31,16 +31,6 @@ public class ApiV1WishController {
     private final BookRepository bookRepository;
 
     private final Rq rq;
-
-    public record BookDto(
-            long id,
-            String title,
-            String imgUrl
-    ) {
-        public BookDto(Book book) {
-            this(book.getId(), book.getTitle(), book.getImgUrl());
-        }
-    }
 
     @GetMapping("/mine")
     @Operation(summary = "내 찜 목록 조회")

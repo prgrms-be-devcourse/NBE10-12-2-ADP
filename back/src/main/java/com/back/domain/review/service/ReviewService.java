@@ -71,7 +71,7 @@ public class ReviewService {
     @Transactional
     public void editReview(Review review, Member reviewer, float rating, String content, List<String> tags) {
 
-        if (review.getReviewer().equals(reviewer)) {
+        if (!review.getReviewer().equals(reviewer)) {
             throw new ServiceException("403-1", "수정 권한이 없습니다.");
         }
 
@@ -88,7 +88,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Review review, Member reviewer) {
 
-        if (review.getReviewer().equals(reviewer)) {
+        if (!review.getReviewer().equals(reviewer)) {
             throw new ServiceException("403-1", "삭제 권한이 없습니다.");
         }
 

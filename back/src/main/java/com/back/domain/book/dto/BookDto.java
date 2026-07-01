@@ -1,14 +1,20 @@
 package com.back.domain.book.dto;
 
 import com.back.domain.book.entity.Book;
+import jakarta.validation.constraints.NotNull;
 
 public record BookDto(
-        long id,
+        @NotNull
+        Long id,
+        @NotNull
         String title,
+        @NotNull
         String imgUrl,
-        double averageRating
+        @NotNull
+        Double averageRating
 ) {
-    public BookDto(Book book, double averageRating) {
-        this(book.getId(), book.getTitle(), book.getImgUrl(), averageRating);
+    public BookDto(Book book) {
+        this(book.getId(), book.getTitle(), book.getImgUrl(), book.getAverageRating());
     }
+
 }

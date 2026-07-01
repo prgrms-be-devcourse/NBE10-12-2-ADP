@@ -27,7 +27,7 @@ public class BookService {
 
     public List<BookDto> getBooks() {
         return bookRepository.findAll().stream()
-                .map(book -> new BookDto(book, book.getAverageRating()))
+                .map(book -> new BookDto(book))
                 .toList();
     }
 
@@ -43,7 +43,7 @@ public class BookService {
                 .distinct()
                 .toList();
 
-        Boolean isWished = null;
+        boolean isWished = false;
         if (actor != null) {
             isWished = wishRepository.findByMemberAndBook(actor, book).isPresent();
         }
@@ -53,7 +53,7 @@ public class BookService {
 
     public List<BookDto> search(String searchTerm) {
         return bookRepository.findByTitleContaining(searchTerm).stream()
-                .map(book -> new BookDto(book, book.getAverageRating()))
+                .map(BookDto::new)
                 .toList();
     }
 
