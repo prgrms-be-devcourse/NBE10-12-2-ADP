@@ -7,6 +7,9 @@ import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -18,21 +21,21 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-// @Tag(name = "ApiV1MemberController", description = "API 회원 컨트롤러");
-// @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "ApiV1MemberController", description = "API 회원 컨트롤러")
 public class ApiV1MemberController {
     private final MemberService memberService;
     private final Rq rq;
 
     @GetMapping("/me")
-    // @Operation("summary = '내 정보 조회")
+    @Operation(summary = "내 정보 조회")
+    @SecurityRequirement(name = "bearerAuth")
     public MemberWithUsernameAndWidgetLinkDto me() {
         Member actor = memberService.findById(rq.getActor().getId());
         return new MemberWithUsernameAndWidgetLinkDto(actor);
     }
 
     @GetMapping("/{id}")
-    // @Operation("summary = '회원 정보 조회")
+    @Operation(summary = "회원 정보 조회")
     public MemberDto getUser(
             @PathVariable @Valid long id
     ) {
@@ -59,7 +62,8 @@ public class ApiV1MemberController {
 
     @DeleteMapping
     @Transactional
-    // @Operation("summary = '회원 탈퇴")
+    @Operation(summary = "회원 탈퇴")
+    @SecurityRequirement(name = "bearerAuth")
     public RsData<Void> delete() {
 
         memberService.delete(rq.getActor().getId());
@@ -71,7 +75,7 @@ public class ApiV1MemberController {
     }
 
     @PostMapping("/login")
-    // @Operation("summary = '로그인")
+    @Operation(summary = "로그인")
     public RsData<MemberLoginResBody> login(
             @RequestBody @Valid MemberLoginReqBody reqBody
     ) {
@@ -110,7 +114,7 @@ public class ApiV1MemberController {
     }
 
     @PostMapping
-    // @Operation("summary = '회원 가입")
+    @Operation(summary = "회원 가입")
     @Transactional
     public RsData<MemberLoginResBody> join(
             @RequestBody @Valid MemberJoinReqBody reqBody
@@ -141,7 +145,8 @@ public class ApiV1MemberController {
     }
 
     @DeleteMapping("/logout")
-    // @Operation("summary = '로그아웃")
+    @Operation(summary = "로그아웃")
+    @SecurityRequirement(name = "bearerAuth")
     public RsData<Void> logout() {
         rq.deleteCookie("refreshToken");
         rq.deleteCookie("accessToken");
