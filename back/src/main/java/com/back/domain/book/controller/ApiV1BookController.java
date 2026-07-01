@@ -1,11 +1,11 @@
 package com.back.domain.book.controller;
 
+import com.back.domain.book.dto.BookDetailDto;
 import com.back.domain.book.dto.BookDto;
 import com.back.domain.book.service.BookService;
+import com.back.global.rq.Rq;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,9 +14,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApiV1BookController {
     private final BookService bookService;
+    private final Rq rq;
 
     @GetMapping
     public List<BookDto> getBooks() {
         return bookService.getBooks();
+    }
+
+    @GetMapping("/{id}")
+    public BookDetailDto getBook(@PathVariable long id) {
+        return bookService.getBook(id, rq.getActor());
     }
 }
