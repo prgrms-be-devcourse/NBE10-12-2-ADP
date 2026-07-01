@@ -45,7 +45,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return new SecurityUser(
                 member.getId(),
                 member.getUsername(),
-                member.getPassword(),
                 member.getName(),
                 member.getAuthorities()
         );
