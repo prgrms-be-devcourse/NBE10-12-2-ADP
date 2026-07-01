@@ -69,7 +69,11 @@ public class ReviewService {
     }
 
     @Transactional
-    public void editReview(Review review, float rating, String content, List<String> tags) {
+    public void editReview(Review review, Member reviewer, float rating, String content, List<String> tags) {
+
+        if (review.getReviewer().equals(reviewer)) {
+            throw new ServiceException("403-1", "수정 권한이 없습니다.");
+        }
 
         float oldRating = review.getRating();
 
@@ -82,13 +86,15 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(long id) {
+    public void deleteReview(Review review, Member reviewer) {
 
-        Review review = findById(id);
+        if (review.getReviewer().equals(reviewer)) {
+            throw new ServiceException("403-1", "삭제 권한이 없습니다.");
+        }
 
         Book book = review.getBook();
         book.removeReviewRating(review.getRating());
 
-        reviewRepository.deleteById(id);
+        reviewRepository.delete(review);
     }
 }
