@@ -6,11 +6,14 @@ import com.back.domain.book.service.BookService;
 import com.back.global.rq.Rq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/books")
 @RequiredArgsConstructor
@@ -26,7 +29,14 @@ public class ApiV1BookController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "도서 단건 조회")
     public BookDetailDto getBook(@PathVariable long id) {
         return bookService.getBook(id, rq.getActor());
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "도서 검색")
+    public List<BookDto> search(@RequestParam @NotBlank String searchTerm) {
+        return bookService.search(searchTerm);
     }
 }
