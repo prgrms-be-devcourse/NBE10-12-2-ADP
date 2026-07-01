@@ -1,5 +1,7 @@
 package com.back.domain.book;
 
+import com.back.domain.book.entity.Book;
+import com.back.domain.book.repository.BookRepository;
 import com.back.domain.book.service.BookService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -29,25 +34,29 @@ public class ApiV1BookControllerTest {
     @Autowired
     private BookService bookService;
 
+    @Autowired
+    private BookRepository bookRepository;
+
     @Test
     @DisplayName("도서 다건 조회")
     void t1() throws Exception {
+
+        List<Book> expectedBooks = bookRepository.findAll();
 
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/books"))
                 .andDo(print());
 
-        // List<Book> books = bookService.findAll();
+        for (int i = 0; i < expectedBooks.size(); i++) {
+            Book expected = expectedBooks.get(i);
 
-        resultActions
-                //.andExpect(handler().handlerType(ApiV1BookController.class))
-                //.andExpect(handler().methodName("getBooks"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].title").exists())
-                .andExpect(jsonPath("$[0].imgUrl").exists())
-                .andExpect(jsonPath("$[0].averageRating").exists());
+            resultActions
+                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(expected.getId()))
+                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(expected.getTitle()))
+                    .andExpect(jsonPath("$[%d].imgUrl".formatted(i)).value(expected.getImgUrl()))
+                    .andExpect(jsonPath("$[%d].averageRating".formatted(i)).value(expected.getAverageRating()));
+        }
     }
 
     @Test
