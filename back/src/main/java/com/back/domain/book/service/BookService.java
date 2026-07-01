@@ -51,6 +51,12 @@ public class BookService {
         return new BookDetailDto(book, isWished, ratingMap, tags);
     }
 
+    public List<BookDto> search(String searchTerm) {
+        return bookRepository.findByTitleContaining(searchTerm).stream()
+                .map(book -> new BookDto(book, book.getAverageRating()))
+                .toList();
+    }
+
     private Map<String, Object> buildRatingMap(Book book) {
         Map<String, Object> ratingMap = new HashMap<>();
         ratingMap.put("average", book.getAverageRating());
