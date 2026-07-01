@@ -25,7 +25,7 @@ class ApiV1WidgetControllerTest {
     @Test
     @DisplayName("위젯 조회")
     void t1() throws Exception {
-        String githubId = "puppywimy";
+        String githubId = "githubuser1";
 
         ResultActions resultActions = mvc
                 .perform(
