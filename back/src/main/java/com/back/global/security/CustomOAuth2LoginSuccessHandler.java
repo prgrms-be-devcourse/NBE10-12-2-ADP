@@ -26,11 +26,11 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        Member member = memberService.findById(3L);
+        Member actor = rq.getActor();
 
-        String accessToken = memberService.genAccessToken(member);
+        String accessToken = memberService.genAccessToken(actor);
 
-        rq.setCookie("refreshToken", member.getRefreshToken());
+        rq.setCookie("refreshToken", actor.getRefreshToken());
 
         rq.setCookie("accessToken", accessToken);
         rq.sendRedirect("http://hocalhost:3000");
