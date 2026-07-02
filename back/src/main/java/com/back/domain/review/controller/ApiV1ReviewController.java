@@ -1,7 +1,7 @@
 package com.back.domain.review.controller;
 
 import com.back.domain.book.entity.Book;
-import com.back.domain.book.repository.BookRepository;
+import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import com.back.domain.review.dto.ReviewDto;
@@ -31,7 +31,7 @@ import java.util.Map;
 @Tag(name = "ApiV1ReviewController", description = "API 리뷰 컨트롤러")
 public class ApiV1ReviewController {
     private final ReviewService reviewService;
-    private final BookRepository bookRepository;
+    private final BookService bookService;
     private final MemberService memberService;
 
     private final Rq rq;
@@ -41,7 +41,7 @@ public class ApiV1ReviewController {
     public List<ReviewDto> getReviewsByBook(
             @PathVariable @Valid long bookId
     ) {
-        Book book = bookRepository.findById(bookId).get();
+        Book book = bookService.getPureBook(bookId);
 
         return reviewService
                 .findByBook(book)
