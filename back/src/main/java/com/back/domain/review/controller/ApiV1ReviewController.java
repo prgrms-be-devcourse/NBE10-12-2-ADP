@@ -1,20 +1,18 @@
 package com.back.domain.review.controller;
 
-import com.back.domain.book.entity.Book;
-import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import com.back.domain.review.dto.ReviewDto;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.service.ReviewService;
 import com.back.domain.review.validation.ValidRating;
+import com.back.domain.review.validation.ValidTags;
 import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +29,7 @@ import java.util.Map;
 @Tag(name = "ApiV1ReviewController", description = "API 리뷰 컨트롤러")
 public class ApiV1ReviewController {
     private final ReviewService reviewService;
-    private final BookService bookService;
+
     private final MemberService memberService;
 
     private final Rq rq;
@@ -41,10 +39,8 @@ public class ApiV1ReviewController {
     public List<ReviewDto> getReviewsByBook(
             @PathVariable @Valid long bookId
     ) {
-        Book book = bookService.getPureBook(bookId);
-
         return reviewService
-                .findByBook(book)
+                .findByBookId(bookId)
                 .stream()
                 .map(ReviewDto::new)
                 .toList();
@@ -86,10 +82,11 @@ public class ApiV1ReviewController {
             @NotNull
             @ValidRating
             Float rating,
-            @NotBlank
-            @Size(min = 2, max = 30)
+            @NotNull
+            @Size(max = 500)
             String content,
             @NotNull
+            @ValidTags
             List<String> tags
     ) {
 

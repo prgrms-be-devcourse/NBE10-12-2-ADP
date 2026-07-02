@@ -1,16 +1,12 @@
 package com.back.domain.review.service;
 
 import com.back.domain.book.entity.Book;
-import com.back.domain.book.repository.BookRepository;
 import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.repository.ReviewRepository;
 import com.back.domain.tag.service.TagService;
 import com.back.global.exception.ServiceException;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +18,13 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
-    private final BookRepository bookRepository;
+
     private final BookService bookService;
     private final TagService tagService;
 
-    public List<Review> findByBook(Book book) {
+    public List<Review> findByBookId(Long bookId) {
+        Book book = bookService.getPureBook(bookId);
+
         return reviewRepository.findByBook(book);
     }
 
@@ -51,8 +49,7 @@ public class ReviewService {
 
 
     public Map<String, Object> getRatingMap(Member member) {
-
-        Map<String, Object> ratings = new HashMap<>();
+        Map<String, Object> ratings = new LinkedHashMap<>();
 
         ratings.put("average", reviewRepository.getAverageRatingByMember(member));
 
@@ -71,7 +68,7 @@ public class ReviewService {
 
     public Review findById(long id) {
         return reviewRepository.findById(id).orElseThrow(
-                () -> new ServiceException("404-1", "존재하지 않는 리뷰입니다")
+                () -> new NoSuchElementException("존재하지 않는 리뷰입니다.")
         );
     }
 
