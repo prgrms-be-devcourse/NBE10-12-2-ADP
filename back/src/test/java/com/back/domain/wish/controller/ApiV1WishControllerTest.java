@@ -1,4 +1,4 @@
-package com.back.domain.wish;
+package com.back.domain.wish.controller;
 
 import com.back.domain.book.entity.Book;
 import com.back.domain.member.entity.Member;

@@ -1,4 +1,4 @@
-package com.back.domain.book;
+package com.back.domain.book.controller;
 
 import com.back.domain.book.entity.Book;
 import com.back.domain.book.repository.BookRepository;
