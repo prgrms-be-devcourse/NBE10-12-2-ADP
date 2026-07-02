@@ -32,7 +32,10 @@ public class WishService {
 
     public Wish addWish(Member actor, Book book) {
         Optional<Wish> wish = findByMemberAndBook(actor, book);
-        return wish.orElseGet(() -> wishRepository.save(new Wish(actor, book)));
+        if (wish.isPresent()) {
+            throw new ServiceException("409-1", "이미 존재하는 찜 정보입니다.");
+        }
+        return wishRepository.save(new Wish(actor, book));
     }
 
     public void deleteWish(Member actor, Book book) {
