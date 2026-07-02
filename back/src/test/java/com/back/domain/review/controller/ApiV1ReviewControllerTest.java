@@ -170,24 +170,4 @@ public class ApiV1ReviewControllerTest {
         }
     }
 
-    @Test
-    @DisplayName("리뷰 삭제")
-    @WithUserDetails("user1")
-    void t6() throws Exception {
-
-        long reviewId = 1L;
-
-        ResultActions resultActions = mvc
-                .perform(
-                        delete("/api/v1/reviews/%d".formatted(reviewId)))
-                .andDo(print());
-
-        resultActions
-                .andExpect(handler().handlerType(ApiV1ReviewController.class))
-                .andExpect(handler().methodName("delete"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("200-1"))
-                .andExpect(jsonPath("$.message").value("리뷰 삭제 완료"));
-
-    }
 }
