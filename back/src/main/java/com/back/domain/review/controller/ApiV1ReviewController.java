@@ -2,7 +2,6 @@ package com.back.domain.review.controller;
 
 import com.back.domain.book.entity.Book;
 import com.back.domain.book.repository.BookRepository;
-import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import com.back.domain.review.dto.ReviewDto;
@@ -17,12 +16,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +34,6 @@ public class ApiV1ReviewController {
     private final MemberService memberService;
 
     private final Rq rq;
-    // private final BookService bookService;
 
     @GetMapping("/book/{bookId}")
     @Operation(summary = "리뷰 다건 조회")
@@ -72,10 +68,10 @@ public class ApiV1ReviewController {
         return new ReviewsByMemberDto(
                 reviewService.getRatingMap(member),
                 reviewService
-                    .findByMember(member)
-                    .stream()
-                    .map(ReviewDto::new)
-                    .toList());
+                        .findByMember(member)
+                        .stream()
+                        .map(ReviewDto::new)
+                        .toList());
     }
 
     @GetMapping("/member/mine")
