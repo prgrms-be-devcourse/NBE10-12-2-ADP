@@ -6,15 +6,18 @@ import com.back.global.exception.ServiceException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TagService {
 
     private final TagRepository tagRepository;
 
+    @Transactional
     public void post(String name) {
 
         Optional<Tag> tag = tagRepository.findByName(name);
@@ -26,6 +29,7 @@ public class TagService {
         tagRepository.save(new Tag(name));
     }
 
+    @Transactional
     public Tag findByNameOrSave(String name) {
         return tagRepository.findByName(name)
                 .orElseGet(() -> tagRepository.save(new Tag(name)));
