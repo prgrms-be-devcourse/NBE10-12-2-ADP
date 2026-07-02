@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,9 +32,14 @@ public class BookService {
                 .toList();
     }
 
+    public Book getPureBook(Long id) throws NoSuchElementException {
+        return bookRepository
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 도서입니다."));
+    }
+
     public BookDetailDto getBook(Long id, Member actor) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 도서입니다"));
+        Book book = getPureBook(id);
 
         Map<String, Object> ratingMap = buildRatingMap(book);
 
