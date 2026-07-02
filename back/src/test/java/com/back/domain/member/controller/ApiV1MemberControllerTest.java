@@ -1,4 +1,4 @@
-package com.back.domain.member;
+package com.back.domain.member.controller;
 
 import com.back.domain.member.controller.ApiV1MemberController;
 import com.back.domain.member.entity.Member;

@@ -1,4 +1,4 @@
-package com.back.domain.review;
+package com.back.domain.review.controller;
 
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
@@ -172,7 +172,7 @@ public class ApiV1ReviewControllerTest {
 
     @Test
     @DisplayName("리뷰 작성")
-    @WithUserDetails("user1")
+    @WithUserDetails("user2")
     void t4() throws Exception {
         long bookId = 1L;
 
