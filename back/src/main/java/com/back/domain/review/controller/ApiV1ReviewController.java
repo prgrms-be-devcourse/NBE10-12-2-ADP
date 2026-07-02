@@ -41,10 +41,8 @@ public class ApiV1ReviewController {
     public List<ReviewDto> getReviewsByBook(
             @PathVariable @Valid long bookId
     ) {
-        Book book = bookRepository.findById(bookId).get();
-
         return reviewService
-                .findByBook(book)
+                .findByBookId(bookId)
                 .stream()
                 .map(ReviewDto::new)
                 .toList();

@@ -26,7 +26,9 @@ public class ReviewService {
     private final BookService bookService;
     private final TagService tagService;
 
-    public List<Review> findByBook(Book book) {
+    public List<Review> findByBookId(Long bookId) {
+        Book book = bookService.getPureBook(bookId);
+
         return reviewRepository.findByBook(book);
     }
 
