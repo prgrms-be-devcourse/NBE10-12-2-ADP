@@ -325,13 +325,14 @@ export interface components {
             username: string;
             password: string;
         };
-        BookDto: {
+        BookWithTagDto: {
             /** Format: int64 */
             id: number;
             title: string;
             imgUrl: string;
             /** Format: double */
             averageRating: number;
+            tags: string[];
         };
         ReviewsByMemberDto: {
             rating: {
@@ -346,6 +347,14 @@ export interface components {
             githubId: string;
             githubLink: string;
             widgetLink: string;
+        };
+        BookDto: {
+            /** Format: int64 */
+            id: number;
+            title: string;
+            imgUrl: string;
+            /** Format: double */
+            averageRating: number;
         };
         BookDetailDto: {
             /** Format: int64 */
@@ -622,7 +631,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BookDto"][];
+                    "application/json;charset=UTF-8": components["schemas"]["BookWithTagDto"][];
                 };
             };
         };

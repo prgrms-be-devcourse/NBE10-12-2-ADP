@@ -17,7 +17,7 @@ public record MemberWithUsernameAndWidgetLinkDto(
 ) {
     public MemberWithUsernameAndWidgetLinkDto(Member member) {
         this(member.getId(),
-                member.getUsername(),
+                member.getName(),
                 member.getGithubId(),
                 member.getGithubLink(),
                 member.getWidgetLink());
