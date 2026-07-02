@@ -51,7 +51,7 @@ public class ReviewService {
     public Map<String, Object> getRatingMap(Member member) {
         Map<String, Object> ratings = new LinkedHashMap<>();
 
-        ratings.put("average", reviewRepository.getAverageRatingByMember(member));
+        ratings.put("average", Math.round(reviewRepository.getAverageRatingByMember(member) * 10.0f) / 10.0f);
 
         for (int i = 0; i < 10; i++) {
             float targetRating = (i + 1) * 0.5f;
