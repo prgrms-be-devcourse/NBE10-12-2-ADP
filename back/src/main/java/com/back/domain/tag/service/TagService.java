@@ -20,7 +20,7 @@ public class TagService {
         Optional<Tag> tag = tagRepository.findByName(name);
 
         if (tag.isPresent()) {
-            throw new ServiceException("400", "이미 존재하는 태그입니다.");
+            throw new ServiceException("409-1", "이미 존재하는 태그입니다.");
         }
 
         tagRepository.save(new Tag(name));
