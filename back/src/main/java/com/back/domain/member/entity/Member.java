@@ -30,6 +30,7 @@ public class Member extends BaseEntity {
     private String widgetLink;
     private String password;
     private String nickname;
+    private String imgUrl;
     @Column(unique = true)
     private String refreshToken;
     @Setter
@@ -43,15 +44,17 @@ public class Member extends BaseEntity {
         this.username = username;
         setName(name);
         this.deletedDate = null;
+        this.imgUrl = null;
     }
 
-    public Member(String username, String password, String githubId, String nickname) {
+    public Member(String username, String password, String githubId, String nickname, String imgUrl) {
         this.username = username;
         this.password = password;
         this.githubId = githubId;
         this.nickname = nickname;
         this.refreshToken = UUID.randomUUID().toString();
         this.deletedDate = null;
+        this.imgUrl = imgUrl;
     }
 
     public String getName() {
