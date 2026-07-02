@@ -1,6 +1,7 @@
 package com.back.domain.wish.controller;
 
 import com.back.domain.book.entity.Book;
+import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import com.back.domain.wish.controller.ApiV1WishController;
@@ -40,6 +41,8 @@ public class ApiV1WishControllerTest {
     private WishService wishService;
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private BookService bookService;
 
     @BeforeEach
     void setup() {
@@ -69,7 +72,7 @@ public class ApiV1WishControllerTest {
 
         for (int i = 0; i < wishesSize; i++) {
             Book book = wishes.get(i).getBook();
-            List<String> tags = List.of();
+            List<String> tags = bookService.getBookTags(book);
             resultActions
                     .andExpect(jsonPath("$.[%d].id".formatted(i)).value(book.getId()))
                     .andExpect(jsonPath("$.[%d].title".formatted(i)).value(book.getTitle()))
