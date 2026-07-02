@@ -23,12 +23,11 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     public Member findById(Long id) {
-
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
 
         if (member.isDeleted()) {
-            throw new ServiceException("404-1", "사용자를 찾을 수 없습니다.");
+            throw new NoSuchElementException("사용자를 찾을 수 없습니다.");
         }
 
         return member;
