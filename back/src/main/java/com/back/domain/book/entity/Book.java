@@ -49,7 +49,7 @@ public class Book extends BaseEntity {
         double totalRating = (this.averageRating * this.reviewCount) + newRating;
         this.reviewCount++;
         // 반올림
-        this.averageRating = Math.round((totalRating / this.reviewCount) * 100.0) / 100.0;
+        this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
     }
 
     // 기존 리뷰 삭제되었을 때 평점 갱신
@@ -61,6 +61,6 @@ public class Book extends BaseEntity {
         }
         double totalRating = (this.averageRating * this.reviewCount) - deletedRating;
         this.reviewCount--;
-        this.averageRating = Math.round((totalRating / this.reviewCount) * 100.0) / 100.0;
+        this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
     }
 }
