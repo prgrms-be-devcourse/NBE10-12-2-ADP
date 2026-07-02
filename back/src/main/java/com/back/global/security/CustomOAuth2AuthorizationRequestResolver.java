@@ -20,6 +20,7 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
     private final ClientRegistrationRepository clientRegistrationRepository;
 
     private DefaultOAuth2AuthorizationRequestResolver createDefaultResolver() {
+
         // ✅ Spring Security 기본 Authorization URI 사용
         return new DefaultOAuth2AuthorizationRequestResolver(
                 clientRegistrationRepository,
@@ -40,10 +41,12 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
     }
 
     private OAuth2AuthorizationRequest customizeState(OAuth2AuthorizationRequest req, HttpServletRequest request) {
+
         if (req == null) return null;
 
         // ✅ 요청 파라미터에서 redirectUrl 가져오기
         String redirectUrl = request.getParameter("redirectUrl");
+
         if (redirectUrl == null) redirectUrl = "/";
 
         // ✅ CSRF 방지용 nonce 추가
