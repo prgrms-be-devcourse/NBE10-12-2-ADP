@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +23,13 @@ public class ApiV1TagController {
 
     public record TagPostReqBody(
             @NotBlank
+            @Size(min = 1, max = 20, message = "태그명은 1~20자여야 합니다")
             String name
     ) {
 
     }
 
     @PostMapping
-    @Transactional
     @Operation(summary = "태그 추가")
     public RsData<Void> post(
             @RequestBody @Valid TagPostReqBody req
