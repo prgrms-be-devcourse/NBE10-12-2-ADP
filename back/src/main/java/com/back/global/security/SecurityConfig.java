@@ -73,7 +73,8 @@ public class SecurityConfig {
                                 authorizationEndpoint -> authorizationEndpoint
                                         .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver)
                         )
-                ).addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                )
+                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(
                         exceptionHandling -> exceptionHandling
                                 .authenticationEntryPoint(

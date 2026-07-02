@@ -90,6 +90,7 @@ public class MemberService {
 
     public Member findByGithubId(String githubId) throws NoSuchElementException {
         return memberRepository
+                .findByGithubId(githubId)
                 .orElseThrow(() ->
                         new NoSuchElementException("githubId가 %s인 회원을 찾을 수 없습니다.".formatted(githubId)));
     
