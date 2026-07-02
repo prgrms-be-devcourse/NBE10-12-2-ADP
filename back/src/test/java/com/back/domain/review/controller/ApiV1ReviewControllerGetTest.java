@@ -168,7 +168,7 @@ public class ApiV1ReviewControllerGetTest {
                 .andExpect(handler().methodName("getReviewsByMember"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.resultCode").value("404-1"))
-                .andExpect(jsonPath("$.message").value("존재하지 않는 회원입니다"));
+                .andExpect(jsonPath("$.message").value("존재하지 않는 회원입니다."));
     }
 
     @Test
