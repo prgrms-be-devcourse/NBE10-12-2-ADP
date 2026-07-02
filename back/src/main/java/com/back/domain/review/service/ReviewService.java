@@ -35,8 +35,11 @@ public class ReviewService {
     }
 
     @Transactional
-    public Review addReview(Long bookId, Member actor, float rating, String comment, List<String> tags) {
+    public Review addReview(Long bookId, Member actor, float rating, String comment, List<String> tags) throws ServiceException {
         Book book = bookService.getPureBook(bookId);
+
+        Optional<Review> optionalReview = reviewRepository.findFirstByBookAndReviewer(book, actor);
+        if (optionalReview.isPresent()) throw new ServiceException("409-1", "이미 작성한 리뷰가 있습니다.");
 
         Review review = reviewRepository.save(new Review(book, actor, rating, comment,
                 tags.stream().map(tagService::findByNameOrSave).toList()));
