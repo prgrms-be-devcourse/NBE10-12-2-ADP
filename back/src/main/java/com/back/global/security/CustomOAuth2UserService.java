@@ -31,13 +31,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String providerTypeCode = userRequest.getClientRegistration().getRegistrationId().toUpperCase();
 
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        Map<String, Object> attributesProperties = (Map<String, Object>) attributes.get("properties");
 
-        String userNicknameAttributeName = "nickname";
-        String profileImgUrlAttributeName = "profile_image";
-
-        String nickname = (String) attributesProperties.get(userNicknameAttributeName);
-        String profileImgUrl = (String) attributesProperties.get(profileImgUrlAttributeName);
+        String nickname = (String) attributes.get("login");
+        String profileImgUrl = (String) attributes.get("avatar_url");
         String username = providerTypeCode + "__%s".formatted(oauthUserId);
         String password = "";
         Member member = memberService.modifyOrJoin(username, password, nickname, profileImgUrl).data();

@@ -28,9 +28,13 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        Member actor = rq.getActor();
+        Member actor = rq.getActorFromDb();
 
         String accessToken = memberService.genAccessToken(actor);
+
+        rq.setCookie("refreshToken", actor.getRefreshToken());
+        rq.setCookie("accessToken", accessToken);
+
         String redirectUrl = "/";
 
         // ✅ state 파라미터 확인
@@ -45,7 +49,7 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
             // 2️⃣ '#' 앞은 redirectUrl, 뒤는 originState
             redirectUrl = decodedStateParam.split("#", 2)[0];
         }
-
+        
         // ✅ 최종 리다이렉트
         rq.sendRedirect(redirectUrl);
 
