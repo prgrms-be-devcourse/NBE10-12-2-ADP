@@ -1,6 +1,7 @@
 package com.back.domain.wish.controller;
 
 import com.back.domain.book.entity.Book;
+import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import com.back.domain.wish.controller.ApiV1WishController;
@@ -40,6 +41,8 @@ public class ApiV1WishControllerTest {
     private WishService wishService;
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private BookService bookService;
 
     @BeforeEach
     void setup() {
@@ -69,15 +72,15 @@ public class ApiV1WishControllerTest {
 
         for (int i = 0; i < wishesSize; i++) {
             Book book = wishes.get(i).getBook();
-            List<String> tags = List.of(); //book.getTags();
-            int tagCount = tags.size();
+            List<String> tags = bookService.getBookTags(book);
             resultActions
                     .andExpect(jsonPath("$.[%d].id".formatted(i)).value(book.getId()))
                     .andExpect(jsonPath("$.[%d].title".formatted(i)).value(book.getTitle()))
-                    .andExpect(jsonPath("$.[%d].imgUrl".formatted(i)).value(book.getImgUrl()));
-                    //.andExpect(jsonPath("$[%d].averageRating".formatted(i)).value(book.getAverateRating()));
+                    .andExpect(jsonPath("$.[%d].imgUrl".formatted(i)).value(book.getImgUrl()))
+                    .andExpect(jsonPath("$.[%d].tags".formatted(i)).isArray())
+                    .andExpect(jsonPath("$.[%d].averageRating".formatted(i)).value(book.getAverageRating()));
 
-            for (int j = 0; j < tagCount; j++) {
+            for (int j = 0; j < tags.size(); j++) {
 
                 resultActions
                         .andExpect(jsonPath("$[%d].tags[%d]".formatted(i, j)).value(tags.get(j)));

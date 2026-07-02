@@ -1,5 +1,7 @@
 package com.back.domain.review.controller;
 
+import com.back.domain.book.entity.Book;
+import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import com.back.domain.review.controller.ApiV1ReviewController;
@@ -33,21 +35,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Transactional
 @AutoConfigureMockMvc
-public class ApiV1ReviewControllerTest {
+public class ApiV1ReviewControllerGetTest {
 
     @Autowired
     private MockMvc mvc;
+
     @Autowired
     private ReviewService reviewService;
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private BookService bookService;
 
     @Test
     @DisplayName("리뷰 다건 조회")
     void t1() throws Exception {
 
         long bookId = 1L;
-        List<Review> reviews = List.of();
+        Book book = bookService.getPureBook(bookId);
+        List<Review> reviews = reviewService.findByBook(book);
 
         ResultActions resultActions = mvc
                 .perform(
@@ -60,27 +66,47 @@ public class ApiV1ReviewControllerTest {
                 .andExpect(status().isOk());
 
         for (int i = 0; i < reviews.size(); i++) {
+            Review review = reviews.get(i);
             resultActions
-                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(0))
-                    .andExpect(jsonPath("$[%d].rating".formatted(i)).value(""))
-                    .andExpect(jsonPath("$[%d].content".formatted(i)).value(""))
-                    .andExpect(jsonPath("$[%d].modifiedDate".formatted(i)).value(""))
-                    .andExpect(jsonPath("$[%d].createdDate".formatted(i)).value(""))
+                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(review.getId()))
+                    .andExpect(jsonPath("$[%d].rating".formatted(i)).value(review.getRating()))
+                    .andExpect(jsonPath("$[%d].content".formatted(i)).value(review.getContent()))
+                    .andExpect(jsonPath("$[%d].modifiedDate".formatted(i)).value(Matchers.startsWith(review.getModifiedDate().toString().substring(0, 20))))
+                    .andExpect(jsonPath("$[%d].createdDate".formatted(i)).value(Matchers.startsWith(review.getCreatedDate().toString().substring(0, 20))))
                     .andExpect(jsonPath("$[%d].reviewer".formatted(i)).exists())
-                    .andExpect(jsonPath("$[%d].reviewer.id".formatted(i)).value(""))
-                    .andExpect(jsonPath("$[%d].reviewer.githubId".formatted(i)).value(""))
-                    .andExpect(jsonPath("$[%d].reviewer.githubLink".formatted(i)).value(""))
+                    .andExpect(jsonPath("$[%d].reviewer.id".formatted(i)).value(review.getReviewer().getId()))
+                    .andExpect(jsonPath("$[%d].reviewer.githubId".formatted(i)).value(review.getReviewer().getGithubId()))
+                    .andExpect(jsonPath("$[%d].reviewer.githubLink".formatted(i)).value(review.getReviewer().getGithubLink()))
                     .andExpect(jsonPath("$[%d].tags".formatted(i)).exists());
 
-            List<String> tags = reviews.get(i).getTags();
+            List<String> tags = review.getTags();
 
             for (int j = 0; j <  tags.size(); j++) {
 
                 resultActions
-                        .andExpect(jsonPath("$[%d].tags[%d]".formatted(i, j)).value("tags.get(j)"));
+                        .andExpect(jsonPath("$[%d].tags[%d]".formatted(i, j)).value(tags.get(j)));
 
             }
         }
+    }
+
+    @Test
+    @DisplayName("리뷰 다건 조회 - 실패: 존재하지 않는 도서")
+    void t4() throws Exception {
+
+        long bookId = 111111L;
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/reviews/book/%d".formatted(bookId)))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1ReviewController.class))
+                .andExpect(handler().methodName("getReviewsByBook"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.resultCode").value("404-1"))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 도서입니다."));
     }
 
     @Test
@@ -124,6 +150,25 @@ public class ApiV1ReviewControllerTest {
                         .andExpect(jsonPath("$.results[%d].tags[%d]".formatted(i, j)).value(tags.get(j)));
             }
         }
+    }
+
+    @Test
+    @DisplayName("특정 회원이 작성한 리뷰 목록 조회 - 실패: 존재하지 않는 회원")
+    void t5() throws Exception {
+
+        long memberId = 111111L;
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/reviews/member/%d".formatted(memberId)))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1ReviewController.class))
+                .andExpect(handler().methodName("getReviewsByMember"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.resultCode").value("404-1"))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 회원입니다."));
     }
 
     @Test
@@ -171,116 +216,19 @@ public class ApiV1ReviewControllerTest {
     }
 
     @Test
-    @DisplayName("리뷰 작성")
-    @WithUserDetails("user2")
-    void t4() throws Exception {
-        long bookId = 1L;
-
-        float rating = 3.5f;
-        String content = "책 좋네요 ㅎㅎ";
-        List<String> tags = List.of("a", "b");
-
-        ResultActions resultActions = mvc
-                .perform(
-                        post("/api/v1/reviews/book/%d".formatted(bookId))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                        {
-                                            "rating": %.1f,
-                                            "content": "%s",
-                                            "tags": ["%s"]
-                                        }
-                                        """.formatted(rating, content, String.join("\", \"", tags)))
-                )
-                .andDo(print());
-
-        Review review = reviewService.findLatest().get();
-
-        resultActions
-                .andExpect(handler().handlerType(ApiV1ReviewController.class))
-                .andExpect(handler().methodName("post"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.resultCode").value("201-1"))
-                .andExpect(jsonPath("$.message").value("리뷰 작성 완료"))
-                .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.id").value(review.getId()))
-                .andExpect(jsonPath("$.data.bookId").value(bookId))
-                .andExpect(jsonPath("$.data.rating").value(rating))
-                .andExpect(jsonPath("$.data.content").value(content))
-                .andExpect(jsonPath("$.data.createdDate").value(Matchers.startsWith(review.getCreatedDate().toString().substring(0, 20))))
-                .andExpect(jsonPath("$.data.tags").exists());
-
-        for (int i = 0; i <  tags.size(); i++) {
-
-            resultActions
-                    .andExpect(jsonPath("$.data.tags[%d]".formatted(i)).value(tags.get(i)));
-
-        }
-    }
-
-    @Test
-    @DisplayName("리뷰 수정")
-    @WithUserDetails("user1")
-    void t5() throws Exception {
-        long id = 1L;
-
-        float rating = 5;
-        String content = "다시 읽어보니 더 좋네요.";
-        List<String> tags = List.of("a");
-
-        ResultActions resultActions = mvc
-                .perform(
-                        put("/api/v1/reviews/%d".formatted(id))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                        {
-                                            "rating": %.1f,
-                                            "content": "%s",
-                                            "tags": ["%s"]
-                                        }
-                                        """.formatted(rating, content, String.join("\", \"", tags)))
-                )
-                .andDo(print());
-
-        Review review = reviewService.findById(id);
-
-        resultActions
-                .andExpect(handler().handlerType(ApiV1ReviewController.class))
-                .andExpect(handler().methodName("edit"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("200-1"))
-                .andExpect(jsonPath("$.message").value("리뷰 수정 완료"))
-                .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.rating").value(rating))
-                .andExpect(jsonPath("$.data.content").value(content))
-                .andExpect(jsonPath("$.data.modifiedDate").value(Matchers.startsWith(review.getModifiedDate().toString().substring(0, 20))))
-                .andExpect(jsonPath("$.data.tags").exists());
-
-        for (int i = 0; i <  tags.size(); i++) {
-            resultActions
-                    .andExpect(jsonPath("$.data.tags[%d]".formatted(i)).value(tags.get(i)));
-
-        }
-    }
-
-    @Test
-    @DisplayName("리뷰 삭제")
-    @WithUserDetails("user1")
+    @DisplayName("내가 작성한 리뷰 목록 조회 - 실패: 로그인 하지 않은 사용자")
     void t6() throws Exception {
 
-        long reviewId = 1L;
-
         ResultActions resultActions = mvc
                 .perform(
-                        delete("/api/v1/reviews/%d".formatted(reviewId)))
+                        get("/api/v1/reviews/member/mine"))
                 .andDo(print());
 
         resultActions
-                .andExpect(handler().handlerType(ApiV1ReviewController.class))
-                .andExpect(handler().methodName("delete"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("200-1"))
-                .andExpect(jsonPath("$.message").value("리뷰 삭제 완료"));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("401-1"))
+                .andExpect(jsonPath("$.message").value("로그인 후 이용해주세요."));
 
     }
+
 }
