@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
+import { Suspense, useEffect, useState } from "react";
 
 import { apiFetch } from "@/lib/backend/client";
 
@@ -10,12 +12,19 @@ import BookGrid from "@/app/_components/BookGrid";
 
 type BookDto = components["schemas"]["BookDto"];
 
-export default function Page() {
+function SearchResults() {
+  const searchParams = useSearchParams();
+  const searchTerm = searchParams.get("searchTerm") ?? "";
+
   const [books, setBooks] = useState<BookDto[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch(`/api/v1/books`)
+    if (searchTerm.trim().length === 0) return;
+
+    apiFetch(
+      `/api/v1/books/search?searchTerm=${encodeURIComponent(searchTerm)}`,
+    )
       .then((data) => {
         setLoadError(null);
         setBooks(data);
@@ -23,7 +32,11 @@ export default function Page() {
       .catch((error) => {
         setLoadError(`${error.resultCode} : ${error.message}`);
       });
-  }, []);
+  }, [searchTerm]);
+
+  if (searchTerm.trim().length === 0) {
+    return <div>검색어를 입력해주세요.</div>;
+  }
 
   if (loadError != null) {
     return (
@@ -31,12 +44,20 @@ export default function Page() {
     );
   }
 
-  if (books == null) return <div>로딩중...</div>;
+  if (books == null) return <div>검색중...</div>;
 
   return (
     <>
-      <h1>도서 목록</h1>
+      <h1>&apos;{searchTerm}&apos; 검색 결과</h1>
       <BookGrid books={books} />
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>검색중...</div>}>
+      <SearchResults />
+    </Suspense>
   );
 }

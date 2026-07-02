@@ -219,7 +219,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 도서 단건 조회 */
         get: operations["getBook"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/books/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 도서 검색 */
+        get: operations["search"];
         put?: never;
         post?: never;
         delete?: never;
@@ -284,7 +302,7 @@ export interface components {
         RsDataVoid: {
             resultCode: string;
             message: string;
-            data?: Record<string, never>;
+            data?: unknown;
         };
         TagPostReqBody: {
             name: string;
@@ -317,7 +335,7 @@ export interface components {
         };
         ReviewsByMemberDto: {
             rating: {
-                [key: string]: Record<string, never>;
+                [key: string]: unknown;
             };
             results: components["schemas"]["ReviewDto"][];
         };
@@ -343,7 +361,7 @@ export interface components {
             /** Format: int32 */
             reviewCount: number;
             rating: {
-                [key: string]: Record<string, never>;
+                [key: string]: unknown;
             };
             tags: string[];
             isWished: boolean;
@@ -731,6 +749,28 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["BookDetailDto"];
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query: {
+                searchTerm: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BookDto"][];
                 };
             };
         };
