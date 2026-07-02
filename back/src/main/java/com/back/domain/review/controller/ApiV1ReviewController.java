@@ -7,6 +7,7 @@ import com.back.domain.member.service.MemberService;
 import com.back.domain.review.dto.ReviewDto;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.service.ReviewService;
+import com.back.domain.review.validation.ValidRating;
 import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,6 +84,7 @@ public class ApiV1ReviewController {
 
     public record PostReviewsReqBody(
             @NotNull
+            @ValidRating
             Float rating,
             @NotBlank
             @Size(min = 2, max = 30)
