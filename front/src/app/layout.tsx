@@ -1,22 +1,13 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
-
 import type { Metadata } from "next";
+
+import { AuthProvider } from "@/lib/auth/AuthProvider";
+
+import Header from "@/app/_components/Header";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "사이트 A",
+  title: "READTHEM.md",
   description: "스프링부트, Next.js 연동",
 };
 
@@ -26,23 +17,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-      <body className="flex flex-col min-h-screen">
-        <header>
-          <nav className="flex">
-            <Link href="/" className="p-2 rounded hover:bg-gray-100">
-              메인
-            </Link>
-            <Link href="/posts" className="p-2 rounded hover:bg-gray-100">
-              글 목록
-            </Link>
-          </nav>
-        </header>
-        <main className="flex-grow flex flex-col p-2">{children}</main>
-        <footer className="text-center p-2">푸터</footer>
+    <html lang="ko">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font -- this is the root layout, applies to every page */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="flex flex-col min-h-screen antialiased">
+        <AuthProvider>
+          <Header />
+          <main className="flex-grow flex flex-col p-4 mx-auto w-full max-w-4xl">
+            {children}
+          </main>
+          <footer className="text-center p-2">푸터</footer>
+        </AuthProvider>
       </body>
     </html>
   );

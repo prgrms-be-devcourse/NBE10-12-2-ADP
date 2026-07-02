@@ -1,11 +1,13 @@
 package com.back.global.rq;
 
 import com.back.domain.member.entity.Member;
+import com.back.domain.member.service.MemberService;
 import com.back.global.security.SecurityUser;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,8 @@ import java.util.Optional;
 public class Rq {
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
+
+    private final MemberService memberService;
 
     public Member getActor() {
         return Optional.ofNullable(
@@ -76,5 +80,18 @@ public class Rq {
 
     public void deleteCookie(String name) {
         setCookie(name, null);
+    }
+
+    @SneakyThrows
+    public void sendRedirect(String url) {
+        resp.sendRedirect(url);
+    }
+
+    public Member getActorFromDb() {
+        Member actor = getActor();
+
+        if (actor == null) return null;
+
+        return memberService.findById(actor.getId());
     }
 }

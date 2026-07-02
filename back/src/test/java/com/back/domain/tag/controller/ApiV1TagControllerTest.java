@@ -1,4 +1,4 @@
-package com.back.domain.tag;
+package com.back.domain.tag.controller;
 
 import com.back.domain.review.controller.ApiV1ReviewController;
 import com.back.domain.tag.controller.ApiV1TagController;
