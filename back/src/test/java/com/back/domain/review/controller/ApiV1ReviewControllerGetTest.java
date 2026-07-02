@@ -50,10 +50,8 @@ public class ApiV1ReviewControllerGetTest {
     @Test
     @DisplayName("리뷰 다건 조회")
     void t1() throws Exception {
-
         long bookId = 1L;
-        Book book = bookService.getPureBook(bookId);
-        List<Review> reviews = reviewService.findByBook(book);
+        List<Review> reviews = reviewService.findByBookId(bookId);
 
         ResultActions resultActions = mvc
                 .perform(
