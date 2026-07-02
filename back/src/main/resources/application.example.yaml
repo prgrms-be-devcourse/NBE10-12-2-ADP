@@ -25,8 +25,8 @@ spring:
       client:
         registration:
           github:
-            client-id: Github OAuthApps에서 생성된 ClientId
-            client-secret: Github OauthApps에서 생성된 Client Secret
+            client-id: ${SPRING__SECURITY__OAUTH2__CLIENT__REGISTRATION__GITHUB__CLIENT_ID}
+            client-secret: ${SPRING__SECURITY__OAUTH2__CLIENT__REGISTRATION__GITHUB__CLIENT_SECRET}
             client-name: Github
             scope: profile_nickname, profile_image
             authorization-grant-type: authorization_code
