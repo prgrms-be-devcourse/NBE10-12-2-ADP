@@ -16,6 +16,7 @@ import java.util.List;
 @Getter
 public class Review extends BaseEntity {
     private float rating;
+    @Column(length = 500)
     private String content;
 
     @ManyToOne
