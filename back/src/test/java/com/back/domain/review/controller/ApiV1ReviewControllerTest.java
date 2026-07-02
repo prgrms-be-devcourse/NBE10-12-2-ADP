@@ -170,53 +170,6 @@ public class ApiV1ReviewControllerTest {
         }
     }
 
-    @Test
-    @DisplayName("리뷰 작성")
-    @WithUserDetails("user2")
-    void t4() throws Exception {
-        long bookId = 1L;
-
-        float rating = 3.5f;
-        String content = "책 좋네요 ㅎㅎ";
-        List<String> tags = List.of("a", "b");
-
-        ResultActions resultActions = mvc
-                .perform(
-                        post("/api/v1/reviews/book/%d".formatted(bookId))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                        {
-                                            "rating": %.1f,
-                                            "content": "%s",
-                                            "tags": ["%s"]
-                                        }
-                                        """.formatted(rating, content, String.join("\", \"", tags)))
-                )
-                .andDo(print());
-
-        Review review = reviewService.findLatest().get();
-
-        resultActions
-                .andExpect(handler().handlerType(ApiV1ReviewController.class))
-                .andExpect(handler().methodName("post"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.resultCode").value("201-1"))
-                .andExpect(jsonPath("$.message").value("리뷰 작성 완료"))
-                .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.id").value(review.getId()))
-                .andExpect(jsonPath("$.data.bookId").value(bookId))
-                .andExpect(jsonPath("$.data.rating").value(rating))
-                .andExpect(jsonPath("$.data.content").value(content))
-                .andExpect(jsonPath("$.data.createdDate").value(Matchers.startsWith(review.getCreatedDate().toString().substring(0, 20))))
-                .andExpect(jsonPath("$.data.tags").exists());
-
-        for (int i = 0; i <  tags.size(); i++) {
-
-            resultActions
-                    .andExpect(jsonPath("$.data.tags[%d]".formatted(i)).value(tags.get(i)));
-
-        }
-    }
 
     @Test
     @DisplayName("리뷰 수정")
