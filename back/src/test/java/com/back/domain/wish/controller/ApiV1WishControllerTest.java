@@ -69,15 +69,15 @@ public class ApiV1WishControllerTest {
 
         for (int i = 0; i < wishesSize; i++) {
             Book book = wishes.get(i).getBook();
-            List<String> tags = List.of(); //book.getTags();
-            int tagCount = tags.size();
+            List<String> tags = List.of();
             resultActions
                     .andExpect(jsonPath("$.[%d].id".formatted(i)).value(book.getId()))
                     .andExpect(jsonPath("$.[%d].title".formatted(i)).value(book.getTitle()))
-                    .andExpect(jsonPath("$.[%d].imgUrl".formatted(i)).value(book.getImgUrl()));
-                    //.andExpect(jsonPath("$[%d].averageRating".formatted(i)).value(book.getAverateRating()));
+                    .andExpect(jsonPath("$.[%d].imgUrl".formatted(i)).value(book.getImgUrl()))
+                    .andExpect(jsonPath("$.[%d].tags".formatted(i)).isArray())
+                    .andExpect(jsonPath("$.[%d].averageRating".formatted(i)).value(book.getAverageRating()));
 
-            for (int j = 0; j < tagCount; j++) {
+            for (int j = 0; j < tags.size(); j++) {
 
                 resultActions
                         .andExpect(jsonPath("$[%d].tags[%d]".formatted(i, j)).value(tags.get(j)));

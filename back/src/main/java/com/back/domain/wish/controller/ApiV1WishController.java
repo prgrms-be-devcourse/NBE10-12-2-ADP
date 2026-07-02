@@ -1,10 +1,13 @@
 package com.back.domain.wish.controller;
 
 import com.back.domain.book.dto.BookDto;
+import com.back.domain.book.dto.BookWithTagDto;
+import com.back.domain.book.entity.Book;
 import com.back.domain.book.repository.BookRepository;
 import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
+import com.back.domain.tag.service.TagService;
 import com.back.domain.wish.service.WishService;
 import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
@@ -28,19 +31,20 @@ public class ApiV1WishController {
 
     private final WishService wishService;
     private final MemberService memberService;
-    private final BookRepository bookRepository;
+    private final BookService bookService;
 
     private final Rq rq;
+    private final TagService tagService;
 
     @GetMapping("/mine")
     @Operation(summary = "내 찜 목록 조회")
-    public List<BookDto> getWishes() {
+    public List<BookWithTagDto> getWishes() {
         Member actor = memberService.findById(rq.getActor().getId());
 
         return wishService
                 .findByMember(actor)
                 .stream()
-                .map(wish -> new BookDto(wish.getBook()))
+                .map(wish -> new BookWithTagDto(wish.getBook(), bookService.getBookTags(wish.getBook())))
                 .toList();
     }
 
@@ -51,8 +55,11 @@ public class ApiV1WishController {
             @PathVariable @Valid long id
     ) {
 
-        wishService.addWish(memberService.findById(rq.getActor().getId()),
-                bookRepository.findById(id).get());
+        Book book = bookService.getPureBook(id);
+
+        wishService.addWish(
+                rq.getActorFromDb(),
+                book);
 
         return new RsData<>(
                 "201-1",
@@ -67,8 +74,11 @@ public class ApiV1WishController {
             @PathVariable @Valid long id
     ) {
 
-        wishService.deleteWish(memberService.findById(rq.getActor().getId()),
-                bookRepository.findById(id).get());
+        Book book = bookService.getPureBook(id);
+
+        wishService.deleteWish(
+                rq.getActorFromDb(),
+                book);
 
         return new RsData<>(
                 "200-1",
