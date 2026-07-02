@@ -22,4 +22,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Optional<Review> findFirstByOrderByIdDesc();
 
     int countByBookAndRating(Book book, float rating);
+
+    Optional<Review> findFirstByBookAndReviewer(Book book, Member reviewer);
 }

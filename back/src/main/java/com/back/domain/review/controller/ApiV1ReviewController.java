@@ -2,12 +2,12 @@ package com.back.domain.review.controller;
 
 import com.back.domain.book.entity.Book;
 import com.back.domain.book.repository.BookRepository;
-import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
 import com.back.domain.review.dto.ReviewDto;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.service.ReviewService;
+import com.back.domain.review.validation.ValidRating;
 import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,12 +17,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +35,6 @@ public class ApiV1ReviewController {
     private final MemberService memberService;
 
     private final Rq rq;
-    // private final BookService bookService;
 
     @GetMapping("/book/{bookId}")
     @Operation(summary = "리뷰 다건 조회")
@@ -72,10 +69,10 @@ public class ApiV1ReviewController {
         return new ReviewsByMemberDto(
                 reviewService.getRatingMap(member),
                 reviewService
-                    .findByMember(member)
-                    .stream()
-                    .map(ReviewDto::new)
-                    .toList());
+                        .findByMember(member)
+                        .stream()
+                        .map(ReviewDto::new)
+                        .toList());
     }
 
     @GetMapping("/member/mine")
@@ -87,6 +84,7 @@ public class ApiV1ReviewController {
 
     public record PostReviewsReqBody(
             @NotNull
+            @ValidRating
             Float rating,
             @NotBlank
             @Size(min = 2, max = 30)
@@ -105,16 +103,15 @@ public class ApiV1ReviewController {
             @PathVariable long bookId,
             @RequestBody @Valid PostReviewsReqBody req
     ) {
-        Book book = bookRepository.findById(bookId).get();
         Member reviewer = memberService.findById(rq.getActor().getId());
 
         Review review = reviewService.addReview(
-                book, reviewer,
-                req.rating(), req.content(), req.tags());
+                bookId, reviewer,
+                req.rating(), req.content(), req.tags()
+        );
 
         return new RsData<>(
                 "201-1", "리뷰 작성 완료", new ReviewDto(review));
-
     }
 
 
