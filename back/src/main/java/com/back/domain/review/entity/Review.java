@@ -34,6 +34,7 @@ public class Review extends BaseEntity {
         this.reviewer = reviewer;
         this.rating = rating;
         this.content = content;
+
         for (int i = 0; i < tags.size(); i++) {
             this.reviewTags.add(new ReviewTag(this, tags.get(i)));
         }
@@ -48,7 +49,8 @@ public class Review extends BaseEntity {
     public void modify(float rating, String content, List<Tag> tags) {
         this.rating = rating;
         this.content = content;
-        this.reviewTags = new ArrayList<>();
+
+        this.reviewTags.clear();
         for (int i = 0; i < tags.size(); i++) {
             this.reviewTags.add(new ReviewTag(this, tags.get(i)));
         }
