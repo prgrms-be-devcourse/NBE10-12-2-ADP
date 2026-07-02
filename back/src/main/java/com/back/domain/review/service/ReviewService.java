@@ -49,8 +49,7 @@ public class ReviewService {
 
 
     public Map<String, Object> getRatingMap(Member member) {
-
-        Map<String, Object> ratings = new HashMap<>();
+        Map<String, Object> ratings = new LinkedHashMap<>();
 
         ratings.put("average", reviewRepository.getAverageRatingByMember(member));
 
