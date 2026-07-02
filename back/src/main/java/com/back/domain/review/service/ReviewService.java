@@ -1,16 +1,12 @@
 package com.back.domain.review.service;
 
 import com.back.domain.book.entity.Book;
-import com.back.domain.book.repository.BookRepository;
 import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.repository.ReviewRepository;
 import com.back.domain.tag.service.TagService;
 import com.back.global.exception.ServiceException;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +18,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
-    private final BookRepository bookRepository;
+
     private final BookService bookService;
     private final TagService tagService;
 
