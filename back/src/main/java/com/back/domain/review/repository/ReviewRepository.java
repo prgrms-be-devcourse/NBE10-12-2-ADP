@@ -16,8 +16,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     int countByReviewerAndRating(Member member, float rating);
 
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.reviewer = :member")
-    float getAverageRatingByMember(Member member);
+    @Query("SELECT COALESCE(AVG(r.rating), 0.0) FROM Review r WHERE r.reviewer = :member")
+    double getAverageRatingByMember(Member member);
 
     Optional<Review> findFirstByOrderByIdDesc();
 
