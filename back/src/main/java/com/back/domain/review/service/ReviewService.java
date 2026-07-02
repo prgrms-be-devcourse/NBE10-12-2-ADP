@@ -2,6 +2,7 @@ package com.back.domain.review.service;
 
 import com.back.domain.book.entity.Book;
 import com.back.domain.book.repository.BookRepository;
+import com.back.domain.book.service.BookService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.repository.ReviewRepository;
@@ -22,6 +23,7 @@ import java.util.*;
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final BookRepository bookRepository;
+    private final BookService bookService;
     private final TagService tagService;
 
     public List<Review> findByBook(Book book) {
@@ -33,7 +35,9 @@ public class ReviewService {
     }
 
     @Transactional
-    public Review addReview(Book book, Member actor, float rating, String comment, List<String> tags) {
+    public Review addReview(Long bookId, Member actor, float rating, String comment, List<String> tags) {
+        Book book = bookService.getPureBook(bookId);
+
         Review review = reviewRepository.save(new Review(book, actor, rating, comment,
                 tags.stream().map(tagService::findByNameOrSave).toList()));
 

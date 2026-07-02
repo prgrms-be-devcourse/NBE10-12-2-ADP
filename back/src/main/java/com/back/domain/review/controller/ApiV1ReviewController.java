@@ -105,16 +105,15 @@ public class ApiV1ReviewController {
             @PathVariable long bookId,
             @RequestBody @Valid PostReviewsReqBody req
     ) {
-        Book book = bookRepository.findById(bookId).get();
         Member reviewer = memberService.findById(rq.getActor().getId());
 
         Review review = reviewService.addReview(
-                book, reviewer,
-                req.rating(), req.content(), req.tags());
+                bookId, reviewer,
+                req.rating(), req.content(), req.tags()
+        );
 
         return new RsData<>(
                 "201-1", "리뷰 작성 완료", new ReviewDto(review));
-
     }
 
 
