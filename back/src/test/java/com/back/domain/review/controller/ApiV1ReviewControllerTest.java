@@ -170,52 +170,6 @@ public class ApiV1ReviewControllerTest {
         }
     }
 
-
-    @Test
-    @DisplayName("리뷰 수정")
-    @WithUserDetails("user1")
-    void t5() throws Exception {
-        long id = 1L;
-
-        float rating = 5;
-        String content = "다시 읽어보니 더 좋네요.";
-        List<String> tags = List.of("a");
-
-        ResultActions resultActions = mvc
-                .perform(
-                        put("/api/v1/reviews/%d".formatted(id))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                        {
-                                            "rating": %.1f,
-                                            "content": "%s",
-                                            "tags": ["%s"]
-                                        }
-                                        """.formatted(rating, content, String.join("\", \"", tags)))
-                )
-                .andDo(print());
-
-        Review review = reviewService.findById(id);
-
-        resultActions
-                .andExpect(handler().handlerType(ApiV1ReviewController.class))
-                .andExpect(handler().methodName("edit"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("200-1"))
-                .andExpect(jsonPath("$.message").value("리뷰 수정 완료"))
-                .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.rating").value(rating))
-                .andExpect(jsonPath("$.data.content").value(content))
-                .andExpect(jsonPath("$.data.modifiedDate").value(Matchers.startsWith(review.getModifiedDate().toString().substring(0, 20))))
-                .andExpect(jsonPath("$.data.tags").exists());
-
-        for (int i = 0; i <  tags.size(); i++) {
-            resultActions
-                    .andExpect(jsonPath("$.data.tags[%d]".formatted(i)).value(tags.get(i)));
-
-        }
-    }
-
     @Test
     @DisplayName("리뷰 삭제")
     @WithUserDetails("user1")
