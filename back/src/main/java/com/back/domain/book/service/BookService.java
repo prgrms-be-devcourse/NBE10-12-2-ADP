@@ -38,23 +38,29 @@ public class BookService {
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 도서입니다."));
     }
 
+    public List<String> getBookTags(Book book) {
+
+        List<Review> reviews = reviewRepository.findByBook(book);
+
+        return reviews.stream()
+                .flatMap(r -> r.getTags().stream())
+                .distinct()
+                .toList();
+
+    }
+
     public BookDetailDto getBook(Long id, Member actor) {
         Book book = getPureBook(id);
 
         Map<String, Object> ratingMap = buildRatingMap(book);
 
-        List<Review> reviews = reviewRepository.findByBook(book);
-        List<String> tags = reviews.stream()
-                .flatMap(r -> r.getTags().stream())
-                .distinct()
-                .toList();
 
         boolean isWished = false;
         if (actor != null) {
             isWished = wishRepository.findByMemberAndBook(actor, book).isPresent();
         }
 
-        return new BookDetailDto(book, isWished, ratingMap, tags);
+        return new BookDetailDto(book, isWished, ratingMap, getBookTags(book));
     }
 
     public List<BookDto> search(String searchTerm) {
