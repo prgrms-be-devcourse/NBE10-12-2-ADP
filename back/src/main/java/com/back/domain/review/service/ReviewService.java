@@ -68,7 +68,7 @@ public class ReviewService {
 
     public Review findById(long id) {
         return reviewRepository.findById(id).orElseThrow(
-                () -> new ServiceException("404-1", "존재하지 않는 리뷰입니다")
+                () -> new NoSuchElementException("존재하지 않는 리뷰입니다.")
         );
     }
 
