@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: back
+  config:
+    import: optional:file:.env
   profiles:
     active: dev
   output:
@@ -45,8 +47,8 @@ logging:
     org.springframework.transaction.interceptor: TRACE
 custom:
   jwt:
-    secretKey:
+    secretKey: ${CUSTOM__JWT__SECRET_KEY}
   accessToken:
     expirationSeconds:
   book-fetch:
-    api-keys: abcde
+    api-keys: ${CUSTOM__BOOK__FETCH__API_KEY}
