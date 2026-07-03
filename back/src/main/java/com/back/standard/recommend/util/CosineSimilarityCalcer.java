@@ -5,7 +5,7 @@ import java.util.List;
 
 import static com.back.standard.recommend.util.Vector.VectorElement;
 
-public class CosineSimilarity {
+public class CosineSimilarityCalcer implements SimilarityCalcer {
 
     private double vectorASqrMagnitude;
     private double vectorBSqrMagnitude;
