@@ -125,7 +125,8 @@ public class ApiV1MemberController {
         Member member = memberService.join(
                 reqBody.username(),
                 reqBody.password(),
-                reqBody.githubId()
+                reqBody.githubId(),
+                null
         );
 
         memberService.checkPassword(member, reqBody.password());
