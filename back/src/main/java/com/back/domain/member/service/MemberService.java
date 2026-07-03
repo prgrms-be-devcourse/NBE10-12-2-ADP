@@ -56,6 +56,11 @@ public class MemberService {
                     throw new ServiceException("409-1", "이미 존재하는 아이디입니다.");
                 });
 
+        memberRepository.findByGithubId(githubId)
+                .ifPresent(_ -> {
+                    throw new ServiceException("409-2", "이미 존재하는 githubId입니다.");
+                });
+
         password = passwordEncoder.encode(password);
         return memberRepository.save(new Member(username, password, githubId, nickname));
     }
