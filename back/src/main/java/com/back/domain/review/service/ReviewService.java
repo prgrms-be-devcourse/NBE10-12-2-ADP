@@ -102,4 +102,7 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
+    public List<Review> getPureReviewAll() {
+        return reviewRepository.findAll();
+    }
 }

@@ -2,6 +2,7 @@ package com.back.domain.book.controller;
 
 import com.back.domain.book.dto.BookDetailDto;
 import com.back.domain.book.dto.BookDto;
+import com.back.domain.book.service.BookRecommendService;
 import com.back.domain.book.service.BookService;
 import com.back.global.rq.Rq;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +21,7 @@ import java.util.List;
 @Tag(name = "ApiV1BookController", description = "API 도서 컨트롤러")
 public class ApiV1BookController {
     private final BookService bookService;
+    private final BookRecommendService bookRecommendService;
     private final Rq rq;
 
     @GetMapping
@@ -38,5 +40,11 @@ public class ApiV1BookController {
     @Operation(summary = "도서 검색")
     public List<BookDto> search(@RequestParam @NotBlank String searchTerm) {
         return bookService.search(searchTerm);
+    }
+
+    @GetMapping("/recommend")
+    public List<BookDto> recommend() {
+        return bookRecommendService.getRecommends(rq.getActor());
+
     }
 }
