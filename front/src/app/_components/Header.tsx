@@ -60,6 +60,11 @@ export default function Header() {
 
           {!isLoginMemberPending && !isLogin && (
             <>
+              <a
+                href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/oauth2/authorization/github?redirectUrl=${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}`}
+              >
+                깃허브
+              </a>
               <Link
                 href="/members/login"
                 className="p-2 rounded hover:bg-gray-100"
