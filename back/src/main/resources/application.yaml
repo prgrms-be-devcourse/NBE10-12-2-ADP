@@ -6,7 +6,7 @@ spring:
   config:
     import: optional:file:.env[.properties]
   profiles:
-    active: dev
+    active: ${CUSTOM__DEFAULT_ACTIVE_PROFILE}
   output:
     ansi:
       enabled: always
@@ -49,6 +49,6 @@ custom:
   jwt:
     secretKey: ${CUSTOM__JWT__SECRET_KEY}
   accessToken:
-    expirationSeconds:
+    expirationSeconds: "#{60*${CUSTOM__JWT__EXPIRATION_MINUTES}}"
   book-fetch:
-    api-keys: ${CUSTOM__BOOK__FETCH__API_KEY}
+    api-keys: ${CUSTOM__BOOK__FETCH__API_KEYS}
