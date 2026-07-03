@@ -41,10 +41,10 @@ public class BaseInitData {
     public void work1() {
         if (memberService.count() > 0) return;
 
-        Member memberSystem = memberService.join("system", "1234", null, "시스템");
+        Member memberSystem = memberService.join("system", "1234", null, "시스템", null);
         memberSystem.modifyRefreshToken(memberSystem.getUsername());
 
-        Member memberAdmin = memberService.join("admin", "1234", null, "관리자");
+        Member memberAdmin = memberService.join("admin", "1234", null, "관리자", null);
         memberAdmin.modifyRefreshToken(memberAdmin.getUsername());
 
         Member memberUser1 = memberService.join("user1", "1234", "githubuser1", null);
