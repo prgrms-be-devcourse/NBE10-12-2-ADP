@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,9 @@ public class Rq {
     private final HttpServletResponse resp;
 
     private final MemberService memberService;
+
+    @Value("${server.ssl.enabled}")
+    private boolean isSecure;
 
     public Member getActor() {
         return Optional.ofNullable(
@@ -69,7 +73,7 @@ public class Rq {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setDomain("localhost");
-        cookie.setSecure(true);
+        cookie.setSecure(isSecure);
         cookie.setAttribute("SameSite", "Lax");
 
         if (value.isBlank()) cookie.setMaxAge(0);
