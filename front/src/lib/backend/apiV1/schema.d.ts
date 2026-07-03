@@ -246,6 +246,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/books/recommend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["recommend"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/members/logout": {
         parameters: {
             query?: never;
@@ -767,6 +783,26 @@ export interface operations {
             query: {
                 searchTerm: string;
             };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BookDto"][];
+                };
+            };
+        };
+    };
+    recommend: {
+        parameters: {
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
