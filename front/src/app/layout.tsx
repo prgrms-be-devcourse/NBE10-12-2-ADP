@@ -34,10 +34,10 @@ export default function RootLayout({
       <body className="flex flex-col min-h-screen antialiased">
         <AuthProvider>
           <Header />
-          <main className="flex-grow flex flex-col p-4 mx-auto w-full max-w-4xl">
-            {children}
+          <main className="mx-auto flex w-full max-w-4xl flex-grow flex-col p-4">
+            <div className="relative flex flex-1 flex-col">{children}</div>
           </main>
-          <footer className="text-center p-2">푸터</footer>
+          <footer className="p-2 text-center">푸터</footer>
         </AuthProvider>
       </body>
     </html>

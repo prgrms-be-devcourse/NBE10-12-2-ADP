@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { useEffect, useState } from "react";
 
@@ -12,47 +12,22 @@ import type { components } from "@/lib/backend/apiV1/schema";
 import { ratingColor } from "@/lib/ratingColor";
 
 import Avatar from "@/app/_components/Avatar";
+import LoginRequiredModal from "@/app/_components/LoginRequiredModal";
+import RatingHistogram from "@/app/_components/RatingHistogram";
+import RatingValue from "@/app/_components/RatingValue";
+import ReviewFormModal from "@/app/_components/ReviewFormModal";
+import RoughButton from "@/app/_components/RoughButton";
+import RoughDivider from "@/app/_components/RoughDivider";
+import RoughFrame from "@/app/_components/RoughFrame";
+import RoughRatingInput from "@/app/_components/RoughRatingInput";
+import { RoughInput, RoughTextarea } from "@/app/_components/RoughInput";
 
 type BookDetailDto = components["schemas"]["BookDetailDto"];
 type ReviewDto = components["schemas"]["ReviewDto"];
 
-const RATING_BUCKETS = [
-  "5.0",
-  "4.5",
-  "4.0",
-  "3.5",
-  "3.0",
-  "2.5",
-  "2.0",
-  "1.5",
-  "1.0",
-  "0.5",
-];
-
-function RatingHistogram({ rating }: { rating: Record<string, unknown> }) {
-  const counts = RATING_BUCKETS.map((bucket) => Number(rating[bucket] ?? 0));
-  const maxCount = Math.max(1, ...counts);
-
-  return (
-    <div className="flex flex-col gap-1 max-w-xs mt-1">
-      {RATING_BUCKETS.map((bucket, i) => (
-        <div key={bucket} className="flex items-center gap-2 text-xs">
-          <span className="w-7 text-right text-gray-500">{bucket}</span>
-          <div className="flex-1 h-4 bg-gray-100 rounded-r">
-            <div
-              className="h-full bg-blue-500 rounded-r"
-              style={{ width: `${(counts[i] / maxCount) * 100}%` }}
-            />
-          </div>
-          <span className="w-4 text-gray-500">{counts[i]}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default function Page() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const { loginMember, isLogin } = useAuth();
 
   const [book, setBook] = useState<BookDetailDto | null>(null);
@@ -60,6 +35,7 @@ export default function Page() {
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showWriteForm, setShowWriteForm] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const loadBook = () => {
     apiFetch(`/api/v1/books/${id}`)
@@ -84,8 +60,23 @@ export default function Page() {
   };
 
   useEffect(() => {
-    loadBook();
-    loadReviews();
+    apiFetch(`/api/v1/books/${id}`)
+      .then((data) => {
+        setLoadError(null);
+        setBook(data);
+      })
+      .catch((error) => {
+        setLoadError(`${error.resultCode} : ${error.message}`);
+      });
+
+    apiFetch(`/api/v1/reviews/book/${id}`)
+      .then((data) => {
+        setLoadError(null);
+        setReviews(data);
+      })
+      .catch((error) => {
+        setLoadError(`${error.resultCode} : ${error.message}`);
+      });
   }, [id]);
 
   const extractReviewFields = (form: HTMLFormElement) => {
@@ -114,10 +105,13 @@ export default function Page() {
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
+    const ratingValue = ratingInput.value.trim();
+    const rating = ratingValue === "" ? undefined : Number(ratingValue);
+
     return {
-      rating: Number(ratingInput.value),
       content: contentInput.value,
       tags,
+      ...(rating != null ? { rating } : {}),
     };
   };
 
@@ -184,6 +178,26 @@ export default function Page() {
       });
   };
 
+  const openLoginModal = () => {
+    setShowLoginModal(true);
+  };
+
+  const handleOpenReviewAction = () => {
+    if (isLogin) {
+      setShowWriteForm(true);
+      return;
+    }
+    openLoginModal();
+  };
+
+  const closeLoginModal = () => {
+    setShowLoginModal(false);
+  };
+
+  const goToLogin = () => {
+    router.push("/members/login");
+  };
+
   const handleDelete = (reviewId: number) => {
     if (!confirm("리뷰를 삭제하시겠습니까?")) return;
 
@@ -213,131 +227,113 @@ export default function Page() {
 
   return (
     <div className="flex flex-col gap-6 p-4 max-w-3xl mx-auto w-full">
+      {showLoginModal && (
+        <LoginRequiredModal onCancel={closeLoginModal} onLogin={goToLogin} />
+      )}
+      {showWriteForm && (
+        <ReviewFormModal
+          onCancel={() => setShowWriteForm(false)}
+          onSubmit={handleWriteSubmit}
+          submitLabel="리뷰 작성"
+          title="리뷰 작성"
+        />
+      )}
+
       <div className="flex gap-6">
-        <div className="w-40 h-56 shrink-0 border rounded bg-gray-50 flex items-center justify-center overflow-hidden">
-          {book.imgUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={book.imgUrl}
-              alt={book.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-gray-400 text-sm">표지 없음</span>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-bold">{book.title}</h1>
-          <div className="text-sm text-gray-600">
-            {book.authors.join(", ") || "-"} · {book.publisher} ·{" "}
-            {book.publishedDate}
+        <div className="flex w-40 shrink-0 flex-col gap-2">
+          <div className="rough-cover flex h-56 items-center justify-center overflow-hidden bg-gray-50">
+            <RoughFrame className="rough-overlay" variant="card" />
+            {book.imgUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={book.imgUrl}
+                alt={book.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-gray-400 text-sm">표지 없음</span>
+            )}
           </div>
-
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-lg font-bold ${
-                averageNumber != null ? ratingColor(averageNumber) : ""
-              }`}
-            >
-              ⭐ {averageNumber != null ? averageNumber : "-"}
-            </span>
-            <span className="text-sm text-gray-500">
-              리뷰 {book.reviewCount}개
-            </span>
-          </div>
-
-          {book.rating && <RatingHistogram rating={book.rating} />}
-
-          <div className="flex gap-2 flex-wrap text-sm text-blue-600">
-            {book.tags.map((tag) => (
-              <span key={tag}>#{tag}</span>
-            ))}
-          </div>
-
-          <p className="text-sm text-gray-700 mt-1">{book.description}</p>
 
           {isLogin ? (
-            <button
-              className={`self-start border rounded-full px-3 py-1 text-sm mt-2 ${
-                book.isWished
-                  ? "bg-rose-100 border-rose-300 text-rose-700"
-                  : "hover:bg-gray-100"
-              }`}
+            <RoughButton
+              fullWidth
+              roughSize="sm"
+              tone={book.isWished ? "wishActive" : "wish"}
               type="button"
               onClick={handleToggleWish}
             >
               {book.isWished ? "🔖 보고 싶어요 취소" : "🔖 보고 싶어요"}
-            </button>
+            </RoughButton>
           ) : (
-            <Link
-              href="/members/login"
-              className="self-start border rounded-full px-3 py-1 text-sm mt-2 hover:bg-gray-100"
+            <RoughButton
+              fullWidth
+              roughSize="sm"
+              tone="wish"
+              type="button"
+              onClick={openLoginModal}
             >
               🔖 보고 싶어요
-            </Link>
+            </RoughButton>
           )}
+        </div>
+
+        <div className="grid flex-1 gap-4 md:grid-cols-[minmax(0,1fr)_10rem]">
+          <div className="flex min-w-0 flex-col gap-2">
+            <h1 className="text-2xl font-bold">{book.title}</h1>
+            <div className="text-sm text-gray-600">
+              {book.authors.join(", ") || "-"} · {book.publisher} ·{" "}
+              {book.publishedDate}
+            </div>
+
+            <p className="mt-1 text-sm text-gray-700">{book.description}</p>
+
+            <div className="flex flex-wrap gap-2 text-sm text-blue-600">
+              {book.tags.map((tag) => (
+                <span key={tag}>#{tag}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-2">
+            <div className="text-right">
+              <div
+                className={`text-4xl font-bold leading-none ${
+                  averageNumber != null ? ratingColor(averageNumber) : ""
+                }`}
+              >
+                {averageNumber != null ? (
+                  <RatingValue
+                    rating={averageNumber}
+                    starClassName="h-9 w-9"
+                  />
+                ) : (
+                  "-"
+                )}
+              </div>
+              <div className="mt-1 text-sm text-gray-500">
+                리뷰 {book.reviewCount}개
+              </div>
+            </div>
+            {book.rating && (
+              <RatingHistogram rating={book.rating} className="mt-1 w-full max-w-40" />
+            )}
+          </div>
         </div>
       </div>
 
       <div>
-        <h2 className="font-bold text-lg">리뷰 {reviews.length}개</h2>
-
-        {isLogin ? (
-          <>
-            <button
-              className="border rounded px-3 py-1 text-sm mt-2 hover:bg-gray-100"
-              type="button"
-              onClick={() => setShowWriteForm((prev) => !prev)}
-            >
-              {showWriteForm ? "리뷰 작성 취소" : "✏️ 리뷰 작성"}
-            </button>
-
-            {showWriteForm && (
-              <form
-                className="flex flex-col gap-2 p-3 border rounded max-w-md mt-2"
-                onSubmit={handleWriteSubmit}
-              >
-                <label className="flex items-center gap-2">
-                  평점
-                  <input
-                    className="border p-1 rounded w-20"
-                    type="number"
-                    name="rating"
-                    min={0.5}
-                    max={5}
-                    step={0.5}
-                    defaultValue={5}
-                    required
-                  />
-                </label>
-                <textarea
-                  className="border p-2 rounded"
-                  name="content"
-                  placeholder="리뷰 내용 (2~30자)"
-                  maxLength={30}
-                  rows={2}
-                />
-                <input
-                  className="border p-2 rounded"
-                  type="text"
-                  name="tags"
-                  placeholder="태그 (쉼표로 구분)"
-                />
-                <button className="border p-2 rounded" type="submit">
-                  리뷰 작성
-                </button>
-              </form>
-            )}
-          </>
-        ) : (
-          <Link
-            href="/members/login"
-            className="inline-block border rounded px-3 py-1 text-sm mt-2 hover:bg-gray-100"
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-lg font-bold">리뷰 {reviews.length}개</h2>
+          <RoughButton
+            roughSize="sm"
+            tone="history"
+            type="button"
+            onClick={handleOpenReviewAction}
           >
-            리뷰 쓰고 내 독서 이력에 추가하기
-          </Link>
-        )}
+            독서 이력에 추가하기
+          </RoughButton>
+        </div>
 
         {reviews.length === 0 && (
           <div className="mt-2 text-sm text-gray-500">
@@ -345,51 +341,43 @@ export default function Page() {
           </div>
         )}
 
-        <ul className="flex flex-col mt-2 max-w-md">
+        <ul className="mt-2 flex w-full flex-col">
           {reviews.map((review) => (
-            <li key={review.id} className="border-b py-3">
+            <li key={review.id} className="relative py-3">
               {editingReviewId === review.id ? (
                 <form
                   className="flex flex-col gap-2"
                   onSubmit={(e) => handleEditSubmit(e, review.id)}
                 >
-                  <label className="flex items-center gap-2">
-                    평점
-                    <input
-                      className="border p-1 rounded w-20"
-                      type="number"
-                      name="rating"
-                      min={0.5}
-                      max={5}
-                      step={0.5}
-                      defaultValue={review.rating}
-                      required
-                    />
-                  </label>
-                  <textarea
-                    className="border p-2 rounded"
+                  <RoughRatingInput
+                    name="rating"
+                    defaultValue={review.rating}
+                    label="평점"
+                  />
+                  <RoughTextarea
                     name="content"
                     defaultValue={review.content}
                     maxLength={30}
                     rows={2}
                   />
-                  <input
-                    className="border p-2 rounded"
+                  <RoughInput
+                    inputClassName="px-2"
                     type="text"
                     name="tags"
                     defaultValue={review.tags.join(", ")}
                   />
                   <div className="flex gap-2">
-                    <button className="border p-2 rounded" type="submit">
+                    <RoughButton roughSize="sm" tone="submit" type="submit">
                       수정 완료
-                    </button>
-                    <button
-                      className="border p-2 rounded"
+                    </RoughButton>
+                    <RoughButton
+                      roughSize="sm"
+                      tone="cancel"
                       type="button"
                       onClick={() => setEditingReviewId(null)}
                     >
                       취소
-                    </button>
+                    </RoughButton>
                   </div>
                 </form>
               ) : (
@@ -406,7 +394,22 @@ export default function Page() {
                       >
                         {review.reviewer.githubId ?? "탈퇴한 사용자"}
                       </Link>
-                      <span className="text-xs text-gray-400">🐙</span>
+                      {review.reviewer.githubLink && (
+                        <a
+                          className="rough-github-inline"
+                          href={review.reviewer.githubLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`${review.reviewer.githubId ?? "사용자"} GitHub`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            className="rough-github-inline-image"
+                            src="/github.svg"
+                            alt=""
+                          />
+                        </a>
+                      )}
                     </div>
 
                     <div className="flex gap-1 flex-wrap text-xs text-blue-600">
@@ -422,20 +425,23 @@ export default function Page() {
 
                     {loginMember?.id === review.reviewer.id && (
                       <div className="flex gap-2 mt-1">
-                        <button
-                          className="border p-1 rounded text-xs"
+                        <RoughButton
+                          className="px-2"
+                          roughSize="sm"
                           type="button"
                           onClick={() => setEditingReviewId(review.id)}
                         >
                           수정
-                        </button>
-                        <button
-                          className="border p-1 rounded text-xs"
+                        </RoughButton>
+                        <RoughButton
+                          className="px-2"
+                          roughSize="sm"
+                          tone="cancel"
                           type="button"
                           onClick={() => handleDelete(review.id)}
                         >
                           삭제
-                        </button>
+                        </RoughButton>
                       </div>
                     )}
                   </div>
@@ -443,10 +449,11 @@ export default function Page() {
                   <span
                     className={`font-bold shrink-0 ${ratingColor(review.rating)}`}
                   >
-                    ⭐ {review.rating}
+                    <RatingValue rating={review.rating} />
                   </span>
                 </div>
               )}
+              <RoughDivider />
             </li>
           ))}
         </ul>

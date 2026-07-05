@@ -11,6 +11,10 @@ import type { components } from "@/lib/backend/apiV1/schema";
 import { ratingColor } from "@/lib/ratingColor";
 
 import Avatar from "@/app/_components/Avatar";
+import RatingHistogram from "@/app/_components/RatingHistogram";
+import RatingValue from "@/app/_components/RatingValue";
+import RoughDivider from "@/app/_components/RoughDivider";
+import RoughFrame from "@/app/_components/RoughFrame";
 
 type MemberDto = components["schemas"]["MemberDto"];
 type ReviewsByMemberDto = components["schemas"]["ReviewsByMemberDto"];
@@ -85,19 +89,24 @@ export default function Page() {
           <div
             className={`text-lg font-bold mt-2 ${ratingColor(averageNumber)}`}
           >
-            ⭐ {averageNumber}
+            <RatingValue rating={averageNumber} />
           </div>
         )}
         <div className="text-xs text-gray-500">
           {member.githubId}님이 준 평균 별점
         </div>
+        <RatingHistogram
+          rating={reviewData.rating}
+          className="mt-3 w-full"
+        />
       </div>
 
       <div className="flex-1 flex flex-col gap-4">
         {member.githubId && (
           <div>
             <h2 className="font-bold">위젯 미리보기</h2>
-            <div className="border rounded p-2 mt-1">
+            <div className="rough-panel-border mt-1 p-2">
+              <RoughFrame className="rough-overlay" variant="card" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`${API_BASE_URL}/api/v1/widgets/${member.githubId}`}
@@ -108,9 +117,11 @@ export default function Page() {
         )}
 
         <div>
-          <h2 className="font-bold border-b pb-2">
-            작성한 리뷰 {reviewData.results.length}
-          </h2>
+          <div className="flex gap-2 pb-1">
+            <h2 className="px-3 py-2 text-sm font-bold border-b-2 border-black">
+              작성한 리뷰 {reviewData.results.length}
+            </h2>
+          </div>
 
           {reviewData.results.length === 0 && (
             <div className="text-sm text-gray-500 mt-2">
@@ -118,12 +129,13 @@ export default function Page() {
             </div>
           )}
 
-          <ul className="flex flex-col">
+          <ul className="flex w-full flex-col">
             {reviewData.results.map((review) => (
               <li
                 key={review.id}
-                className="border-b py-3 flex items-start gap-3"
+                className="relative flex items-start gap-3 py-3"
               >
+                <RoughDivider fullWidth />
                 <div className="flex-1 min-w-0">
                   <Link
                     className="font-semibold hover:underline"
@@ -147,7 +159,7 @@ export default function Page() {
                 <span
                   className={`font-bold shrink-0 ${ratingColor(review.rating)}`}
                 >
-                  ⭐ {review.rating}
+                  <RatingValue rating={review.rating} />
                 </span>
               </li>
             ))}
