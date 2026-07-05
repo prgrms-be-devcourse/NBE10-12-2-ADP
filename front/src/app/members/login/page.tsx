@@ -6,6 +6,9 @@ import { apiFetch } from "@/lib/backend/client";
 
 import { useAuth } from "@/lib/auth/AuthProvider";
 
+import RoughButton from "@/app/_components/RoughButton";
+import { RoughInput } from "@/app/_components/RoughInput";
+
 export default function Page() {
   const router = useRouter();
   const { refresh } = useAuth();
@@ -73,25 +76,23 @@ export default function Page() {
     <>
       <h1>로그인</h1>
 
-      <form className="flex flex-col gap-2 p-2" onSubmit={handleSubmit}>
-        <input
-          className="border p-2 rounded"
+      <form className="flex max-w-sm flex-col gap-2 p-2" onSubmit={handleSubmit}>
+        <RoughInput
           type="text"
           name="username"
           placeholder="아이디"
           autoFocus
           maxLength={30}
         />
-        <input
-          className="border p-2 rounded"
+        <RoughInput
           type="password"
           name="password"
           placeholder="비밀번호"
           maxLength={30}
         />
-        <button className="border p-2 rounded" type="submit">
+        <RoughButton fullWidth roughSize="lg" tone="submit" type="submit">
           로그인
-        </button>
+        </RoughButton>
       </form>
     </>
   );

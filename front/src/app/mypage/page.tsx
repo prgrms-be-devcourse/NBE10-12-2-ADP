@@ -12,6 +12,12 @@ import type { components } from "@/lib/backend/apiV1/schema";
 import { ratingColor } from "@/lib/ratingColor";
 
 import Avatar from "@/app/_components/Avatar";
+import RatingHistogram from "@/app/_components/RatingHistogram";
+import RatingValue from "@/app/_components/RatingValue";
+import RoughButton from "@/app/_components/RoughButton";
+import RoughDivider from "@/app/_components/RoughDivider";
+import RoughFrame from "@/app/_components/RoughFrame";
+import { RoughInput } from "@/app/_components/RoughInput";
 
 type ReviewsByMemberDto = components["schemas"]["ReviewsByMemberDto"];
 type BookDto = components["schemas"]["BookDto"];
@@ -69,7 +75,7 @@ export default function Page() {
 
     loadReviews();
     loadWishes();
-  }, [isLoginMemberPending, isLogin]);
+  }, [isLoginMemberPending, isLogin, router]);
 
   const handleDeleteReview = (reviewId: number) => {
     if (!confirm("리뷰를 삭제하시겠습니까?")) return;
@@ -159,31 +165,39 @@ export default function Page() {
           <div
             className={`text-lg font-bold mt-2 ${ratingColor(averageNumber)}`}
           >
-            ⭐ {averageNumber}
+            <RatingValue rating={averageNumber} />
           </div>
         )}
         <div className="text-xs text-gray-500">내가 준 평균 별점</div>
+        <RatingHistogram
+          rating={reviewData.rating}
+          className="mt-3 w-full"
+        />
 
-        <button
-          className="border rounded px-3 py-1 text-sm mt-4 hover:bg-gray-100"
+        <RoughButton
+          className="mt-4"
+          roughSize="sm"
           type="button"
           onClick={handleLogout}
         >
           로그아웃
-        </button>
-        <button
-          className="text-xs text-gray-400 underline mt-2"
+        </RoughButton>
+        <RoughButton
+          className="mt-2"
+          roughSize="sm"
+          tone="cancel"
           type="button"
           onClick={handleWithdraw}
         >
           회원 탈퇴
-        </button>
+        </RoughButton>
       </div>
 
       <div className="flex-1 flex flex-col gap-4">
         <div>
           <h2 className="font-bold">위젯 미리보기</h2>
-          <div className="border rounded p-2 mt-1 min-h-24 flex items-center justify-center bg-gray-50">
+          <div className="rough-panel-border mt-1 flex min-h-24 items-center justify-center bg-gray-50 p-2">
+            <RoughFrame className="rough-overlay" variant="card" />
             {loginMember?.githubId ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -197,8 +211,10 @@ export default function Page() {
             )}
           </div>
           {loginMember?.widgetLink && (
-            <input
-              className="border p-1 rounded text-xs w-full mt-1"
+            <RoughInput
+              inputClassName="text-xs"
+              roughSize="sm"
+              wrapperClassName="mt-1"
               readOnly
               value={loginMember.widgetLink}
               onFocus={(e) => e.currentTarget.select()}
@@ -206,7 +222,7 @@ export default function Page() {
           )}
         </div>
 
-        <div className="flex gap-2 border-b">
+        <div className="flex gap-2 pb-1">
           <button
             type="button"
             className={`px-3 py-2 text-sm ${
@@ -239,12 +255,13 @@ export default function Page() {
               </div>
             )}
 
-            <ul className="flex flex-col">
+            <ul className="flex w-full flex-col">
               {reviewData.results.map((review) => (
                 <li
                   key={review.id}
-                  className="border-b py-3 flex items-start gap-3"
+                  className="relative flex items-start gap-3 py-3"
                 >
+                  <RoughDivider fullWidth />
                   <div className="flex-1 min-w-0">
                     <Link
                       className="font-semibold hover:underline"
@@ -264,19 +281,21 @@ export default function Page() {
                       {review.createdDate}
                     </div>
 
-                    <button
-                      className="border p-1 rounded text-xs mt-1"
+                    <RoughButton
+                      className="mt-1 px-2"
+                      roughSize="sm"
+                      tone="cancel"
                       type="button"
                       onClick={() => handleDeleteReview(review.id)}
                     >
                       삭제
-                    </button>
+                    </RoughButton>
                   </div>
 
                   <span
                     className={`font-bold shrink-0 ${ratingColor(review.rating)}`}
                   >
-                    ⭐ {review.rating}
+                    <RatingValue rating={review.rating} />
                   </span>
                 </li>
               ))}
@@ -292,12 +311,13 @@ export default function Page() {
               </div>
             )}
 
-            <ul className="flex flex-col">
+            <ul className="flex w-full flex-col">
               {wishes.map((book) => (
                 <li
                   key={book.id}
-                  className="border-b py-3 flex items-center justify-between gap-3"
+                  className="relative flex items-center justify-between gap-3 py-3"
                 >
+                  <RoughDivider fullWidth />
                   <Link href={`/books/${book.id}`} className="font-semibold">
                     {book.title}
                   </Link>
@@ -305,15 +325,17 @@ export default function Page() {
                     <span
                       className={`font-bold ${ratingColor(book.averageRating)}`}
                     >
-                      ⭐ {book.averageRating}
+                      <RatingValue rating={book.averageRating} />
                     </span>
-                    <button
-                      className="border p-1 rounded text-xs"
+                    <RoughButton
+                      className="px-2"
+                      roughSize="sm"
+                      tone="wishActive"
                       type="button"
                       onClick={() => handleRemoveWish(book.id)}
                     >
                       보고 싶어요 취소
-                    </button>
+                    </RoughButton>
                   </div>
                 </li>
               ))}

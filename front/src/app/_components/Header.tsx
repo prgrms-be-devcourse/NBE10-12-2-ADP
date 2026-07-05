@@ -7,6 +7,10 @@ import { useState } from "react";
 
 import { useAuth } from "@/lib/auth/AuthProvider";
 
+import RoughButton from "@/app/_components/RoughButton";
+import RoughDivider from "@/app/_components/RoughDivider";
+import { RoughInput } from "@/app/_components/RoughInput";
+
 export default function Header() {
   const router = useRouter();
   const { loginMember, isLogin, isLoginMemberPending, logout } = useAuth();
@@ -28,27 +32,28 @@ export default function Header() {
   };
 
   return (
-    <header className="border-b">
-      <nav className="flex items-center justify-between gap-2 mx-auto w-full max-w-4xl px-4 py-2">
-        <Link href="/" className="text-xl font-bold shrink-0">
+    <header className="relative">
+      <nav className="mx-auto flex w-full max-w-4xl items-center justify-between gap-2 px-4 py-2">
+        <Link href="/" className="shrink-0 text-xl font-bold">
           READTHEM.md
         </Link>
 
-        <form className="flex gap-1 flex-1 max-w-xs" onSubmit={handleSearch}>
-          <input
-            className="border rounded px-2 py-1 text-sm w-full"
-            type="text"
-            placeholder="제목/저자 검색"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            maxLength={100}
-          />
-          <button
-            className="border rounded px-2 py-1 text-sm shrink-0"
-            type="submit"
-          >
+        <form
+          className="flex max-w-xs flex-1 items-center gap-1"
+          onSubmit={handleSearch}
+        >
+          <label className="flex-1">
+            <RoughInput
+              type="text"
+              placeholder="제목/저자 검색"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              maxLength={100}
+            />
+          </label>
+          <RoughButton className="shrink-0 px-2" roughSize="sm" type="submit">
             검색
-          </button>
+          </RoughButton>
         </form>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -56,14 +61,17 @@ export default function Header() {
             도서 목록
           </Link>
 
-          {isLoginMemberPending && <span className="p-2">...</span>}
+          {isLoginMemberPending && <span className="px-2 py-1">...</span>}
 
           {!isLoginMemberPending && !isLogin && (
             <>
               <a
                 href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/oauth2/authorization/github?redirectUrl=${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}`}
+                className="rough-github-link"
+                aria-label="GitHub로 로그인"
               >
-                깃허브
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="rough-github-image" src="/github.svg" alt="" />
               </a>
               <Link
                 href="/members/login"
@@ -97,6 +105,9 @@ export default function Header() {
           )}
         </div>
       </nav>
+      <div className="mx-auto w-full max-w-4xl px-1">
+        <RoughDivider list={false} />
+      </div>
     </header>
   );
 }
