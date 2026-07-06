@@ -6,7 +6,7 @@ spring:
   config:
     import: optional:file:.env[.properties]
   profiles:
-    active: ${SPRING__PROFILES__ACTIVE:dev}
+    active: ${SPRING__PROFILES__ACTIVE}
   output:
     ansi:
       enabled: always
