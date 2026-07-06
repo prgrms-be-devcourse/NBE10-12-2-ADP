@@ -4,11 +4,11 @@ import com.back.domain.book.dto.BookDto;
 import com.back.domain.member.entity.Member;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.service.ReviewService;
-import com.back.standard.recommend.byReview.RecommendByReview;
+import com.back.standard.recommend.byRating.SimilarityRecommendByRating;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static com.back.standard.recommend.byReview.RecommendByReview.RecommendReview;
+import static com.back.standard.recommend.byRating.SimilarityRecommendByRating.RecommendReview;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class BookRecommendService {
-    private final RecommendByReview recommendSystem = new RecommendByReview();
+    private final SimilarityRecommendByRating recommendSystem = new SimilarityRecommendByRating();
     private final ReviewService reviewService;
     private final BookService bookService;
 
@@ -61,7 +61,7 @@ public class BookRecommendService {
                     recommendReviewsByReviewer(reviewer));
         }
 
-        return recommendSystem.getRecommend(actor.getId(), 5, 10)
+        return recommendSystem.getRecommendList(actor.getId(), 5, 10)
                 .stream()
                 .map(id -> new BookDto(bookService.getPureBook(id)))
                 .toList();

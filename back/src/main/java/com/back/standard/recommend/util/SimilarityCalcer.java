@@ -1,11 +1,9 @@
 package com.back.standard.recommend.util;
 
-import java.util.List;
-
 public interface SimilarityCalcer {
 
-    void setVectorA(List<Vector.VectorElement> vector);
-    void setVectorB(List<Vector.VectorElement> vector);
+    void setVectorA(Vector vector);
+    void setVectorB(Vector vector);
     double getCosineSimilarity();
 
 }
