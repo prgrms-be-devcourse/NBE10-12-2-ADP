@@ -82,8 +82,10 @@ public class CosineSimilarityCalcer implements SimilarityCalcer {
         setVectorA(target);
 
         matrix.entrySet().stream()
-                .filter(set -> set.getValue() != target)
-                .filter(set -> !set.getValue().isEmpty())
+                .filter(set -> {
+                    if (set.getValue() == target) return false;
+                    return !set.getValue().isEmpty();
+                })
                 .forEach(set -> {
                     setVectorB(set.getValue());
                     similarList.add(new Similar(set.getKey(), getCosineSimilarity()));

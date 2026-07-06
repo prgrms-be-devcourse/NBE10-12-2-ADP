@@ -15,8 +15,10 @@ public class RecommendByContent {
             String content
     ) { }
 
-    Map<Long, Vector> tfMap = new HashMap<>();
-    Map<Long, Integer> idfMap = new HashMap<>();
+    private Map<Long, Vector> tfMap = new HashMap<>();
+    private Map<Long, Integer> idfMap = new HashMap<>();
+
+    private long totalCnt = 0;
 
     private SimilarityCalcer calcer = new CosineSimilarityCalcer();
 
@@ -25,14 +27,19 @@ public class RecommendByContent {
 
     private Vector getTFVector(String content) {
 
+        totalCnt++;
         String[] words = content.split(" ");
 
         Map<Long, Integer> wordMap = new HashMap<>();
 
         for (String word : words) {
             long wordHash = word.hashCode();
-            wordMap.put(wordHash, wordMap.getOrDefault(wordHash, 1));
-            idfMap.put(wordHash, idfMap.getOrDefault(wordHash, 1));
+            if (wordMap.containsKey(wordHash)) {
+                wordMap.put(wordHash, wordMap.get(wordHash) + 1);
+                continue;
+            }
+            wordMap.put(wordHash, 1);
+            idfMap.put(wordHash, idfMap.getOrDefault(wordHash, 0) + 1);
         }
 
         Vector ret = new Vector();
@@ -41,11 +48,6 @@ public class RecommendByContent {
                 ret.putValue(key, (float) value / wordMap.size()));
 
         return ret;
-    }
-
-    public void clear() {
-        tfMap.clear();
-        idfMap.clear();
     }
 
     public void setData(List<Content> contents) {
@@ -64,7 +66,7 @@ public class RecommendByContent {
         Vector idf = new Vector();
 
         idfMap.forEach((key, value) -> {
-            idf.putValue(key, Math.log((double) idfMap.size() / value));
+            idf.putValue(key, Math.log((double) totalCnt / value));
         });
 
         Map<Long, Vector> tfIdf = new HashMap<>();

@@ -17,7 +17,6 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class BookRecommendService {
-    private final SimilarityRecommendByRating recommendSystem = new SimilarityRecommendByRating();
     private final ReviewService reviewService;
     private final BookService bookService;
 
@@ -39,7 +38,7 @@ public class BookRecommendService {
 
     public List<BookDto> getRecommends(Member actor) {
 
-        recommendSystem.clear();
+        SimilarityRecommendByRating recommendSystem = new SimilarityRecommendByRating();
 
         List<Review> recentReviews = reviewService
                 .getByMember(actor, 0, 5)
