@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import rough from "roughjs/bin/rough";
 
 import { ratingFillColor } from "@/lib/ratingColor";
+import { useTheme } from "@/lib/theme/ThemeProvider";
 
 function starPoints(width: number, height: number) {
   const centerX = width / 2;
@@ -30,6 +31,7 @@ export function RoughStarIcon({
   className?: string;
 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -48,7 +50,7 @@ export function RoughStarIcon({
 
       svg.append(
         rc.polygon(starPoints(width, height), {
-          stroke: "#1f1f1f",
+          stroke: theme === "dark" ? "#f4f1ea" : "#1f1f1f",
           strokeWidth: 1.15,
           roughness: 1.15,
           bowing: 1,
@@ -66,7 +68,7 @@ export function RoughStarIcon({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [fill]);
+  }, [fill, theme]);
 
   return <svg ref={svgRef} aria-hidden="true" className={className} />;
 }

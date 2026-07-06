@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 
 import Header from "@/app/_components/Header";
 
@@ -17,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -31,14 +32,16 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="flex flex-col min-h-screen antialiased">
-        <AuthProvider>
-          <Header />
-          <main className="mx-auto flex w-full max-w-4xl flex-grow flex-col p-4">
-            <div className="relative flex flex-1 flex-col">{children}</div>
-          </main>
-          <footer className="p-2 text-center">푸터</footer>
-        </AuthProvider>
+      <body className="flex min-h-screen flex-col antialiased">
+        <ThemeProvider>
+          <AuthProvider>
+            <Header />
+            <main className="mx-auto flex w-full max-w-4xl flex-grow flex-col p-4">
+              <div className="relative flex flex-1 flex-col">{children}</div>
+            </main>
+            <footer className="p-2 text-center">푸터</footer>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
