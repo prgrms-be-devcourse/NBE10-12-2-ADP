@@ -11,15 +11,16 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 public class Book extends BaseEntity {
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 
     @Column(unique = true)
     private String isbn;
 
+    @Column(columnDefinition = "LONGTEXT")
     private String authors;
 
     private LocalDateTime publishedDate;
