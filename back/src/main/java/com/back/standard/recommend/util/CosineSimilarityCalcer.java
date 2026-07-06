@@ -5,16 +5,17 @@ import java.util.List;
 
 import static com.back.standard.recommend.util.Vector.VectorElement;
 
-public class CosineSimilarity {
+public class CosineSimilarityCalcer implements SimilarityCalcer {
 
     private double vectorASqrMagnitude;
     private double vectorBSqrMagnitude;
 
-    private List<VectorElement> vectorA;
-    private List<VectorElement> vectorB;
+    private List<VectorElement> sortedVectorA;
+    private List<VectorElement> sortedVectorB;
 
-    private static List<VectorElement> getVector(List<VectorElement> vector) {
+    private static List<VectorElement> getSortedVector(Vector vector) {
         return vector
+                .getVectorElementList()
                 .stream()
                 .sorted(Comparator
                         .comparingLong(
@@ -31,14 +32,15 @@ public class CosineSimilarity {
                 .sum();
     }
 
-    public void setVectorA(List<VectorElement> vector) {
-        vectorA = getVector(vector);
-        vectorASqrMagnitude = getSqrMagnitude(vector);
+    public void setVectorA(Vector vector) {
+
+        sortedVectorA = getSortedVector(vector);
+        vectorASqrMagnitude = getSqrMagnitude(sortedVectorA);
     }
 
-    public void setVectorB(List<VectorElement> vector) {
-        vectorB = getVector(vector);
-        vectorBSqrMagnitude = getSqrMagnitude(vector);
+    public void setVectorB(Vector vector) {
+        sortedVectorB = getSortedVector(vector);
+        vectorBSqrMagnitude = getSqrMagnitude(sortedVectorB);
     }
 
     public double getCosineSimilarity() {
@@ -48,9 +50,9 @@ public class CosineSimilarity {
 
         double ret = 0;
 
-        while (refA < vectorA.size() && refB < vectorB.size()) {
-            VectorElement ratingA = vectorA.get(refA);
-            VectorElement ratingB = vectorB.get(refB);
+        while (refA < sortedVectorA.size() && refB < sortedVectorB.size()) {
+            VectorElement ratingA = sortedVectorA.get(refA);
+            VectorElement ratingB = sortedVectorB.get(refB);
 
             if (ratingA.label() < ratingB.label()) {
                 refA++;

@@ -3,6 +3,8 @@ package com.back.domain.review.repository;
 import com.back.domain.book.entity.Book;
 import com.back.domain.member.entity.Member;
 import com.back.domain.review.entity.Review;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,9 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
+
     List<Review> findByBook(Book book);
+    Page<Review> findByBook(Book book, Pageable pageable);
 
     List<Review> findByReviewer(Member member);
+    Page<Review> findByReviewer(Member member, Pageable pageable);
 
     int countByReviewerAndRating(Member member, float rating);
 
