@@ -9,11 +9,12 @@ public class Vector {
 
     public record VectorElement(
             long label,
-            float value
-    ) { }
+            double value
+    ) {
+    }
 
-    private final Map<Long, Float> values = new HashMap<>();
-    private float sum = 0;
+    private final Map<Long, Double> values = new HashMap<>();
+    private double sum = 0;
 
     public Set<Long> getLabels() {
         return values.keySet();
@@ -26,7 +27,7 @@ public class Vector {
                 .toList();
     }
 
-    public void putValue(long label, float value) {
+    public void putValue(long label, double value) {
         if (values.containsKey(label)) {
             sum -= values.get(label);
         }
@@ -34,15 +35,31 @@ public class Vector {
         sum += value;
     }
 
-    public Vector subtractionValue(float value) {
+    public Vector subtractionValue(double value) {
         values.replaceAll((key, oldValue) -> oldValue - value);
         return this;
     }
 
-    public float getAverageValue() {
+    public static Vector hadamardProduct(Vector v1, Vector v2) {
+        Vector v = new Vector();
+
+        v1.values.forEach((key, oldValue) -> {
+            if (!v2.values.containsKey(key)) {
+                return;
+            }
+            v.putValue(key, oldValue * v2.values.get(key));
+
+        });
+
+        return v;
+    }
+
+    public double getAverageValue() {
         return sum / values.size();
     }
 
-    public boolean isEmpty() { return values.isEmpty(); }
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
 
 }
