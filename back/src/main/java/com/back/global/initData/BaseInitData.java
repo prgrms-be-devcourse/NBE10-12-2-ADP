@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Profile("dev")
+@Profile({"dev", "test"})
 @Configuration
 @RequiredArgsConstructor
 public class BaseInitData {
