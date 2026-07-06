@@ -4,6 +4,26 @@
   --background: #ffffff;
   --foreground: #171717;
   --line: #171717;
+  --surface: #ffffff;
+  --surface-card: #ffffff;
+  --surface-soft: #fffdf7;
+  --surface-muted: #f9fafb;
+  --surface-transparent: transparent;
+  --surface-muted-hover: #f3f4f6;
+  --surface-hover: #f3f4f6;
+}
+
+:root[data-theme="dark"] {
+  --background: #202020;
+  --foreground: #f4f1ea;
+  --line: #f4f1ea;
+  --surface: #202020;
+  --surface-card: #262626;
+  --surface-soft: #1b1b1b;
+  --surface-muted: #242424;
+  --surface-transparent: transparent;
+  --surface-muted-hover: #2f2f2f;
+  --surface-hover: #2f2f2f;
 }
 
 @theme inline {
@@ -11,15 +31,6 @@
   --color-foreground: var(--foreground);
   --font-sans: "Gaegu", sans-serif;
 }
-
-/*
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-*/
 
 body {
   background: var(--background);
@@ -46,46 +57,46 @@ a:hover {
 
 .sketch-shell {
   position: relative;
-  border: 1px solid rgb(23 23 23 / 0.22);
+  border: 1px solid color-mix(in srgb, var(--line) 22%, transparent);
   border-radius: 12px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-card {
   position: relative;
-  border: 1px solid rgb(23 23 23 / 0.18);
+  border: 1px solid color-mix(in srgb, var(--line) 18%, transparent);
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-panel {
   position: relative;
-  border: 1px solid rgb(23 23 23 / 0.18);
+  border: 1px solid color-mix(in srgb, var(--line) 18%, transparent);
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-input {
-  border: 1px solid rgb(23 23 23 / 0.28);
+  border: 1px solid color-mix(in srgb, var(--line) 28%, transparent);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-input:focus {
   outline: none;
-  border-color: #171717;
-  box-shadow: 0 0 0 2px rgb(23 23 23 / 0.08);
+  border-color: var(--line);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--line) 8%, transparent);
 }
 
 .sketch-button {
   position: relative;
-  border: 1px solid rgb(23 23 23 / 0.28);
+  border: 1px solid color-mix(in srgb, var(--line) 28%, transparent);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-button:hover {
-  background: rgb(243 244 246);
+  background: var(--surface-hover);
 }
 
 .sketch-dashed {
@@ -122,7 +133,7 @@ a:hover {
   width: 100%;
   border: 0;
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .rough-input-border > .rough-overlay {
@@ -130,7 +141,7 @@ a:hover {
 }
 
 .rough-input-paper {
-  background: #fffdf7;
+  background: var(--surface-soft);
 }
 
 .rough-input-history {
@@ -152,13 +163,13 @@ a:hover {
   min-width: 48px;
   border: 0;
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
   padding: 0 0.5rem;
   font-size: 0.875rem;
 }
 
 .rough-search-button:hover {
-  background: rgb(243 244 246);
+  background: var(--surface-hover);
 }
 
 .rough-search-button-frame {
@@ -178,6 +189,12 @@ a:hover {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+  background: var(--surface);
+  padding: 0.25rem 0.35rem;
+}
+
+.rough-github-link:hover {
+  background: var(--surface-hover);
 }
 
 .rough-github-link:focus-visible {
@@ -190,6 +207,18 @@ a:hover {
   width: 88px;
   height: 34px;
   object-fit: contain;
+}
+
+:root[data-theme="dark"] .rough-github-image {
+  filter: brightness(0) invert(1);
+}
+
+:root[data-theme="dark"] .rough-github-inline-image {
+  filter: brightness(0) invert(1);
+}
+
+:root[data-theme="dark"] .rough-github-link {
+  border: 1px solid color-mix(in srgb, var(--line) 22%, transparent);
 }
 
 .rough-github-inline {
@@ -224,7 +253,7 @@ a:hover {
   width: 100%;
   border: 0;
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .rough-textarea-border > .rough-overlay {
@@ -242,6 +271,7 @@ a:hover {
   position: relative;
   border: 0;
   border-radius: 12px;
+  background: var(--surface-card);
   transition:
     transform 160ms ease,
     box-shadow 160ms ease;
@@ -257,6 +287,94 @@ a:hover {
   transition:
     opacity 160ms ease,
     transform 160ms ease;
+}
+
+.theme-nav-button {
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.theme-nav-button:hover {
+  background: var(--surface-hover);
+}
+
+.theme-nav-link {
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.theme-nav-link:hover {
+  background: var(--surface-hover);
+}
+
+.theme-tag {
+  color: #2563eb;
+}
+
+:root[data-theme="dark"] .theme-tag {
+  color: #93c5fd;
+}
+
+.theme-muted {
+  color: #6b7280;
+}
+
+:root[data-theme="dark"] .theme-muted {
+  color: #9ca3af;
+}
+
+.theme-subtle {
+  color: #9ca3af;
+}
+
+:root[data-theme="dark"] .theme-subtle {
+  color: #d4d4d8;
+}
+
+.theme-link {
+  color: #2563eb;
+}
+
+:root[data-theme="dark"] .theme-link {
+  color: #93c5fd;
+}
+
+.theme-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-tab-divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 10px;
+  width: 100%;
+}
+
+.theme-tab-divider.theme-tab-divider-strong {
+  color: var(--foreground);
+}
+
+.theme-tab-divider > .rough-overlay {
+  inset: 0;
+}
+
+.theme-tab-active {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.theme-tab-inactive {
+  border-color: transparent;
+  color: #9ca3af;
+}
+
+:root[data-theme="dark"] .theme-tab-inactive {
+  color: #737373;
 }
 
 .group:hover .rough-card-line {
@@ -304,7 +422,7 @@ a:hover {
   justify-content: center;
   border: 0;
   border-radius: 9999px;
-  background: #fff;
+  background: var(--surface);
   padding: 0.25rem 0.75rem;
   line-height: 1.25rem;
 }
@@ -318,11 +436,11 @@ a:hover {
 }
 
 .rough-action-neutral {
-  background: #fff;
+  background: var(--surface);
 }
 
 .rough-action-neutral:hover {
-  background: rgb(243 244 246);
+  background: var(--surface-muted-hover);
 }
 
 .rough-action-wish {
@@ -358,12 +476,12 @@ a:hover {
 }
 
 .rough-action-cancel {
-  background: #f9fafb;
-  color: #374151;
+  background: var(--surface-muted);
+  color: var(--foreground);
 }
 
 .rough-action-cancel:hover {
-  background: #f3f4f6;
+  background: var(--surface-muted-hover);
 }
 
 .rough-action-button-frame {
@@ -386,7 +504,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   background:
-    linear-gradient(rgb(255 253 247 / 0.84), rgb(255 253 247 / 0.84)),
+    linear-gradient(color-mix(in srgb, var(--surface-soft) 84%, transparent), color-mix(in srgb, var(--surface-soft) 84%, transparent)),
     rgb(17 24 39 / 0.38);
   padding: 1rem;
 }
@@ -396,7 +514,7 @@ a:hover {
   width: min(100%, 24rem);
   border: 0;
   border-radius: 16px;
-  background: #fffdf7;
+  background: var(--surface-soft);
   padding: 1.25rem;
   box-shadow: 0 18px 45px rgb(17 24 39 / 0.16);
 }

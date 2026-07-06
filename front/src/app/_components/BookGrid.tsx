@@ -18,14 +18,14 @@ export default function BookGrid({ books }: { books: BookDto[] }) {
       {books.map((book) => (
         <li
           key={book.id}
-          className="group rough-book-card rounded-xl bg-white"
+          className="group rough-book-card rounded-xl"
         >
           <RoughFrame className="rough-overlay rough-card-line" variant="card" />
           <Link
             href={`/books/${book.id}`}
             className="relative z-10 flex flex-col gap-1 p-3"
           >
-            <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg bg-gray-50">
+            <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg bg-transparent">
               {book.imgUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

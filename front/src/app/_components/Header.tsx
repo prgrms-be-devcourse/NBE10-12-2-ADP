@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { useTheme } from "@/lib/theme/ThemeProvider";
 
 import RoughButton from "@/app/_components/RoughButton";
 import RoughDivider from "@/app/_components/RoughDivider";
@@ -14,6 +15,7 @@ import { RoughInput } from "@/app/_components/RoughInput";
 export default function Header() {
   const router = useRouter();
   const { loginMember, isLogin, isLoginMemberPending, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleLogout = () => {
@@ -57,9 +59,28 @@ export default function Header() {
         </form>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Link href="/" className="p-2 rounded hover:bg-gray-100">
+          <Link href="/" className="theme-nav-link">
             도서 목록
           </Link>
+
+          <button
+            type="button"
+            className="theme-nav-button flex items-center gap-2"
+            onClick={toggleTheme}
+            aria-label={
+              theme === "light" ? "다크 모드로 전환" : "라이트 모드로 전환"
+            }
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={theme === "light" ? "/moon.svg" : "/sun.svg"}
+              alt=""
+              className="h-5 w-5"
+            />
+            <span className="text-sm">
+              {theme === "light" ? "다크" : "라이트"}
+            </span>
+          </button>
 
           {isLoginMemberPending && <span className="px-2 py-1">...</span>}
 
@@ -67,22 +88,15 @@ export default function Header() {
             <>
               <a
                 href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/oauth2/authorization/github?redirectUrl=${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}`}
-                className="rough-github-link"
                 aria-label="GitHub로 로그인"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="rough-github-image" src="/github.svg" alt="" />
               </a>
-              <Link
-                href="/members/login"
-                className="p-2 rounded hover:bg-gray-100"
-              >
+              <Link href="/members/login" className="theme-nav-link">
                 로그인
               </Link>
-              <Link
-                href="/members/join"
-                className="p-2 rounded hover:bg-gray-100"
-              >
+              <Link href="/members/join" className="theme-nav-link">
                 회원가입
               </Link>
             </>
@@ -91,12 +105,12 @@ export default function Header() {
           {!isLoginMemberPending && isLogin && (
             <>
               <span className="p-2">{loginMember?.username}님</span>
-              <Link href="/mypage" className="p-2 rounded hover:bg-gray-100">
+              <Link href="/mypage" className="theme-nav-link">
                 마이페이지
               </Link>
               <button
                 type="button"
-                className="p-2 rounded hover:bg-gray-100"
+                className="theme-nav-link"
                 onClick={handleLogout}
               >
                 로그아웃

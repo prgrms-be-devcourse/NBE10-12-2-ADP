@@ -281,14 +281,16 @@ export default function Page() {
         <div className="grid flex-1 gap-4 md:grid-cols-[minmax(0,1fr)_10rem]">
           <div className="flex min-w-0 flex-col gap-2">
             <h1 className="text-2xl font-bold">{book.title}</h1>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm theme-muted">
               {book.authors.join(", ") || "-"} · {book.publisher} ·{" "}
               {book.publishedDate}
             </div>
 
-            <p className="mt-1 text-sm text-gray-700">{book.description}</p>
+            <p className="mt-1 text-sm text-gray-700 dark:text-gray-200">
+              {book.description}
+            </p>
 
-            <div className="flex flex-wrap gap-2 text-sm text-blue-600">
+            <div className="flex flex-wrap gap-2 text-sm theme-tag">
               {book.tags.map((tag) => (
                 <span key={tag}>#{tag}</span>
               ))}
@@ -311,7 +313,7 @@ export default function Page() {
                   "-"
                 )}
               </div>
-              <div className="mt-1 text-sm text-gray-500">
+              <div className="mt-1 text-sm theme-muted">
                 리뷰 {book.reviewCount}개
               </div>
             </div>
@@ -336,7 +338,7 @@ export default function Page() {
         </div>
 
         {reviews.length === 0 && (
-          <div className="mt-2 text-sm text-gray-500">
+          <div className="mt-2 text-sm theme-muted">
             아직 리뷰가 없습니다.
           </div>
         )}
@@ -412,14 +414,14 @@ export default function Page() {
                       )}
                     </div>
 
-                    <div className="flex gap-1 flex-wrap text-xs text-blue-600">
+                    <div className="flex flex-wrap gap-1 text-xs theme-tag">
                       {review.tags.map((tag) => (
                         <span key={tag}>#{tag}</span>
                       ))}
                     </div>
 
-                    <div className="text-sm mt-1">{review.content}</div>
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="mt-1 text-sm">{review.content}</div>
+                    <div className="mt-1 text-xs theme-subtle">
                       {review.createdDate}
                     </div>
 

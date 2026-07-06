@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 
 import rough from "roughjs/bin/rough";
 
+import { useTheme } from "@/lib/theme/ThemeProvider";
+
 export default function RoughBar({
   className = "",
   fill,
@@ -12,6 +14,7 @@ export default function RoughBar({
   fill: string;
 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -49,7 +52,7 @@ export default function RoughBar({
 
       svg.append(
         rc.path(roundedRect, {
-          stroke: "#1f1f1f",
+          stroke: theme === "dark" ? "#f4f1ea" : "#1f1f1f",
           strokeWidth: 1,
           roughness: 1.25,
           bowing: 1.1,
@@ -67,7 +70,7 @@ export default function RoughBar({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [fill]);
+  }, [fill, theme]);
 
   return <svg ref={svgRef} aria-hidden="true" className={className} />;
 }
