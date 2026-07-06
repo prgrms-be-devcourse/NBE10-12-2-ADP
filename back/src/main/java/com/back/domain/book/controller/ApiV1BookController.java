@@ -2,6 +2,7 @@ package com.back.domain.book.controller;
 
 import com.back.domain.book.dto.BookDetailDto;
 import com.back.domain.book.dto.BookDto;
+import com.back.domain.book.service.BookRankService;
 import com.back.domain.book.service.BookRecommendService;
 import com.back.domain.book.service.BookService;
 import com.back.global.rq.Rq;
@@ -23,6 +24,7 @@ public class ApiV1BookController {
     private final BookService bookService;
     private final BookRecommendService bookRecommendService;
     private final Rq rq;
+    private final BookRankService bookRankService;
 
     @GetMapping
     @Operation(summary = "도서 다건 조회")
@@ -45,6 +47,17 @@ public class ApiV1BookController {
     @GetMapping("/recommend")
     public List<BookDto> recommend() {
         return bookRecommendService.getRecommends(rq.getActor());
+
+    }
+
+    @GetMapping("/rank")
+    public List<BookDto> rank(
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        if (type.equals("rating")) return bookRankService.getBooksByRating(page, size);
+        return bookRankService.getBooksByReviewCnt(page, size);
 
     }
 }
