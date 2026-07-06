@@ -41,6 +41,7 @@ public class SecurityConfig {
                                         "/api/*/reviews/member/{id:\\d+}",
                                         "/api/*/books",
                                         "/api/*/books/{id:\\d+}",
+                                        "/api/*/books/rank",
                                         "/api/*/books/search"
                                 ).permitAll()
                                 .requestMatchers(

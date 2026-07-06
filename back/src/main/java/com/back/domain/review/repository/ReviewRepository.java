@@ -3,13 +3,18 @@ package com.back.domain.review.repository;
 import com.back.domain.book.entity.Book;
 import com.back.domain.member.entity.Member;
 import com.back.domain.review.entity.Review;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
@@ -29,4 +34,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     int countByBookAndRating(Book book, float rating);
 
     Optional<Review> findFirstByBookAndReviewer(Book book, Member reviewer);
+
+    @Query("""
+            SELECT r.book AS book, count(*) as CNT
+            FROM Review r
+            WHERE r.modifiedDate >= :cutoffDate
+            GROUP BY r.book
+            ORDER BY CNT DESC
+           """)
+    Page<BookInterface> findBookByOrderByReviewCnt(@Param("cutoffDate") LocalDateTime cutoffDate, Pageable pageable);
 }
