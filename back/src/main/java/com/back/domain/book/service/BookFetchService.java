@@ -6,14 +6,18 @@ import com.back.domain.book.repository.BookFetchProgressRepository;
 import com.back.domain.book.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.JsonNode;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,16 +33,20 @@ public class BookFetchService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    @Autowired
+    @Lazy
+    private BookFetchService self;
+
     @Value("${custom.book-fetch.api-keys}")
     private List<String> apiKeys;
 
     private static final String API_URL = "https://www.nl.go.kr/seoji/SearchApi.do";
-    private static final int PAGE_SIZE = 500;
+    private static final int PAGE_SIZE = 1000;
     private static final int DAILY_LIMIT = 10_000;
 
     @Transactional
     public void fetch() {
-        BookFetchProgress progress = bookFetchProgressRepository.findById(1L)
+        BookFetchProgress progress = bookFetchProgressRepository.findFirstByOrderByIdAsc()
                 .orElseGet(() -> {
                     BookFetchProgress newProgress = new BookFetchProgress();
                     newProgress.nextPage();
@@ -53,19 +61,27 @@ public class BookFetchService {
         String apiKey = apiKeys.get(progress.getCurrentApiKeyIndex());
 
         // 국립중앙도서관 api 요청변수에 맞게 변경
-        String url = UriComponentsBuilder.fromUriString(API_URL)
-                .queryParam("cert_Key", apiKey)
+        URI uri = UriComponentsBuilder.fromUriString(API_URL)
+                .queryParam("cert_key", apiKey)
                 .queryParam("result_style", "json")
                 .queryParam("page_no", progress.getCurrentPage())
                 .queryParam("page_size", PAGE_SIZE)
+                .queryParam("form", "종이책")
                 .queryParam("sort", "INPUT_DATE")
                 .queryParam("order_by", "DESC")
-                .build(true)
-                .toUriString();
+                .encode()
+                .build()
+                .toUri();
 
         try {
-            String response = restTemplate.getForObject(url, String.class);
+            String response = restTemplate.getForObject(uri, String.class);
             JsonNode root = objectMapper.readTree(response);
+
+            if ("ERROR".equals(root.path("RESULT").asText(null))) {
+                log.error("국립중앙도서관 API 오류 - errCode: {}, errMessage: {}, page: {}",
+                        root.path("ERR_CODE").asText(), root.path("ERR_MESSAGE").asText(), progress.getCurrentPage());
+                return;
+            }
 
             JsonNode items = root.path("docs");
 
@@ -76,10 +92,10 @@ public class BookFetchService {
 
             if (items.isArray()) {
                 for (JsonNode item : items) {
-                    saveBook(item);
+                    trySaveBook(item);
                 }
             } else {
-                saveBook(items);
+                trySaveBook(items);
             }
 
             progress.incrementCallCount();
@@ -100,7 +116,16 @@ public class BookFetchService {
         }
     }
 
-    private void saveBook(JsonNode item) {
+    private void trySaveBook(JsonNode item) {
+        try {
+            self.saveBook(item);
+        } catch (Exception e) {
+            log.error("도서 저장 실패 - isbn: {}, title: {}", item.path("EA_ISBN").asText(), item.path("TITLE").asText(), e);
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveBook(JsonNode item) {
         String isbn = item.path("EA_ISBN").asText();
 
         if (isbn.isBlank() || bookRepository.existsByIsbn(isbn)) {
@@ -124,7 +149,7 @@ public class BookFetchService {
 
         Book book = new Book(
                 item.path("TITLE").asText(),
-                item.path("BOOK_INTRODUCTION_URL").asText(null),
+                item.path("BOOK_INTRODUCTION").asText(null),
                 isbn,
                 item.path("AUTHOR").asText(null),
                 publishedDate,
