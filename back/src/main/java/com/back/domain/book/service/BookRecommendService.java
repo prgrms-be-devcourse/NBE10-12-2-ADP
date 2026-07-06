@@ -8,7 +8,7 @@ import com.back.standard.recommend.byRating.SimilarityRecommendByRating;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static com.back.standard.recommend.byRating.SimilarityRecommendByRating.RecommendReview;
+import static com.back.standard.recommend.byRating.SimilarityRecommendByRating.Rating;
 
 import java.util.HashSet;
 import java.util.List;
@@ -21,14 +21,14 @@ public class BookRecommendService {
     private final ReviewService reviewService;
     private final BookService bookService;
 
-    private RecommendReview reviewToRecommendReview(Review review) {
-        return new RecommendReview(
+    private Rating reviewToRecommendReview(Review review) {
+        return new Rating(
                 review.getReviewer().getId(),
                 review.getBook().getId(),
                 review.getRating());
     }
 
-    private List<RecommendReview> recommendReviewsByReviewer(Member reviewer) {
+    private List<Rating> recommendReviewsByReviewer(Member reviewer) {
 
         return reviewService.getByMember(reviewer, 0, 5)
                 .stream()

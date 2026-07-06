@@ -1,7 +1,9 @@
 package com.back.standard.recommend.util;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import static com.back.standard.recommend.util.Vector.VectorElement;
 
@@ -72,4 +74,23 @@ public class CosineSimilarityCalcer implements SimilarityCalcer {
         return ret / Math.sqrt(vectorASqrMagnitude * vectorBSqrMagnitude);
     }
 
+
+    public List<Similar> getSimilarList(Vector target, Map<Long, Vector> matrix) {
+
+        List<Similar> similarList = new ArrayList<>();
+
+        setVectorA(target);
+
+        matrix.entrySet().stream()
+                .filter(set -> set.getValue() != target)
+                .filter(set -> !set.getValue().isEmpty())
+                .forEach(set -> {
+                    setVectorB(set.getValue());
+                    similarList.add(new Similar(set.getKey(), getCosineSimilarity()));
+                });
+
+        similarList.sort(Comparator.comparingDouble(a -> -a.score()));
+
+        return similarList;
+    }
 }

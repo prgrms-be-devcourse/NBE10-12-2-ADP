@@ -6,78 +6,56 @@ import com.back.standard.recommend.util.Vector;
 
 import java.util.*;
 import static com.back.standard.recommend.util.Vector.VectorElement;
+import static com.back.standard.recommend.util.SimilarityCalcer.Similar;
 
 public class SimilarityRecommendByRating {
 
-    public record RecommendReview (
+    public record Rating(
             long reviewerId,
             long subjectId,
             float rating
     ) { }
 
-    record Similar (
-            long id,
-            double score
-    ) { }
-
-    private final Map<Long, Vector> users;
+    private final Map<Long, Vector> ratingMatrix;
     private SimilarityCalcer calcer = new CosineSimilarityCalcer();
 
     public SimilarityRecommendByRating() {
-        users = new HashMap<>();
+        ratingMatrix = new HashMap<>();
     }
 
     public SimilarityRecommendByRating(SimilarityCalcer calcer) {
-        users = new HashMap<>();
+        ratingMatrix = new HashMap<>();
         this.calcer = calcer;
     }
 
     public void clear() {
-        users.clear();
+        ratingMatrix.clear();
     }
 
-    public void setData(List<RecommendReview> reviews) {
+    public void setData(List<Rating> reviews) {
 
         reviews.forEach(review -> {
-            if (!users.containsKey(review.reviewerId())) {
-                users.put(review.reviewerId(), new Vector());
+            if (!ratingMatrix.containsKey(review.reviewerId())) {
+                ratingMatrix.put(review.reviewerId(), new Vector());
             }
-            users.get(review.reviewerId()).putValue(
+            ratingMatrix.get(review.reviewerId()).putValue(
                     review.subjectId(), review.rating());
 
         });
 
     }
 
-    private List<Similar> getSimilarList(Vector target) {
-
-        users.replaceAll((_, oldValue) ->
-                oldValue.subtractionValue(oldValue.getAverageValue()));
-
-        List<Similar> similarList = new ArrayList<>();
-
-        calcer.setVectorA(target);
-
-        users.entrySet().stream()
-                .filter(set -> set.getValue() != target)
-                .filter(set -> !set.getValue().isEmpty())
-                .forEach(set -> {
-                    calcer.setVectorB(set.getValue());
-                    similarList.add(new Similar(set.getKey(), calcer.getCosineSimilarity()));
-                });
-
-        return similarList;
-    }
-
     public List<Long> getRecommendList(long targetUserId, int referenceCnt, int maxRecommend) {
 
-        Vector targetUser = users.getOrDefault(targetUserId, null);
+        Vector targetUser = ratingMatrix.getOrDefault(targetUserId, null);
 
         if (targetUser == null) return List.of();
         if (targetUser.isEmpty()) return List.of();
 
-        List<Similar> similarList = getSimilarList(targetUser);
-        similarList.sort(Comparator.comparingDouble(a -> -a.score()));
+        ratingMatrix.replaceAll((_, oldValue) ->
+                oldValue.subtractionValue(oldValue.getAverageValue()));
+
+        List<Similar> similarList = calcer.getSimilarList(targetUser, ratingMatrix);
 
         Map<Long, Double> recommends = new HashMap<>();
         Set<Long> alreadyRead = targetUser.getLabels();
@@ -87,7 +65,7 @@ public class SimilarityRecommendByRating {
             double similarScore = similarList.get(i).score();
 
             List<VectorElement> compareReviewList =
-                    users.get(similarList.get(i).id()).getVectorElementList();
+                    ratingMatrix.get(similarList.get(i).id()).getVectorElementList();
 
             compareReviewList.stream()
                     .filter(rating -> !alreadyRead.contains(rating.label()))
@@ -106,8 +84,8 @@ public class SimilarityRecommendByRating {
                 .entrySet()
                 .stream()
                 .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-                .map(Map.Entry::getKey)
                 .limit(maxRecommend)
+                .map(Map.Entry::getKey)
                 .toList();
     }
 
