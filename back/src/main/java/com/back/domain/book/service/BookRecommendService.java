@@ -7,6 +7,7 @@ import com.back.domain.review.service.ReviewService;
 import com.back.standard.recommend.byRating.SimilarityRecommendByRating;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.back.standard.recommend.byRating.SimilarityRecommendByRating.Rating;
 
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookRecommendService {
     private final ReviewService reviewService;
     private final BookService bookService;
