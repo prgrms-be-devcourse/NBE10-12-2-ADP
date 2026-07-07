@@ -20,3 +20,5 @@ custom:
     expirationSeconds: "#{60*20}"
   book-fetch:
     api-keys: dummy
+  security:
+    allowedOrigins: dummy
