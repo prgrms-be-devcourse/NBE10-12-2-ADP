@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { useEffect, useState } from "react";
 
@@ -26,10 +26,10 @@ type BookDetailDto = components["schemas"]["BookDetailDto"];
 type ReviewDto = components["schemas"]["ReviewDto"];
 
 export default function Page() {
-  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { loginMember, isLogin } = useAuth();
 
+  const [id, setId] = useState<string | null>();
   const [book, setBook] = useState<BookDetailDto | null>(null);
   const [reviews, setReviews] = useState<ReviewDto[] | null>(null);
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
@@ -38,6 +38,8 @@ export default function Page() {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const loadBook = () => {
+    if (id == null) return;
+
     apiFetch(`/api/v1/books/${id}`)
       .then((data) => {
         setLoadError(null);
@@ -49,6 +51,8 @@ export default function Page() {
   };
 
   const loadReviews = () => {
+    if (id == null) return;
+
     apiFetch(`/api/v1/reviews/book/${id}`)
       .then((data) => {
         setLoadError(null);
@@ -60,6 +64,17 @@ export default function Page() {
   };
 
   useEffect(() => {
+    setId(new URLSearchParams(window.location.search).get("id"));
+  }, []);
+
+  useEffect(() => {
+    if (id === undefined) return;
+
+    if (id === null) {
+      setLoadError("책 ID가 없습니다.");
+      return;
+    }
+
     apiFetch(`/api/v1/books/${id}`)
       .then((data) => {
         setLoadError(null);
@@ -117,6 +132,7 @@ export default function Page() {
 
   const handleWriteSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (id == null) return;
 
     const form = e.currentTarget;
     const body = extractReviewFields(form);
@@ -164,7 +180,7 @@ export default function Page() {
   };
 
   const handleToggleWish = () => {
-    if (book == null) return;
+    if (book == null || id == null) return;
 
     apiFetch(`/api/v1/wishes/book/${id}`, {
       method: book.isWished ? "DELETE" : "POST",
@@ -384,7 +400,7 @@ export default function Page() {
                 </form>
               ) : (
                 <div className="flex items-start gap-3">
-                  <Link href={`/members/${review.reviewer.id}`}>
+                  <Link href={`/members/detail?id=${review.reviewer.id}`}>
                     <Avatar label={review.reviewer.githubId} />
                   </Link>
 
@@ -392,7 +408,7 @@ export default function Page() {
                     <div className="flex items-center gap-1">
                       <Link
                         className="font-semibold hover:underline"
-                        href={`/members/${review.reviewer.id}`}
+                        href={`/members/detail?id=${review.reviewer.id}`}
                       >
                         {review.reviewer.githubId ?? "탈퇴한 사용자"}
                       </Link>

@@ -285,7 +285,7 @@ export default function Page() {
                   <div className="flex-1 min-w-0">
                     <Link
                       className="font-semibold hover:underline"
-                      href={`/books/${review.bookId}`}
+                      href={`/books/detail?id=${review.bookId}`}
                     >
                       {bookTitles[review.bookId] ?? `책 #${review.bookId}`}
                     </Link>
@@ -338,7 +338,10 @@ export default function Page() {
                   className="relative flex items-center justify-between gap-3 py-3"
                 >
                   <RoughDivider fullWidth />
-                  <Link href={`/books/${book.id}`} className="font-semibold">
+                  <Link
+                    href={`/books/detail?id=${book.id}`}
+                    className="font-semibold"
+                  >
                     {book.title}
                   </Link>
                   <div className="flex items-center gap-3">

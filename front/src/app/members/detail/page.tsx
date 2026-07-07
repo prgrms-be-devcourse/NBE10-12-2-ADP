@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
 
 import { useEffect, useState } from "react";
 
@@ -20,14 +19,24 @@ type MemberDto = components["schemas"]["MemberDto"];
 type ReviewsByMemberDto = components["schemas"]["ReviewsByMemberDto"];
 
 export default function Page() {
-  const { id } = useParams<{ id: string }>();
-
+  const [id, setId] = useState<string | null>();
   const [member, setMember] = useState<MemberDto | null>(null);
   const [reviewData, setReviewData] = useState<ReviewsByMemberDto | null>(null);
   const [bookTitles, setBookTitles] = useState<Record<number, string>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    setId(new URLSearchParams(window.location.search).get("id"));
+  }, []);
+
+  useEffect(() => {
+    if (id === undefined) return;
+
+    if (id === null) {
+      setLoadError("회원 ID가 없습니다.");
+      return;
+    }
+
     apiFetch(`/api/v1/members/${id}`)
       .then((data) => {
         setLoadError(null);
@@ -142,7 +151,7 @@ export default function Page() {
                 <div className="flex-1 min-w-0">
                   <Link
                     className="font-semibold hover:underline"
-                    href={`/books/${review.bookId}`}
+                    href={`/books/detail?id=${review.bookId}`}
                   >
                     {bookTitles[review.bookId] ?? `책 #${review.bookId}`}
                   </Link>
