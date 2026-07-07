@@ -1,6 +1,7 @@
 package com.back.global.security;
 
 import com.back.domain.member.entity.Member;
+import com.back.domain.member.entity.Role;
 import com.back.domain.member.service.MemberService;
 import com.back.global.exception.ServiceException;
 import com.back.global.rq.Rq;
@@ -97,7 +98,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 int id = (int) payload.get("id");
                 String username = (String) payload.get("username");
                 String name = (String) payload.get("name");
-                member = new Member(id, username, name);
+                Role role = Role.valueOf((String) payload.get("role"));
+                member = new Member(id, username, name, role);
 
                 isAccessTokenValid = true;
             }
