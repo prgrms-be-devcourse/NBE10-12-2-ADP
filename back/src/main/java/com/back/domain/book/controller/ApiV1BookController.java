@@ -6,6 +6,7 @@ import com.back.domain.book.entity.Book;
 import com.back.domain.book.service.BookRankService;
 import com.back.domain.book.service.BookRecommendService;
 import com.back.domain.book.service.BookService;
+import com.back.domain.book.service.BookViewsService;
 import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,7 @@ public class ApiV1BookController {
     private final BookRecommendService bookRecommendService;
     private final Rq rq;
     private final BookRankService bookRankService;
+    private final BookViewsService bookViewsService;
 
     @GetMapping
     @Operation(summary = "도서 다건 조회")
@@ -62,7 +64,9 @@ public class ApiV1BookController {
             @RequestParam(defaultValue = "10") int size
     ) {
         if (type.equals("rating")) return bookRankService.getBooksByRating(page, size);
-        return bookRankService.getBooksByReviewCnt(page, size);
+        if (type.equals("reviewCount")) return bookRankService.getBooksByReviewCnt(page, size);
+
+        return bookViewsService.topViewed();
 
     }
 

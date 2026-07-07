@@ -1,5 +1,6 @@
 package com.back.domain.book.service;
 
+import com.back.domain.book.dto.BookDto;
 import com.back.domain.book.entity.Book;
 import com.back.domain.book.repository.BookRepository;
 import com.back.global.rq.Rq;
@@ -20,6 +21,7 @@ public class BookViewsService {
     private final Rq rq;
     private final RedisTemplate<String, String> redisTemplate;
     private final BookRepository bookRepository;
+    private final BookService bookService;
 
     public int getViewCount(Long bookId) {
         return redisTemplate.opsForZSet()
@@ -27,11 +29,12 @@ public class BookViewsService {
                 .intValue();
     }
 
-    public List<Long> topViewed() {
+    public List<BookDto> topViewed() {
         return redisTemplate.opsForZSet()
                 .reverseRangeWithScores("viewCount", 0, 10)
                 .stream()
-                .map(a -> Long.parseLong(a.getValue().toString()))
+                .map(a ->
+                        new BookDto(bookService.getPureBook(Long.parseLong(a.getValue()))))
                 .toList();
     }
 

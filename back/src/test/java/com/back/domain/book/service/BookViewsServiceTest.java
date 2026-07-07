@@ -34,12 +34,12 @@ public class BookViewsServiceTest {
             }
         }
 
-        List<Long> bookRank = bookViewsService.topViewed();
+        List<BookDto> bookRank = bookViewsService.topViewed();
 
         int upperCnt = Integer.MAX_VALUE;
 
         for (int i = 0; i < bookRank.size(); i++) {
-            int nowCnt = bookViewsService.getViewCount(bookRank.get(i));
+            int nowCnt = bookViewsService.getViewCount(bookRank.get(i).id());
 
             assertThat(nowCnt).isEqualTo(viewsCount.get(i));
             assertThat(upperCnt).isGreaterThanOrEqualTo(nowCnt);
