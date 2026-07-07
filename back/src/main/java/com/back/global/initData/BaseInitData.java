@@ -45,9 +45,11 @@ public class BaseInitData {
 
         Member memberSystem = memberService.join("system", "1234", null, "시스템", null);
         memberSystem.modifyRefreshToken(memberSystem.getUsername());
+        memberSystem.grantAdmin();
 
         Member memberAdmin = memberService.join("admin", "1234", null, "관리자", null);
         memberAdmin.modifyRefreshToken(memberAdmin.getUsername());
+        memberAdmin.grantAdmin();
 
         Member memberUser1 = memberService.join("user1", "1234", "githubuser1", null);
         memberUser1.modifyRefreshToken(memberUser1.getUsername());
