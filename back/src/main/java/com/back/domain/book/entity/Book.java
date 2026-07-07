@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,6 +34,9 @@ public class Book extends BaseEntity {
     private double averageRating = 0.0;
 
     private int reviewCount = 0;
+
+    @Setter
+    private int viewCount = 0;
 
     public Book(String title, String description, String isbn,
                 String authors, LocalDateTime publishedDate,
