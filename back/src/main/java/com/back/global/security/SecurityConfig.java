@@ -52,6 +52,18 @@ public class SecurityConfig {
                                         HttpMethod.POST,
                                         "/api/*/members"
                                 ).permitAll()
+                                .requestMatchers(
+                                        HttpMethod.PUT,
+                                        "/api/*/books/{id:\\d+}"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        HttpMethod.DELETE,
+                                        "/api/*/books/{id:\\d+}"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        "/api/*/members/admin",
+                                        "/api/*/members/admin/**"
+                                ).hasRole("ADMIN")
                                 .requestMatchers("/api/*/**").authenticated()
                                 .anyRequest().permitAll()
                 )
