@@ -7,6 +7,7 @@ import com.back.domain.review.service.ReviewService;
 import com.back.standard.recommend.byRating.SimilarityRecommendByRating;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.back.standard.recommend.byRating.SimilarityRecommendByRating.Rating;
 
@@ -16,8 +17,8 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookRecommendService {
-    private final SimilarityRecommendByRating recommendSystem = new SimilarityRecommendByRating();
     private final ReviewService reviewService;
     private final BookService bookService;
 
@@ -39,7 +40,7 @@ public class BookRecommendService {
 
     public List<BookDto> getRecommends(Member actor) {
 
-        recommendSystem.clear();
+        SimilarityRecommendByRating recommendSystem = new SimilarityRecommendByRating();
 
         List<Review> recentReviews = reviewService
                 .getByMember(actor, 0, 5)
