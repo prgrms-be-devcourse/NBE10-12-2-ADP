@@ -282,12 +282,31 @@ a:hover {
 }
 
 .book-scroll-fade {
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
   -webkit-mask-image: linear-gradient(
     to right,
-    #000 calc(100% - 56px),
+    transparent,
+    #000 44px,
+    #000 calc(100% - 64px),
     transparent
   );
-  mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 44px,
+    #000 calc(100% - 64px),
+    transparent
+  );
+}
+
+.book-scroll-fade::after {
+  content: "";
+  flex: 0 0 48px;
+}
+
+.book-scroll-fade > .rough-book-card {
+  scroll-snap-align: start;
 }
 
 .rough-card-line {
