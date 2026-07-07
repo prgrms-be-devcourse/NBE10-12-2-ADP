@@ -18,19 +18,7 @@ public class BookViewsScheduler {
 
     @Scheduled(cron = "0 */5 * * * *")
     public void syncViewCountsToDb() {
-        Set<String> viewKeys = redisTemplate.keys("book:view:*");
-
-        if (viewKeys == null || viewKeys.isEmpty()) return;
-
-        for (String key : viewKeys) {
-            try {
-                Long bookId = Long.parseLong(key.split(":")[2]);
-                bookViewsService.updateViewCountInDb(bookId, bookViewsService.getViewCount(bookId));
-            }
-            catch (Exception e) {
-
-            }
-        }
+        bookViewsService.updateViewCountInDb();
     }
 
 }

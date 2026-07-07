@@ -107,6 +107,22 @@ public class BookViewsService {
         redisTemplate.expire(minuteKey, Duration.ofMinutes(70));
         ;
     }
+
+    @Transactional
+    public void updateViewCountInDb() {
+        Set<String> viewKeys = redisTemplate.opsForZSet().range("viewCount", 0, -1);
+
+        if (viewKeys == null || viewKeys.isEmpty()) return;
+
+        for (String key : viewKeys) {
+            try {
+                Long bookId = Long.parseLong(key.split(":")[2]);
+                updateViewCountInDb(bookId, getViewCount(bookId));
+            }
+            catch (Exception e) {
+
+            }
+        }
     }
 
     @Transactional
