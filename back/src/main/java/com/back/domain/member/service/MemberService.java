@@ -7,6 +7,9 @@ import com.back.global.rsData.RsData;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -71,6 +74,10 @@ public class MemberService {
         Member member = findById(id);
 
         member.setDeletedDate(LocalDateTime.now());
+    }
+
+    public Page<Member> getMembers(int page, int size) {
+        return memberRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
     }
 
     public Optional<Member> findByRefreshToken(String apiKey) {
