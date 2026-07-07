@@ -15,7 +15,7 @@ export default function Page() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch(`/api/v1/books`)
+    apiFetch(`/api/v1/books/rank?type=reviewCount&page=0&size=10`)
       .then((data) => {
         setLoadError(null);
         setBooks(data);
@@ -35,7 +35,7 @@ export default function Page() {
 
   return (
     <>
-      <h1>도서 목록</h1>
+      <h1>인기 도서</h1>
       <BookGrid books={books} />
     </>
   );
