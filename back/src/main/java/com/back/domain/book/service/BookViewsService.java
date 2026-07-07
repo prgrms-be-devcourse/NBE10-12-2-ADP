@@ -6,16 +6,14 @@ import com.back.domain.book.repository.BookRepository;
 import com.back.global.rq.Rq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,33 +25,29 @@ public class BookViewsService {
     private final BookRepository bookRepository;
     private final BookService bookService;
 
-    private int getViewCount(Long bookId, String key) {
-        Double score = redisTemplate.opsForZSet()
-                .score(key, bookId.toString());
-
-        return score == null ? 0 : score.intValue();
-    }
 
     private String getMinuteKey() {
-        return "viewCount:minute:%s:".formatted(
+        return "viewCount:minute:%s".formatted(
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")));
     }
 
-    public int getViewCount(Long bookId) {
-        return getViewCount(bookId, "viewCount");
+    private int getDBViewCount(Long bookId) {
+
+        Optional<Book> book = bookRepository.findById(bookId);
+
+        return book.map(Book::getViewCount).orElse(0);
     }
 
-    public List<BookDto> topViewed(int page, int size) {
+    public int getViewCount(Long bookId) {
+        Double score = redisTemplate.opsForZSet()
+                .score("viewCount", bookId.toString());
 
-        int start = page * size;
-        int end = start + size - 1;
+        if (score != null) {
+            return score.intValue();
+        }
 
-        return redisTemplate.opsForZSet()
-                .reverseRangeWithScores("viewCount", start, end)
-                .stream()
-                .map(a ->
-                        new BookDto(bookService.getPureBook(Long.parseLong(a.getValue()))))
-                .toList();
+        return getDBViewCount(bookId);
+
     }
 
     public List<BookDto> topViewedInLastHour(int page, int size) {
@@ -74,7 +68,7 @@ public class BookViewsService {
             keys.add(key);
         }
 
-        String tempKey = "viewCount:lastHour:temp";
+        String tempKey = "viewCount:lastHour:temp:" + UUID.randomUUID();
 
         redisTemplate.delete(tempKey);
 
@@ -99,6 +93,11 @@ public class BookViewsService {
     }
 
     public void incrementViewCount(Long bookId) {
+
+        if (redisTemplate.opsForZSet().score("viewCount", bookId.toString()) == null) {
+            redisTemplate.opsForZSet().add("viewCount", bookId.toString(), getDBViewCount(bookId));
+        }
+
         redisTemplate.opsForZSet().incrementScore("viewCount", bookId.toString(), 1);
 
         String minuteKey = getMinuteKey();
@@ -110,17 +109,21 @@ public class BookViewsService {
 
     @Transactional
     public void updateViewCountInDb() {
-        Set<String> viewKeys = redisTemplate.opsForZSet().range("viewCount", 0, -1);
+        Set<ZSetOperations.TypedTuple<String>> tuples =
+                redisTemplate.opsForZSet().rangeWithScores("viewCount", 0, -1);
 
-        if (viewKeys == null || viewKeys.isEmpty()) return;
+        if (tuples == null || tuples.isEmpty()) return;
 
-        for (String key : viewKeys) {
+        for (ZSetOperations.TypedTuple<String> tuple : tuples) {
+            if (tuple.getValue() == null || tuple.getScore() == null) continue;
+
             try {
-                Long bookId = Long.parseLong(key.split(":")[2]);
-                updateViewCountInDb(bookId, getViewCount(bookId));
-            }
-            catch (Exception e) {
+                Long bookId = Long.parseLong(tuple.getValue());
+                int viewCount = tuple.getScore().intValue();
 
+                updateViewCountInDb(bookId, viewCount);
+            } catch (Exception e) {
+                // log.warn(...)
             }
         }
     }
