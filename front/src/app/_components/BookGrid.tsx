@@ -20,7 +20,7 @@ export default function BookGrid({ books, layout = "grid" }: BookGridProps) {
 
   const listClassName =
     layout === "horizontal"
-      ? "book-scroll-fade flex gap-4 overflow-x-auto p-2 pb-4"
+      ? "book-scroll-list flex gap-4 overflow-x-auto py-2 pb-4"
       : "grid grid-cols-2 gap-4 p-2 sm:grid-cols-4";
 
   const itemClassName =
@@ -28,7 +28,7 @@ export default function BookGrid({ books, layout = "grid" }: BookGridProps) {
       ? "group rough-book-card w-40 shrink-0 rounded-xl sm:w-44"
       : "group rough-book-card rounded-xl";
 
-  return (
+  const list = (
     <ul className={listClassName}>
       {books.map((book) => (
         <li key={book.id} className={itemClassName}>
@@ -61,4 +61,10 @@ export default function BookGrid({ books, layout = "grid" }: BookGridProps) {
       ))}
     </ul>
   );
+
+  if (layout === "horizontal") {
+    return <div className="book-scroll-fade">{list}</div>;
+  }
+
+  return list;
 }

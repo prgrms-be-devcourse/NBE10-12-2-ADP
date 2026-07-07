@@ -282,30 +282,41 @@ a:hover {
 }
 
 .book-scroll-fade {
-  scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
+  --book-scroll-gutter: max(1rem, calc((100vw - 56rem) / 2 + 1rem));
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  overflow: hidden;
   -webkit-mask-image: linear-gradient(
     to right,
     transparent,
-    #000 44px,
-    #000 calc(100% - 64px),
+    #000 var(--book-scroll-gutter),
+    #000 calc(100% - var(--book-scroll-gutter)),
     transparent
   );
   mask-image: linear-gradient(
     to right,
     transparent,
-    #000 44px,
-    #000 calc(100% - 64px),
+    #000 var(--book-scroll-gutter),
+    #000 calc(100% - var(--book-scroll-gutter)),
     transparent
   );
 }
 
-.book-scroll-fade::after {
+.book-scroll-list {
+  padding-right: var(--book-scroll-gutter);
+  padding-left: var(--book-scroll-gutter);
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+}
+
+.book-scroll-list::after {
   content: "";
   flex: 0 0 48px;
 }
 
-.book-scroll-fade > .rough-book-card {
+.book-scroll-list > .rough-book-card {
   scroll-snap-align: start;
 }
 
