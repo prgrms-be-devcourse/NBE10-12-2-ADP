@@ -1,6 +1,7 @@
 package com.back.global.rq;
 
 import com.back.domain.member.entity.Member;
+import com.back.domain.member.entity.Role;
 import com.back.domain.member.service.MemberService;
 import com.back.global.security.SecurityUser;
 import jakarta.servlet.http.Cookie;
@@ -10,10 +11,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 
 @Component
@@ -36,8 +39,18 @@ public class Rq {
                 .map(Authentication::getPrincipal)
                 .filter(principal -> principal instanceof SecurityUser)
                 .map(principal -> (SecurityUser) principal)
-                .map(securityUser -> new Member(securityUser.getId(), securityUser.getUsername(), securityUser.getName()))
+                .map(securityUser -> new Member(
+                        securityUser.getId(),
+                        securityUser.getUsername(),
+                        securityUser.getName(),
+                        hasAdminAuthority(securityUser.getAuthorities()) ? Role.ADMIN : Role.USER
+                ))
                 .orElse(null);
+    }
+
+    private boolean hasAdminAuthority(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
     }
 
     public String getHeader(String name, String defaultValue) {
