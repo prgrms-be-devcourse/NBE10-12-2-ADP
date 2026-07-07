@@ -6,12 +6,14 @@ import com.back.domain.book.repository.BookRepository;
 import com.back.global.rq.Rq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,23 +25,107 @@ public class BookViewsService {
     private final BookRepository bookRepository;
     private final BookService bookService;
 
-    public int getViewCount(Long bookId) {
-        return redisTemplate.opsForZSet()
-                .score("viewCount", bookId.toString())
-                .intValue();
+
+    private String getMinuteKey() {
+        return "viewCount:minute:%s".formatted(
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")));
     }
 
-    public List<BookDto> topViewed() {
-        return redisTemplate.opsForZSet()
-                .reverseRangeWithScores("viewCount", 0, 10)
-                .stream()
-                .map(a ->
-                        new BookDto(bookService.getPureBook(Long.parseLong(a.getValue()))))
+    private int getDBViewCount(Long bookId) {
+
+        Optional<Book> book = bookRepository.findById(bookId);
+
+        return book.map(Book::getViewCount).orElse(0);
+    }
+
+    public int getViewCount(Long bookId) {
+        Double score = redisTemplate.opsForZSet()
+                .score("viewCount", bookId.toString());
+
+        if (score != null) {
+            return score.intValue();
+        }
+
+        return getDBViewCount(bookId);
+
+    }
+
+    public List<BookDto> topViewedInLastHour(int page, int size) {
+
+        int start = page * size;
+        int end = start + size - 1;
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<String> keys = new ArrayList<>();
+
+        for (int i = 0; i < 60; i++) {
+            String key = "viewCount:minute:%s".formatted(
+                    now.minusMinutes(i)
+                            .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
+            );
+
+            keys.add(key);
+        }
+
+        String tempKey = "viewCount:lastHour:temp:" + UUID.randomUUID();
+
+        redisTemplate.delete(tempKey);
+
+        redisTemplate.opsForZSet().unionAndStore(
+                keys.getFirst(),
+                keys.subList(1, keys.size()),
+                tempKey
+        );
+
+        redisTemplate.expire(tempKey, Duration.ofSeconds(10));
+
+        Set<String> bookIds = redisTemplate.opsForZSet()
+                .reverseRange(tempKey, start, end);
+
+        if (bookIds == null || bookIds.isEmpty()) {
+            return List.of();
+        }
+
+        return bookIds.stream()
+                .map(bookId -> new BookDto(bookService.getPureBook(Long.parseLong(bookId))))
                 .toList();
     }
 
     public void incrementViewCount(Long bookId) {
+
+        if (redisTemplate.opsForZSet().score("viewCount", bookId.toString()) == null) {
+            redisTemplate.opsForZSet().add("viewCount", bookId.toString(), getDBViewCount(bookId));
+        }
+
         redisTemplate.opsForZSet().incrementScore("viewCount", bookId.toString(), 1);
+
+        String minuteKey = getMinuteKey();
+        redisTemplate.opsForZSet().incrementScore(
+                minuteKey, bookId.toString(), 1);
+        redisTemplate.expire(minuteKey, Duration.ofMinutes(70));
+        ;
+    }
+
+    @Transactional
+    public void updateViewCountInDb() {
+        Set<ZSetOperations.TypedTuple<String>> tuples =
+                redisTemplate.opsForZSet().rangeWithScores("viewCount", 0, -1);
+
+        if (tuples == null || tuples.isEmpty()) return;
+
+        for (ZSetOperations.TypedTuple<String> tuple : tuples) {
+            if (tuple.getValue() == null || tuple.getScore() == null) continue;
+
+            try {
+                Long bookId = Long.parseLong(tuple.getValue());
+                int viewCount = tuple.getScore().intValue();
+
+                updateViewCountInDb(bookId, viewCount);
+            } catch (Exception e) {
+                // log.warn(...)
+            }
+        }
     }
 
     @Transactional

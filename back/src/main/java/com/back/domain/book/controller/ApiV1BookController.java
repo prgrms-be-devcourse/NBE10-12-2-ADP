@@ -42,6 +42,7 @@ public class ApiV1BookController {
     @GetMapping("/{id}")
     @Operation(summary = "도서 단건 조회")
     public BookDetailDto getBook(@PathVariable long id) {
+        bookViewsService.incrementViewCount(id);
         return bookService.getBook(id, rq.getActor());
     }
 
@@ -66,7 +67,7 @@ public class ApiV1BookController {
         if (type.equals("rating")) return bookRankService.getBooksByRating(page, size);
         if (type.equals("reviewCount")) return bookRankService.getBooksByReviewCnt(page, size);
 
-        return bookViewsService.topViewed();
+        return bookViewsService.topViewedInLastHour(page, size);
 
     }
 

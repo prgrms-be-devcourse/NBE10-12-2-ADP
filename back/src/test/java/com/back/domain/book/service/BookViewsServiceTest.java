@@ -26,7 +26,7 @@ public class BookViewsServiceTest {
     @DisplayName("조회수 기반 도서 순위 조회")
     void t1() {
 
-        List<Integer> viewsCount = List.of(3, 2, 1);
+        List<Integer> viewsCount = List.of(3, 5, 1);
 
         for (int i = 0; i < viewsCount.size(); i++) {
             for (int j = 0; j < viewsCount.get(i); j++) {
@@ -34,14 +34,15 @@ public class BookViewsServiceTest {
             }
         }
 
-        List<BookDto> bookRank = bookViewsService.topViewed();
+        List<BookDto> bookRank = bookViewsService.topViewedInLastHour(0, 0);
 
         int upperCnt = Integer.MAX_VALUE;
 
         for (int i = 0; i < bookRank.size(); i++) {
-            int nowCnt = bookViewsService.getViewCount(bookRank.get(i).id());
+            long id = bookRank.get(i).id();
+            int nowCnt = bookViewsService.getViewCount(id);
 
-            assertThat(nowCnt).isEqualTo(viewsCount.get(i));
+            assertThat(nowCnt).isEqualTo(viewsCount.get((int)(id - 1)));
             assertThat(upperCnt).isGreaterThanOrEqualTo(nowCnt);
 
             upperCnt = nowCnt;
