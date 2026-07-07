@@ -1,7 +1,7 @@
 package com.back.domain.member.controller;
 
+import com.back.domain.member.dto.AdminMemberDto;
 import com.back.domain.member.dto.MemberDto;
-import com.back.domain.member.dto.MemberWithUsernameAndWidgetLinkDto;
 import com.back.domain.member.dto.MemberWithUsernameAndWidgetLinkDto;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -155,6 +156,28 @@ public class ApiV1MemberController {
         rq.deleteCookie("accessToken");
 
         return new RsData<>("200-1", "로그아웃 성공");
+    }
+
+    @GetMapping("/admin")
+    @Operation(summary = "회원 다건 조회 (관리자)")
+    @SecurityRequirement(name = "bearerAuth")
+    public Page<AdminMemberDto> getMembers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return memberService.getMembers(page, size).map(AdminMemberDto::new);
+    }
+
+    @DeleteMapping("/admin/{id}")
+    @Transactional
+    @Operation(summary = "회원 강제 탈퇴 (관리자)")
+    @SecurityRequirement(name = "bearerAuth")
+    public RsData<Void> deleteMember(
+            @PathVariable long id
+    ) {
+        memberService.delete(id);
+
+        return new RsData<>("200-1", "회원 강제 탈퇴 완료");
     }
 
 }
