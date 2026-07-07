@@ -36,7 +36,7 @@ export default function Page() {
   return (
     <>
       <h1>인기 도서</h1>
-      <BookGrid books={books} />
+      <BookGrid books={books} layout="horizontal" />
     </>
   );
 }

@@ -8,15 +8,30 @@ import RoughFrame from "@/app/_components/RoughFrame";
 
 type BookDto = components["schemas"]["BookDto"];
 
-export default function BookGrid({ books }: { books: BookDto[] }) {
+type BookGridProps = {
+  books: BookDto[];
+  layout?: "grid" | "horizontal";
+};
+
+export default function BookGrid({ books, layout = "grid" }: BookGridProps) {
   if (books.length === 0) {
     return <div>도서가 없습니다.</div>;
   }
 
+  const listClassName =
+    layout === "horizontal"
+      ? "flex gap-4 overflow-x-auto p-2 pb-4"
+      : "grid grid-cols-2 gap-4 p-2 sm:grid-cols-4";
+
+  const itemClassName =
+    layout === "horizontal"
+      ? "group rough-book-card w-40 shrink-0 rounded-xl sm:w-44"
+      : "group rough-book-card rounded-xl";
+
   return (
-    <ul className="grid grid-cols-2 gap-4 p-2 sm:grid-cols-4">
+    <ul className={listClassName}>
       {books.map((book) => (
-        <li key={book.id} className="group rough-book-card rounded-xl">
+        <li key={book.id} className={itemClassName}>
           <RoughFrame
             className="rough-overlay rough-card-line"
             variant="card"
