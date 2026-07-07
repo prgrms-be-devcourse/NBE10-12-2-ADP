@@ -283,6 +283,7 @@ a:hover {
 
 .book-scroll-fade {
   --book-scroll-gutter: max(1rem, calc((100vw - 56rem) / 2 + 1rem));
+  --book-scroll-fade-width: min(48px, var(--book-scroll-gutter));
   position: relative;
   left: 50%;
   width: 100vw;
@@ -290,34 +291,39 @@ a:hover {
   overflow: hidden;
   -webkit-mask-image: linear-gradient(
     to right,
-    transparent,
+    transparent calc(var(--book-scroll-gutter) - var(--book-scroll-fade-width)),
     #000 var(--book-scroll-gutter),
     #000 calc(100% - var(--book-scroll-gutter)),
     transparent
+      calc(
+        100% - var(--book-scroll-gutter) + var(--book-scroll-fade-width)
+      )
   );
   mask-image: linear-gradient(
     to right,
-    transparent,
+    transparent calc(var(--book-scroll-gutter) - var(--book-scroll-fade-width)),
     #000 var(--book-scroll-gutter),
     #000 calc(100% - var(--book-scroll-gutter)),
     transparent
+      calc(
+        100% - var(--book-scroll-gutter) + var(--book-scroll-fade-width)
+      )
   );
 }
 
 .book-scroll-list {
   padding-right: var(--book-scroll-gutter);
   padding-left: var(--book-scroll-gutter);
-  scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.book-scroll-list::-webkit-scrollbar {
+  display: none;
 }
 
 .book-scroll-list::after {
   content: "";
   flex: 0 0 48px;
-}
-
-.book-scroll-list > .rough-book-card {
-  scroll-snap-align: start;
 }
 
 .rough-card-line {
