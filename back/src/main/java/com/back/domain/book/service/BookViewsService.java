@@ -10,8 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -23,23 +27,86 @@ public class BookViewsService {
     private final BookRepository bookRepository;
     private final BookService bookService;
 
-    public int getViewCount(Long bookId) {
-        return redisTemplate.opsForZSet()
-                .score("viewCount", bookId.toString())
-                .intValue();
+    private int getViewCount(Long bookId, String key) {
+        Double score = redisTemplate.opsForZSet()
+                .score(key, bookId.toString());
+
+        return score == null ? 0 : score.intValue();
     }
 
-    public List<BookDto> topViewed() {
+    private String getMinuteKey() {
+        return "viewCount:minute:%s:".formatted(
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")));
+    }
+
+    public int getViewCount(Long bookId) {
+        return getViewCount(bookId, "viewCount");
+    }
+
+    public List<BookDto> topViewed(int page, int size) {
+
+        int start = page * size;
+        int end = start + size - 1;
+
         return redisTemplate.opsForZSet()
-                .reverseRangeWithScores("viewCount", 0, 10)
+                .reverseRangeWithScores("viewCount", start, end)
                 .stream()
                 .map(a ->
                         new BookDto(bookService.getPureBook(Long.parseLong(a.getValue()))))
                 .toList();
     }
 
+    public List<BookDto> topViewedInLastHour(int page, int size) {
+
+        int start = page * size;
+        int end = start + size - 1;
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<String> keys = new ArrayList<>();
+
+        for (int i = 0; i < 60; i++) {
+            String key = "viewCount:minute:%s".formatted(
+                    now.minusMinutes(i)
+                            .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
+            );
+
+            keys.add(key);
+        }
+
+        String tempKey = "viewCount:lastHour:temp";
+
+        redisTemplate.delete(tempKey);
+
+        redisTemplate.opsForZSet().unionAndStore(
+                keys.getFirst(),
+                keys.subList(1, keys.size()),
+                tempKey
+        );
+
+        redisTemplate.expire(tempKey, Duration.ofSeconds(10));
+
+        Set<String> bookIds = redisTemplate.opsForZSet()
+                .reverseRange(tempKey, start, end);
+
+        if (bookIds == null || bookIds.isEmpty()) {
+            return List.of();
+        }
+
+        return bookIds.stream()
+                .map(bookId -> new BookDto(bookService.getPureBook(Long.parseLong(bookId))))
+                .toList();
+    }
+
     public void incrementViewCount(Long bookId) {
         redisTemplate.opsForZSet().incrementScore("viewCount", bookId.toString(), 1);
+
+        String minuteKey = getMinuteKey();
+        redisTemplate.opsForZSet().incrementScore(
+                minuteKey, bookId.toString(), 1);
+        redisTemplate.expire(minuteKey, Duration.ofMinutes(70));
+        ;
+    }
     }
 
     @Transactional
