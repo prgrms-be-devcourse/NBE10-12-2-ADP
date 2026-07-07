@@ -64,4 +64,12 @@ public class Book extends BaseEntity {
         this.reviewCount--;
         this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
     }
+
+    public void modify(String title, String description, String authors, String publisher, String imgUrl) {
+        this.title = title;
+        this.description = description;
+        this.authors = authors;
+        this.publisher = publisher;
+        this.imgUrl = imgUrl;
+    }
 }
