@@ -26,6 +26,25 @@ public class BookService {
     private final ReviewRepository reviewRepository;
     private final WishRepository wishRepository;
 
+    @Transactional
+    public Book editBook(Long id, String title, String description, String authors, String publisher, String imgUrl) {
+        Book book = getPureBook(id);
+
+        book.modify(title, description, authors, publisher, imgUrl);
+
+        return book;
+    }
+
+    @Transactional
+    public void deleteBook(Long id) {
+        Book book = getPureBook(id);
+
+        reviewRepository.deleteAll(reviewRepository.findByBook(book));
+        wishRepository.deleteAllByBook(book);
+
+        bookRepository.delete(book);
+    }
+
     public List<BookDto> getBooks() {
         return bookRepository.findAll().stream()
                 .map(book -> new BookDto(book))
