@@ -108,7 +108,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Review review, Member reviewer) {
 
-        if (!review.getReviewer().equals(reviewer)) {
+        if (!review.getReviewer().equals(reviewer) && !reviewer.isAdmin()) {
             throw new ServiceException("403-1", "삭제 권한이 없습니다.");
         }
 
