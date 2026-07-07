@@ -22,7 +22,7 @@ export default function BookGrid({ books }: { books: BookDto[] }) {
         >
           <RoughFrame className="rough-overlay rough-card-line" variant="card" />
           <Link
-            href={`/books/${book.id}`}
+            href={`/books/detail?id=${book.id}`}
             className="relative z-10 flex flex-col gap-1 p-3"
           >
             <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg bg-transparent">
