@@ -66,7 +66,6 @@ public class ApiV1BookController {
     ) {
         if (type.equals("rating")) return bookRankService.getBooksByRating(page, size);
         if (type.equals("reviewCount")) return bookRankService.getBooksByReviewCnt(page, size);
-        if (type.equals("totalViewCount")) return bookViewsService.topViewed(page, size);
 
         return bookViewsService.topViewedInLastHour(page, size);
 

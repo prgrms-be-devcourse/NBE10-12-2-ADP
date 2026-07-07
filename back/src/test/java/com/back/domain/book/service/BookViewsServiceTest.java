@@ -34,7 +34,7 @@ public class BookViewsServiceTest {
             }
         }
 
-        List<BookDto> bookRank = bookViewsService.topViewed(0, 0);
+        List<BookDto> bookRank = bookViewsService.topViewedInLastHour(0, 0);
 
         int upperCnt = Integer.MAX_VALUE;
 
