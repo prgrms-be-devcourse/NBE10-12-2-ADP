@@ -20,7 +20,7 @@ export default function BookGrid({ books, layout = "grid" }: BookGridProps) {
 
   const listClassName =
     layout === "horizontal"
-      ? "flex gap-4 overflow-x-auto p-2 pb-4"
+      ? "book-scroll-fade flex gap-4 overflow-x-auto p-2 pb-4"
       : "grid grid-cols-2 gap-4 p-2 sm:grid-cols-4";
 
   const itemClassName =

@@ -281,6 +281,15 @@ a:hover {
   transform: translateY(-2px);
 }
 
+.book-scroll-fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 56px),
+    transparent
+  );
+  mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
+}
+
 .rough-card-line {
   inset: 0;
   opacity: 0.68;
