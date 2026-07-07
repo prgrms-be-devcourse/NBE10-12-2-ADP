@@ -38,12 +38,10 @@ public class BookRankService {
     public List<BookDto> getBooksByReviewCnt(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        return reviewRepository.findBookByOrderByReviewCnt(
-                LocalDateTime.now().minusWeeks(1L), pageable)
-                    .stream()
-                    .map(book ->
-                            new BookDto(book.getBook()))
-                    .toList();
+        return bookRepository.findAllByOrderByReviewCountDesc(pageable)
+                .stream()
+                .map(BookDto::new)
+                .toList();
     }
 
 }
