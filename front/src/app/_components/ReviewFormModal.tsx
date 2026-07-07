@@ -4,8 +4,8 @@ import type { FormEventHandler } from "react";
 
 import RoughButton from "@/app/_components/RoughButton";
 import RoughFrame from "@/app/_components/RoughFrame";
-import RoughRatingInput from "@/app/_components/RoughRatingInput";
 import { RoughInput, RoughTextarea } from "@/app/_components/RoughInput";
+import RoughRatingInput from "@/app/_components/RoughRatingInput";
 
 type ReviewFormModalProps = {
   defaultContent?: string;
@@ -61,7 +61,12 @@ export default function ReviewFormModal({
           placeholder="태그 (쉼표로 구분)"
         />
         <div className="flex justify-end gap-2">
-          <RoughButton roughSize="sm" tone="cancel" type="button" onClick={onCancel}>
+          <RoughButton
+            roughSize="sm"
+            tone="cancel"
+            type="button"
+            onClick={onCancel}
+          >
             취소
           </RoughButton>
           <RoughButton roughSize="sm" tone="submit" type="submit">

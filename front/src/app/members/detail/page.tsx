@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { API_BASE_URL, apiFetch } from "@/lib/backend/client";
 
@@ -18,24 +19,17 @@ import RoughFrame from "@/app/_components/RoughFrame";
 type MemberDto = components["schemas"]["MemberDto"];
 type ReviewsByMemberDto = components["schemas"]["ReviewsByMemberDto"];
 
-export default function Page() {
-  const [id, setId] = useState<string | null>();
+function MemberDetail() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
   const [member, setMember] = useState<MemberDto | null>(null);
   const [reviewData, setReviewData] = useState<ReviewsByMemberDto | null>(null);
   const [bookTitles, setBookTitles] = useState<Record<number, string>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    setId(new URLSearchParams(window.location.search).get("id"));
-  }, []);
-
-  useEffect(() => {
-    if (id === undefined) return;
-
-    if (id === null) {
-      setLoadError("회원 ID가 없습니다.");
-      return;
-    }
+    if (id == null) return;
 
     apiFetch(`/api/v1/members/${id}`)
       .then((data) => {
@@ -66,6 +60,10 @@ export default function Page() {
         setLoadError(`${error.resultCode} : ${error.message}`);
       });
   }, [id]);
+
+  if (id == null) {
+    return <div>오류가 발생했습니다: 회원 ID가 없습니다.</div>;
+  }
 
   if (loadError != null) {
     return (
@@ -179,5 +177,13 @@ export default function Page() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>로딩중...</div>}>
+      <MemberDetail />
+    </Suspense>
   );
 }

@@ -2,8 +2,9 @@
 
 import { useRef, useState } from "react";
 
-import { RoughStarIcon } from "@/app/_components/RatingValue";
 import { ratingColor, ratingFillColor } from "@/lib/ratingColor";
+
+import { RoughStarIcon } from "@/app/_components/RatingValue";
 
 function StarPreview({
   fillPercent,
@@ -46,8 +47,10 @@ export default function RoughRatingInput({
   const activeValue = previewValue ?? selectedValue;
   const ratingValue = selectedValue === 0 ? "" : `${selectedValue / 2}`;
   const activeRating = activeValue / 2;
-  const activeFill = activeValue === 0 ? "#e5e7eb" : ratingFillColor(activeRating);
-  const activeTextColor = activeValue === 0 ? "text-gray-600" : ratingColor(activeRating);
+  const activeFill =
+    activeValue === 0 ? "#e5e7eb" : ratingFillColor(activeRating);
+  const activeTextColor =
+    activeValue === 0 ? "text-gray-600" : ratingColor(activeRating);
 
   const ratingFromPointer = (clientX: number) => {
     const wrap = wrapRef.current;
@@ -94,7 +97,9 @@ export default function RoughRatingInput({
         aria-valuemin={0}
         aria-valuemax={5}
         aria-valuenow={selectedValue / 2}
-        aria-valuetext={selectedValue === 0 ? "미선택" : `${selectedValue / 2}점`}
+        aria-valuetext={
+          selectedValue === 0 ? "미선택" : `${selectedValue / 2}점`
+        }
         tabIndex={0}
         onPointerDown={(e) => {
           e.preventDefault();

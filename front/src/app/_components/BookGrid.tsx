@@ -16,11 +16,11 @@ export default function BookGrid({ books }: { books: BookDto[] }) {
   return (
     <ul className="grid grid-cols-2 gap-4 p-2 sm:grid-cols-4">
       {books.map((book) => (
-        <li
-          key={book.id}
-          className="group rough-book-card rounded-xl"
-        >
-          <RoughFrame className="rough-overlay rough-card-line" variant="card" />
+        <li key={book.id} className="group rough-book-card rounded-xl">
+          <RoughFrame
+            className="rough-overlay rough-card-line"
+            variant="card"
+          />
           <Link
             href={`/books/detail?id=${book.id}`}
             className="relative z-10 flex flex-col gap-1 p-3"

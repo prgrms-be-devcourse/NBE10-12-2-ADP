@@ -504,7 +504,10 @@ a:hover {
   align-items: center;
   justify-content: center;
   background:
-    linear-gradient(color-mix(in srgb, var(--surface-soft) 84%, transparent), color-mix(in srgb, var(--surface-soft) 84%, transparent)),
+    linear-gradient(
+      color-mix(in srgb, var(--surface-soft) 84%, transparent),
+      color-mix(in srgb, var(--surface-soft) 84%, transparent)
+    ),
     rgb(17 24 39 / 0.38);
   padding: 1rem;
 }

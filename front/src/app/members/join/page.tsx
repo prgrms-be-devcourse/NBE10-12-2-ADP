@@ -76,7 +76,10 @@ export default function Page() {
     <>
       <h1>회원가입</h1>
 
-      <form className="flex max-w-sm flex-col gap-2 p-2" onSubmit={handleSubmit}>
+      <form
+        className="flex max-w-sm flex-col gap-2 p-2"
+        onSubmit={handleSubmit}
+      >
         <RoughInput
           type="text"
           name="username"

@@ -1,7 +1,7 @@
 "use client";
 
-import RoughFrame from "@/app/_components/RoughFrame";
 import RoughButton from "@/app/_components/RoughButton";
+import RoughFrame from "@/app/_components/RoughFrame";
 
 type LoginRequiredModalProps = {
   onCancel: () => void;
@@ -29,10 +29,20 @@ export default function LoginRequiredModal({
           이동하시겠습니까?
         </p>
         <div className="mt-5 flex justify-end gap-2">
-          <RoughButton roughSize="sm" tone="cancel" type="button" onClick={onCancel}>
+          <RoughButton
+            roughSize="sm"
+            tone="cancel"
+            type="button"
+            onClick={onCancel}
+          >
             취소
           </RoughButton>
-          <RoughButton roughSize="sm" tone="history" type="button" onClick={onLogin}>
+          <RoughButton
+            roughSize="sm"
+            tone="history"
+            type="button"
+            onClick={onLogin}
+          >
             로그인 하러 가기
           </RoughButton>
         </div>

@@ -183,11 +183,5 @@ export default function RoughFrame({
     };
   }, [theme, variant]);
 
-  return (
-    <svg
-      ref={svgRef}
-      aria-hidden="true"
-      className={className}
-    />
-  );
+  return <svg ref={svgRef} aria-hidden="true" className={className} />;
 }
