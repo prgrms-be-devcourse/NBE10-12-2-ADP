@@ -2,6 +2,7 @@ package com.back.domain.member.controller;
 
 import com.back.domain.member.controller.ApiV1MemberController;
 import com.back.domain.member.entity.Member;
+import com.back.domain.member.repository.MemberRepository;
 import com.back.domain.member.service.MemberService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,9 @@ public class ApiV1MemberControllerTest {
 
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private MemberRepository memberRepository;
 
     @Test
     @DisplayName("내 정보 조회")
@@ -213,6 +217,88 @@ public class ApiV1MemberControllerTest {
                     assertThat(accessTokenCookie.isHttpOnly()).isTrue();
                 }
         );
+
+    }
+
+    @Test
+    @DisplayName("회원 다건 조회 - 관리자")
+    @WithUserDetails("admin")
+    void t7() throws Exception {
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/members/admin")
+                                .param("page", "0")
+                                .param("size", "10"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("getMembers"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].username").exists())
+                .andExpect(jsonPath("$.content[0].isAdmin").exists())
+                .andExpect(jsonPath("$.content[0].isDeleted").exists());
+
+    }
+
+    @Test
+    @DisplayName("회원 다건 조회 - 실패: 관리자가 아님")
+    @WithUserDetails("user1")
+    void t8() throws Exception {
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/members/admin"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.resultCode").value("403-1"))
+                .andExpect(jsonPath("$.message").value("권한이 없습니다."));
+
+    }
+
+    @Test
+    @DisplayName("회원 강제 탈퇴 - 관리자")
+    @WithUserDetails("admin")
+    void t9() throws Exception {
+
+        Member member = memberService.findByUsername("user2");
+
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/v1/members/admin/%d".formatted(member.getId())))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("deleteMember"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.message").value("회원 강제 탈퇴 완료"));
+
+        assertThat(memberRepository.findById(member.getId()).orElseThrow().isDeleted()).isTrue();
+
+    }
+
+    @Test
+    @DisplayName("회원 강제 탈퇴 - 실패: 관리자가 아님")
+    @WithUserDetails("user1")
+    void t10() throws Exception {
+
+        Member member = memberService.findByUsername("user2");
+
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/v1/members/admin/%d".formatted(member.getId())))
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.resultCode").value("403-1"))
+                .andExpect(jsonPath("$.message").value("권한이 없습니다."));
 
     }
 
