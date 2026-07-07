@@ -6,6 +6,8 @@ import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,16 +37,19 @@ public class Member extends BaseEntity {
     private String refreshToken;
     @Setter
     private LocalDateTime deletedDate;
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Wish> wishes = new ArrayList<>();
 
-    public Member(long id, String username, String name) {
+    public Member(long id, String username, String name, Role role) {
         setId(id);
         this.username = username;
         setName(name);
         this.deletedDate = null;
         this.imgUrl = null;
+        this.role = role;
     }
 
     public Member(String username, String password, String githubId, String nickname, String imgUrl) {
@@ -70,8 +75,11 @@ public class Member extends BaseEntity {
     }
 
     public boolean isAdmin() {
-        if ("system".equals(username)) return true;
-        return "admin".equals(username);
+        return role == Role.ADMIN;
+    }
+
+    public void grantAdmin() {
+        this.role = Role.ADMIN;
     }
 
     public boolean isDeleted() {
@@ -88,8 +96,7 @@ public class Member extends BaseEntity {
     private List<String> getAuthoritiesAsStringList() {
         List<String> authorities = new ArrayList<>();
 
-        if (isAdmin())
-            authorities.add("ROLE_ADMIN");
+        authorities.add("ROLE_" + role.name());
 
         return authorities;
     }
