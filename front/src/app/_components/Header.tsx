@@ -14,7 +14,8 @@ import { RoughInput } from "@/app/_components/RoughInput";
 
 export default function Header() {
   const router = useRouter();
-  const { loginMember, isLogin, isLoginMemberPending, logout } = useAuth();
+  const { loginMember, isLogin, isLoginMemberPending, isAdmin, logout } =
+    useAuth();
   const { toggleTheme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -113,6 +114,11 @@ export default function Header() {
               <Link href="/mypage" className="theme-nav-link">
                 마이페이지
               </Link>
+              {isAdmin && (
+                <Link href="/admin" className="theme-nav-link">
+                  관리자
+                </Link>
+              )}
               <button
                 type="button"
                 className="theme-nav-link"
