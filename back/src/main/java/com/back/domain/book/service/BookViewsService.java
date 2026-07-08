@@ -94,6 +94,10 @@ public class BookViewsService {
 
     public void incrementViewCount(Long bookId) {
 
+        if (rq.getCookieValue("viewed:%d".formatted(bookId), "").equals("true")) {
+            return;
+        }
+
         if (redisTemplate.opsForZSet().score("viewCount", bookId.toString()) == null) {
             redisTemplate.opsForZSet().add("viewCount", bookId.toString(), getDBViewCount(bookId));
         }
@@ -104,6 +108,8 @@ public class BookViewsService {
         redisTemplate.opsForZSet().incrementScore(
                 minuteKey, bookId.toString(), 1);
         redisTemplate.expire(minuteKey, Duration.ofMinutes(70));
+
+        rq.setCookie("viewed:%d".formatted(bookId), "true", 60);
         ;
     }
 

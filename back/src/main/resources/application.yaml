@@ -58,3 +58,4 @@ custom:
     api-keys: ${CUSTOM__BOOK__FETCH__API_KEYS}
   security:
     allowedOrigins: ${CUSTOM__SECURITY__ALLOWED_ORIGINS}
+    cookieDomain: ${CUSTOM__SECURITY__COOKIE_DOMAIN:localhost}
