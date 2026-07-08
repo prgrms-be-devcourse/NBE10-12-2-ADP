@@ -10,6 +10,9 @@ import com.back.domain.review.repository.ReviewRepository;
 import com.back.domain.wish.repository.WishRepository;
 import com.back.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +52,12 @@ public class BookService {
         return bookRepository.findAll().stream()
                 .map(book -> new BookDto(book))
                 .toList();
+    }
+
+    public Page<BookDto> getBooks(int page, int size) {
+        return bookRepository
+                .findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")))
+                .map(BookDto::new);
     }
 
     public Book getPureBook(Long id) throws NoSuchElementException {

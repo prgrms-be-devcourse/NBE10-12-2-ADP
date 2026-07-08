@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,16 @@ public class ApiV1BookController {
     @Operation(summary = "도서 다건 조회")
     public List<BookDto> getBooks() {
         return bookService.getBooks();
+    }
+
+    @GetMapping("/admin")
+    @Operation(summary = "도서 다건 조회 (관리자)")
+    @SecurityRequirement(name = "bearerAuth")
+    public Page<BookDto> getBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return bookService.getBooks(page, size);
     }
 
     @GetMapping("/{id}")
