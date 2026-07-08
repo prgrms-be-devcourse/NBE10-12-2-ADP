@@ -18,6 +18,7 @@ import RoughButton from "@/app/_components/RoughButton";
 import RoughDivider from "@/app/_components/RoughDivider";
 import RoughFrame from "@/app/_components/RoughFrame";
 import { RoughInput } from "@/app/_components/RoughInput";
+import WidgetGuideModal from "@/app/_components/WidgetGuideModal";
 
 type ReviewsByMemberDto = components["schemas"]["ReviewsByMemberDto"];
 type BookDto = components["schemas"]["BookDto"];
@@ -31,6 +32,8 @@ export default function Page() {
   const [bookTitles, setBookTitles] = useState<Record<number, string>>({});
   const [tab, setTab] = useState<"reviews" | "wishes">("reviews");
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isWidgetGuideOpen, setIsWidgetGuideOpen] = useState(false);
+  const [copiedWidgetLink, setCopiedWidgetLink] = useState(false);
 
   const loadReviews = () => {
     apiFetch(`/api/v1/reviews/member/mine`)
@@ -123,6 +126,27 @@ export default function Page() {
     });
   };
 
+  const handleCopyWidgetLink = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedWidgetLink(true);
+      window.setTimeout(() => setCopiedWidgetLink(false), 2000);
+    } catch {
+      alert("위젯 링크 복사에 실패했습니다. 주소를 직접 선택해 복사해 주세요.");
+    }
+  };
+
+  const handleOpenWidgetGuide = () => {
+    console.log("[mypage] README guide button clicked");
+    console.log("[mypage] widget guide open before:", isWidgetGuideOpen);
+    console.log("[mypage] widget link:", loginMember?.widgetLink);
+    setIsWidgetGuideOpen((current) => !current);
+  };
+
+  useEffect(() => {
+    console.log("[mypage] widget guide open state changed:", isWidgetGuideOpen);
+  }, [isWidgetGuideOpen]);
+
   if (loadError != null) {
     return (
       <div>오류가 발생했습니다: {loadError} (백엔드 확인이 필요합니다)</div>
@@ -192,8 +216,17 @@ export default function Page() {
 
       <div className="flex-1 flex flex-col gap-4">
         <div>
-          <h2 className="font-bold">위젯 미리보기</h2>
-          <div className="rough-panel-border mt-1 flex min-h-24 items-center justify-center bg-transparent p-2">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="font-bold">위젯 미리보기</h2>
+            <RoughButton
+              roughSize="sm"
+              type="button"
+              onClick={handleOpenWidgetGuide}
+            >
+              README 가이드 보기
+            </RoughButton>
+          </div>
+          <div className="rough-panel-border relative mt-1 flex min-h-24 items-center justify-center bg-transparent p-2">
             <RoughFrame className="rough-overlay" variant="card" />
             {loginMember?.githubId ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -206,14 +239,15 @@ export default function Page() {
             )}
           </div>
           {loginMember?.widgetLink && (
-            <RoughInput
-              inputClassName="text-xs"
-              roughSize="sm"
-              wrapperClassName="mt-1"
-              readOnly
-              value={loginMember.widgetLink}
-              onFocus={(e) => e.currentTarget.select()}
-            />
+            <div className="mt-1">
+              <RoughInput
+                inputClassName="text-xs"
+                roughSize="sm"
+                readOnly
+                value={loginMember.widgetLink}
+                onFocus={(e) => e.currentTarget.select()}
+              />
+            </div>
           )}
         </div>
 
@@ -355,6 +389,15 @@ export default function Page() {
           </>
         )}
       </div>
+
+      {isWidgetGuideOpen && (
+        <WidgetGuideModal
+          copiedWidgetLink={copiedWidgetLink}
+          onCancel={() => setIsWidgetGuideOpen(false)}
+          onCopyWidgetLink={handleCopyWidgetLink}
+          widgetLink={`${API_BASE_URL}/api/v1/widgets/${loginMember?.githubId}`}
+        />
+      )}
     </div>
   );
 }
