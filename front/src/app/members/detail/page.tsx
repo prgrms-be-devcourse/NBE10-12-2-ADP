@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { API_BASE_URL, apiFetch } from "@/lib/backend/client";
 
@@ -19,8 +19,9 @@ import RoughFrame from "@/app/_components/RoughFrame";
 type MemberDto = components["schemas"]["MemberDto"];
 type ReviewsByMemberDto = components["schemas"]["ReviewsByMemberDto"];
 
-export default function Page() {
-  const { id } = useParams<{ id: string }>();
+function MemberDetail() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
   const [member, setMember] = useState<MemberDto | null>(null);
   const [reviewData, setReviewData] = useState<ReviewsByMemberDto | null>(null);
@@ -28,6 +29,8 @@ export default function Page() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (id == null) return;
+
     apiFetch(`/api/v1/members/${id}`)
       .then((data) => {
         setLoadError(null);
@@ -58,6 +61,10 @@ export default function Page() {
       });
   }, [id]);
 
+  if (id == null) {
+    return <div>오류가 발생했습니다: 회원 ID가 없습니다.</div>;
+  }
+
   if (loadError != null) {
     return (
       <div>오류가 발생했습니다: {loadError} (백엔드 확인이 필요합니다)</div>
@@ -76,7 +83,7 @@ export default function Page() {
         <div className="mt-2 text-sm font-semibold">{member.githubId}</div>
         {member.githubLink && (
           <a
-            className="text-sm text-blue-600 underline"
+            className="theme-link text-sm underline"
             href={member.githubLink}
             target="_blank"
             rel="noreferrer"
@@ -92,20 +99,17 @@ export default function Page() {
             <RatingValue rating={averageNumber} />
           </div>
         )}
-        <div className="text-xs text-gray-500">
+        <div className="text-xs theme-muted">
           {member.githubId}님이 준 평균 별점
         </div>
-        <RatingHistogram
-          rating={reviewData.rating}
-          className="mt-3 w-full"
-        />
+        <RatingHistogram rating={reviewData.rating} className="mt-3 w-full" />
       </div>
 
       <div className="flex-1 flex flex-col gap-4">
         {member.githubId && (
           <div>
             <h2 className="font-bold">위젯 미리보기</h2>
-            <div className="rough-panel-border mt-1 p-2">
+            <div className="rough-panel-border mt-1 bg-transparent p-2">
               <RoughFrame className="rough-overlay" variant="card" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -117,14 +121,20 @@ export default function Page() {
         )}
 
         <div>
-          <div className="flex gap-2 pb-1">
-            <h2 className="px-3 py-2 text-sm font-bold border-b-2 border-black">
+          <div className="theme-tab inline-flex">
+            <h2 className="px-3 py-2 text-sm font-bold">
               작성한 리뷰 {reviewData.results.length}
             </h2>
+            <RoughDivider
+              className="theme-tab-divider"
+              color="var(--line)"
+              emphasis
+              strokeWidth={1.35}
+            />
           </div>
 
           {reviewData.results.length === 0 && (
-            <div className="text-sm text-gray-500 mt-2">
+            <div className="mt-2 text-sm theme-muted">
               작성한 리뷰가 없습니다.
             </div>
           )}
@@ -139,19 +149,19 @@ export default function Page() {
                 <div className="flex-1 min-w-0">
                   <Link
                     className="font-semibold hover:underline"
-                    href={`/books/${review.bookId}`}
+                    href={`/books/detail?id=${review.bookId}`}
                   >
                     {bookTitles[review.bookId] ?? `책 #${review.bookId}`}
                   </Link>
 
-                  <div className="flex gap-1 flex-wrap text-xs text-blue-600">
+                  <div className="flex flex-wrap gap-1 text-xs theme-tag">
                     {review.tags.map((tag) => (
                       <span key={tag}>#{tag}</span>
                     ))}
                   </div>
 
-                  <div className="text-sm mt-1">{review.content}</div>
-                  <div className="text-xs text-gray-400 mt-1">
+                  <div className="mt-1 text-sm">{review.content}</div>
+                  <div className="mt-1 text-xs theme-subtle">
                     {review.createdDate}
                   </div>
                 </div>
@@ -167,5 +177,13 @@ export default function Page() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>로딩중...</div>}>
+      <MemberDetail />
+    </Suspense>
   );
 }

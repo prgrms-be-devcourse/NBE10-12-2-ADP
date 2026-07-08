@@ -6,3 +6,19 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: dummy
+            client-secret: dummy
+custom:
+  jwt:
+    secretKey: dummydummydummydummydummydummydummy
+  accessToken:
+    expirationSeconds: "#{60*20}"
+  book-fetch:
+    api-keys: dummy
+  security:
+    allowedOrigins: dummy

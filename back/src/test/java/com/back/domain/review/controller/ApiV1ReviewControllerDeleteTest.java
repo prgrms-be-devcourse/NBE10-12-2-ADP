@@ -79,6 +79,24 @@ public class ApiV1ReviewControllerDeleteTest {
     }
 
     @Test
+    @DisplayName("리뷰 삭제 - 관리자는 다른 사람의 리뷰도 삭제 가능")
+    @WithUserDetails("admin")
+    void t2_1() throws Exception {
+
+        long reviewId = 1L;
+
+        ResultActions resultActions = deleteReview(reviewId);
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1ReviewController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.message").value("리뷰 삭제 완료"));
+
+    }
+
+    @Test
     @DisplayName("리뷰 삭제 - 실패: id의 리뷰가 존재하지 않음")
     @WithUserDetails("user1")
     void t3() throws Exception {

@@ -4,6 +4,30 @@
   --background: #ffffff;
   --foreground: #171717;
   --line: #171717;
+  --surface: #ffffff;
+  --surface-card: #ffffff;
+  --surface-soft: #fffdf7;
+  --surface-muted: #f9fafb;
+  --surface-transparent: transparent;
+  --surface-muted-hover: #f3f4f6;
+  --surface-hover: #f3f4f6;
+  --book-skeleton: #fafafa;
+  --book-skeleton-active: #f5f6f7;
+}
+
+:root[data-theme="dark"] {
+  --background: #202020;
+  --foreground: #f4f1ea;
+  --line: #f4f1ea;
+  --surface: #202020;
+  --surface-card: #262626;
+  --surface-soft: #1b1b1b;
+  --surface-muted: #242424;
+  --surface-transparent: transparent;
+  --surface-muted-hover: #2f2f2f;
+  --surface-hover: #2f2f2f;
+  --book-skeleton: #171717;
+  --book-skeleton-active: #121212;
 }
 
 @theme inline {
@@ -11,15 +35,6 @@
   --color-foreground: var(--foreground);
   --font-sans: "Gaegu", sans-serif;
 }
-
-/*
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-*/
 
 body {
   background: var(--background);
@@ -31,12 +46,7 @@ a,
 button,
 input,
 textarea {
-  transition:
-    transform 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease;
+  transition: transform 160ms ease;
 }
 
 button:hover,
@@ -46,46 +56,46 @@ a:hover {
 
 .sketch-shell {
   position: relative;
-  border: 1px solid rgb(23 23 23 / 0.22);
+  border: 1px solid color-mix(in srgb, var(--line) 22%, transparent);
   border-radius: 12px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-card {
   position: relative;
-  border: 1px solid rgb(23 23 23 / 0.18);
+  border: 1px solid color-mix(in srgb, var(--line) 18%, transparent);
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-panel {
   position: relative;
-  border: 1px solid rgb(23 23 23 / 0.18);
+  border: 1px solid color-mix(in srgb, var(--line) 18%, transparent);
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-input {
-  border: 1px solid rgb(23 23 23 / 0.28);
+  border: 1px solid color-mix(in srgb, var(--line) 28%, transparent);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-input:focus {
   outline: none;
-  border-color: #171717;
-  box-shadow: 0 0 0 2px rgb(23 23 23 / 0.08);
+  border-color: var(--line);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--line) 8%, transparent);
 }
 
 .sketch-button {
   position: relative;
-  border: 1px solid rgb(23 23 23 / 0.28);
+  border: 1px solid color-mix(in srgb, var(--line) 28%, transparent);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .sketch-button:hover {
-  background: rgb(243 244 246);
+  background: var(--surface-hover);
 }
 
 .sketch-dashed {
@@ -122,7 +132,7 @@ a:hover {
   width: 100%;
   border: 0;
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .rough-input-border > .rough-overlay {
@@ -130,7 +140,7 @@ a:hover {
 }
 
 .rough-input-paper {
-  background: #fffdf7;
+  background: var(--surface-soft);
 }
 
 .rough-input-history {
@@ -152,13 +162,13 @@ a:hover {
   min-width: 48px;
   border: 0;
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
   padding: 0 0.5rem;
   font-size: 0.875rem;
 }
 
 .rough-search-button:hover {
-  background: rgb(243 244 246);
+  background: var(--surface-hover);
 }
 
 .rough-search-button-frame {
@@ -178,6 +188,13 @@ a:hover {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+  background: var(--surface);
+  padding: 0.35rem 0.5rem;
+  white-space: nowrap;
+}
+
+.rough-github-link:hover {
+  background: var(--surface-hover);
 }
 
 .rough-github-link:focus-visible {
@@ -190,6 +207,39 @@ a:hover {
   width: 88px;
   height: 34px;
   object-fit: contain;
+}
+
+.rough-github-button-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.auth-action-enter {
+  animation: auth-action-fade-in 180ms ease-out;
+}
+
+@keyframes auth-action-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+:root[data-theme="dark"] .rough-github-image {
+  filter: brightness(0) invert(1);
+}
+
+:root[data-theme="dark"] .rough-github-button-icon {
+  filter: brightness(0) invert(1);
+}
+
+:root[data-theme="dark"] .rough-github-inline-image {
+  filter: brightness(0) invert(1);
 }
 
 .rough-github-inline {
@@ -224,7 +274,7 @@ a:hover {
   width: 100%;
   border: 0;
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .rough-textarea-border > .rough-overlay {
@@ -240,15 +290,144 @@ a:hover {
 
 .rough-book-card {
   position: relative;
+  overflow: hidden;
   border: 0;
   border-radius: 12px;
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease;
+  background: var(--surface-card);
+  box-shadow:
+    0 1px 4px rgb(17 24 39 / 0.04),
+    0 10px 20px rgb(17 24 39 / 0.08);
+  transition: transform 160ms ease;
+}
+
+:root[data-theme="dark"] .rough-book-card {
+  box-shadow:
+    0 1px 5px rgb(0 0 0 / 0.18),
+    0 10px 22px rgb(0 0 0 / 0.28);
 }
 
 .rough-book-card:hover {
   transform: translateY(-2px);
+}
+
+.book-scroll-fade {
+  --book-scroll-gutter: max(1rem, calc((100vw - 56rem) / 2 + 1rem));
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+
+.book-scroll-fade::before,
+.book-scroll-fade::after {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 30;
+  width: var(--book-scroll-gutter);
+  content: "";
+}
+
+.book-scroll-fade::before {
+  left: 0;
+  background: linear-gradient(to right, var(--background), transparent);
+}
+
+.book-scroll-fade::after {
+  right: 0;
+  background: linear-gradient(to left, var(--background), transparent);
+}
+
+.book-scroll-list {
+  padding-right: var(--book-scroll-gutter);
+  padding-left: var(--book-scroll-gutter);
+  scrollbar-width: none;
+}
+
+.book-scroll-list::-webkit-scrollbar {
+  display: none;
+}
+
+.book-scroll-list::after {
+  content: "";
+  flex: 0 0 48px;
+}
+
+.book-skeleton {
+  background-color: var(--book-skeleton);
+  animation: book-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes book-skeleton-pulse {
+  0%,
+  100% {
+    background-color: var(--book-skeleton);
+  }
+
+  50% {
+    background-color: var(--book-skeleton-active);
+  }
+}
+
+.book-title {
+  display: -webkit-box;
+  height: 3rem;
+  overflow: hidden;
+  padding: 0 0.25rem;
+  line-height: 1.5rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.book-rating {
+  display: block;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  margin-top: auto;
+  padding: 0 0.25rem;
+}
+
+.book-rank-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: linear-gradient(
+    to top right,
+    rgb(255 255 255 / 0.7),
+    rgb(255 255 255 / 0.24) 28%,
+    rgb(255 255 255 / 0.08) 48%,
+    transparent 72%
+  );
+}
+
+.book-rank-number {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.75rem;
+  z-index: 20;
+  color: #000000;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgb(255 255 255 / 0.55));
+}
+
+:root[data-theme="dark"] .book-rank-overlay {
+  background: linear-gradient(
+    to top right,
+    rgb(0 0 0 / 0.7),
+    rgb(0 0 0 / 0.24) 28%,
+    rgb(0 0 0 / 0.08) 48%,
+    transparent 72%
+  );
+}
+
+:root[data-theme="dark"] .book-rank-number {
+  color: #ffffff;
+  filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.55));
 }
 
 .rough-card-line {
@@ -257,6 +436,118 @@ a:hover {
   transition:
     opacity 160ms ease,
     transform 160ms ease;
+}
+
+.rough-book-cover-line {
+  z-index: 2;
+}
+
+.theme-nav-button {
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.theme-nav-button:hover {
+  background: var(--surface-hover);
+}
+
+.theme-dark-only {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-light-only {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-dark-only {
+  display: block;
+}
+
+.theme-toggle-label::before {
+  content: "다크";
+}
+
+:root[data-theme="dark"] .theme-toggle-label::before {
+  content: "라이트";
+}
+
+.theme-nav-link {
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.theme-nav-link:hover {
+  background: var(--surface-hover);
+}
+
+.theme-tag {
+  color: #2563eb;
+}
+
+:root[data-theme="dark"] .theme-tag {
+  color: #93c5fd;
+}
+
+.theme-muted {
+  color: #6b7280;
+}
+
+:root[data-theme="dark"] .theme-muted {
+  color: #9ca3af;
+}
+
+.theme-subtle {
+  color: #9ca3af;
+}
+
+:root[data-theme="dark"] .theme-subtle {
+  color: #d4d4d8;
+}
+
+.theme-link {
+  color: #2563eb;
+}
+
+:root[data-theme="dark"] .theme-link {
+  color: #93c5fd;
+}
+
+.theme-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-tab-divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 10px;
+  width: 100%;
+}
+
+.theme-tab-divider.theme-tab-divider-strong {
+  color: var(--foreground);
+}
+
+.theme-tab-divider > .rough-overlay {
+  inset: 0;
+}
+
+.theme-tab-active {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.theme-tab-inactive {
+  border-color: transparent;
+  color: #9ca3af;
+}
+
+:root[data-theme="dark"] .theme-tab-inactive {
+  color: #737373;
 }
 
 .group:hover .rough-card-line {
@@ -304,7 +595,7 @@ a:hover {
   justify-content: center;
   border: 0;
   border-radius: 9999px;
-  background: #fff;
+  background: var(--surface);
   padding: 0.25rem 0.75rem;
   line-height: 1.25rem;
 }
@@ -318,11 +609,11 @@ a:hover {
 }
 
 .rough-action-neutral {
-  background: #fff;
+  background: var(--surface);
 }
 
 .rough-action-neutral:hover {
-  background: rgb(243 244 246);
+  background: var(--surface-muted-hover);
 }
 
 .rough-action-wish {
@@ -358,12 +649,12 @@ a:hover {
 }
 
 .rough-action-cancel {
-  background: #f9fafb;
-  color: #374151;
+  background: var(--surface-muted);
+  color: var(--foreground);
 }
 
 .rough-action-cancel:hover {
-  background: #f3f4f6;
+  background: var(--surface-muted-hover);
 }
 
 .rough-action-button-frame {
@@ -386,7 +677,10 @@ a:hover {
   align-items: center;
   justify-content: center;
   background:
-    linear-gradient(rgb(255 253 247 / 0.84), rgb(255 253 247 / 0.84)),
+    linear-gradient(
+      color-mix(in srgb, var(--surface-soft) 84%, transparent),
+      color-mix(in srgb, var(--surface-soft) 84%, transparent)
+    ),
     rgb(17 24 39 / 0.38);
   padding: 1rem;
 }
@@ -396,7 +690,7 @@ a:hover {
   width: min(100%, 24rem);
   border: 0;
   border-radius: 16px;
-  background: #fffdf7;
+  background: var(--surface-soft);
   padding: 1.25rem;
   box-shadow: 0 18px 45px rgb(17 24 39 / 0.16);
 }

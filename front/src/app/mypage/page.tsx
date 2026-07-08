@@ -152,7 +152,7 @@ export default function Page() {
         <div className="text-sm">닉네임 : {loginMember?.githubId}</div>
         {loginMember?.githubLink && (
           <a
-            className="text-sm text-blue-600 underline"
+            className="theme-link text-sm underline"
             href={loginMember.githubLink}
             target="_blank"
             rel="noreferrer"
@@ -168,11 +168,8 @@ export default function Page() {
             <RatingValue rating={averageNumber} />
           </div>
         )}
-        <div className="text-xs text-gray-500">내가 준 평균 별점</div>
-        <RatingHistogram
-          rating={reviewData.rating}
-          className="mt-3 w-full"
-        />
+        <div className="text-xs theme-muted">내가 준 평균 별점</div>
+        <RatingHistogram rating={reviewData.rating} className="mt-3 w-full" />
 
         <RoughButton
           className="mt-4"
@@ -196,7 +193,7 @@ export default function Page() {
       <div className="flex-1 flex flex-col gap-4">
         <div>
           <h2 className="font-bold">위젯 미리보기</h2>
-          <div className="rough-panel-border mt-1 flex min-h-24 items-center justify-center bg-gray-50 p-2">
+          <div className="rough-panel-border mt-1 flex min-h-24 items-center justify-center bg-transparent p-2">
             <RoughFrame className="rough-overlay" variant="card" />
             {loginMember?.githubId ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -205,9 +202,7 @@ export default function Page() {
                 alt="내 서재 위젯"
               />
             ) : (
-              <span className="text-gray-400 text-sm">
-                위젯 정보가 없습니다
-              </span>
+              <span className="text-sm theme-muted">위젯 정보가 없습니다</span>
             )}
           </div>
           {loginMember?.widgetLink && (
@@ -222,37 +217,51 @@ export default function Page() {
           )}
         </div>
 
-        <div className="flex gap-2 pb-1">
-          <button
-            type="button"
-            className={`px-3 py-2 text-sm ${
-              tab === "reviews"
-                ? "border-b-2 border-black font-bold"
-                : "text-gray-400"
-            }`}
-            onClick={() => setTab("reviews")}
-          >
-            작성한 리뷰 {reviewData.results.length}
-          </button>
-          <button
-            type="button"
-            className={`px-3 py-2 text-sm ${
-              tab === "wishes"
-                ? "border-b-2 border-black font-bold"
-                : "text-gray-400"
-            }`}
-            onClick={() => setTab("wishes")}
-          >
-            보고 싶어요 {wishes.length}
-          </button>
+        <div className="flex gap-2">
+          <div className="theme-tab">
+            <button
+              type="button"
+              className={`px-3 py-2 text-sm ${
+                tab === "reviews" ? "theme-tab-active" : "theme-tab-inactive"
+              }`}
+              onClick={() => setTab("reviews")}
+            >
+              작성한 리뷰 {reviewData.results.length}
+            </button>
+            {tab === "reviews" && (
+              <RoughDivider
+                className="theme-tab-divider"
+                color="var(--foreground)"
+                emphasis
+                strokeWidth={1.25}
+              />
+            )}
+          </div>
+          <div className="theme-tab">
+            <button
+              type="button"
+              className={`px-3 py-2 text-sm ${
+                tab === "wishes" ? "theme-tab-active" : "theme-tab-inactive"
+              }`}
+              onClick={() => setTab("wishes")}
+            >
+              보고 싶어요 {wishes.length}
+            </button>
+            {tab === "wishes" && (
+              <RoughDivider
+                className="theme-tab-divider"
+                color="var(--foreground)"
+                emphasis
+                strokeWidth={1.25}
+              />
+            )}
+          </div>
         </div>
 
         {tab === "reviews" && (
           <>
             {reviewData.results.length === 0 && (
-              <div className="text-sm text-gray-500">
-                작성한 리뷰가 없습니다.
-              </div>
+              <div className="text-sm theme-muted">작성한 리뷰가 없습니다.</div>
             )}
 
             <ul className="flex w-full flex-col">
@@ -265,19 +274,19 @@ export default function Page() {
                   <div className="flex-1 min-w-0">
                     <Link
                       className="font-semibold hover:underline"
-                      href={`/books/${review.bookId}`}
+                      href={`/books/detail?id=${review.bookId}`}
                     >
                       {bookTitles[review.bookId] ?? `책 #${review.bookId}`}
                     </Link>
 
-                    <div className="flex gap-1 flex-wrap text-xs text-blue-600">
+                    <div className="flex flex-wrap gap-1 text-xs theme-tag">
                       {review.tags.map((tag) => (
                         <span key={tag}>#{tag}</span>
                       ))}
                     </div>
 
                     <div className="text-sm mt-1">{review.content}</div>
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="mt-1 text-xs theme-subtle">
                       {review.createdDate}
                     </div>
 
@@ -306,7 +315,7 @@ export default function Page() {
         {tab === "wishes" && (
           <>
             {wishes.length === 0 && (
-              <div className="text-sm text-gray-500">
+              <div className="text-sm theme-muted">
                 보고 싶어요 한 도서가 없습니다.
               </div>
             )}
@@ -318,7 +327,10 @@ export default function Page() {
                   className="relative flex items-center justify-between gap-3 py-3"
                 >
                   <RoughDivider fullWidth />
-                  <Link href={`/books/${book.id}`} className="font-semibold">
+                  <Link
+                    href={`/books/detail?id=${book.id}`}
+                    className="font-semibold"
+                  >
                     {book.title}
                   </Link>
                   <div className="flex items-center gap-3">

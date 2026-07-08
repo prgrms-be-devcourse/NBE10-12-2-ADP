@@ -1,8 +1,5 @@
 package com.back.domain.book.controller;
 
-import com.back.domain.book.entity.Book;
-import com.back.domain.book.repository.BookRepository;
-import com.back.domain.book.service.BookService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +11,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -29,12 +23,6 @@ public class ApiV1BookControllerRecommendTest {
 
     @Autowired
     private MockMvc mvc;
-
-    @Autowired
-    private BookService bookService;
-
-    @Autowired
-    private BookRepository bookRepository;
 
     @Test
     @DisplayName("추천 도서 조회")

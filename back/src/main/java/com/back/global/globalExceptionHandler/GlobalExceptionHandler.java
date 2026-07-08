@@ -12,13 +12,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -79,10 +79,26 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<RsData<Void>> handle(NoResourceFoundException ex) {
+        return new ResponseEntity<>(
+                new RsData<>("404-1", "리소스를 찾을 수 없습니다."),
+                NOT_FOUND
+        );
+    }
+
     @ExceptionHandler(ServiceException.class)
     public RsData<Void> handle(ServiceException ex, HttpServletResponse response) {
         RsData<Void> rsData = ex.getRsData();
         response.setStatus(rsData.statusCode());
         return rsData;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<RsData<Void>> handle(Exception ex) {
+        return new ResponseEntity<>(
+                new RsData<>("500-1", "일시적인 장애가 발생했습니다."),
+                INTERNAL_SERVER_ERROR
+        );
     }
 }

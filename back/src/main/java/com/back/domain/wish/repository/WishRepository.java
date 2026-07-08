@@ -12,6 +12,8 @@ public interface WishRepository extends JpaRepository<Wish, Long> {
 
     void deleteByMemberAndBook(Member actor, Book book);
 
+    void deleteAllByBook(Book book);
+
     List<Wish> findByMember(Member actor);
 
     Optional<Wish> findByMemberAndBook(Member actor, Book book);

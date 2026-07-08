@@ -8,6 +8,9 @@ import com.back.domain.review.repository.ReviewRepository;
 import com.back.domain.tag.service.TagService;
 import com.back.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +31,21 @@ public class ReviewService {
         return reviewRepository.findByBook(book);
     }
 
+    public Page<Review> getByBookId(Long bookId, int page, int size) {
+        Book book = bookService.getPureBook(bookId);
+        Pageable pageable = PageRequest.of(page, size);
+
+        return reviewRepository.findByBook(book, pageable);
+    }
+
     public List<Review> findByMember(Member member) {
         return reviewRepository.findByReviewer(member);
+    }
+
+    public Page<Review> getByMember(Member member, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return reviewRepository.findByReviewer(member, pageable);
+
     }
 
     @Transactional
@@ -92,7 +108,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Review review, Member reviewer) {
 
-        if (!review.getReviewer().equals(reviewer)) {
+        if (!review.getReviewer().equals(reviewer) && !reviewer.isAdmin()) {
             throw new ServiceException("403-1", "삭제 권한이 없습니다.");
         }
 

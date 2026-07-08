@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { apiFetch } from "@/lib/backend/client";
 
@@ -19,15 +19,16 @@ import ReviewFormModal from "@/app/_components/ReviewFormModal";
 import RoughButton from "@/app/_components/RoughButton";
 import RoughDivider from "@/app/_components/RoughDivider";
 import RoughFrame from "@/app/_components/RoughFrame";
-import RoughRatingInput from "@/app/_components/RoughRatingInput";
 import { RoughInput, RoughTextarea } from "@/app/_components/RoughInput";
+import RoughRatingInput from "@/app/_components/RoughRatingInput";
 
 type BookDetailDto = components["schemas"]["BookDetailDto"];
 type ReviewDto = components["schemas"]["ReviewDto"];
 
-export default function Page() {
-  const { id } = useParams<{ id: string }>();
+function BookDetail() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const { loginMember, isLogin } = useAuth();
 
   const [book, setBook] = useState<BookDetailDto | null>(null);
@@ -38,6 +39,8 @@ export default function Page() {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const loadBook = () => {
+    if (id == null) return;
+
     apiFetch(`/api/v1/books/${id}`)
       .then((data) => {
         setLoadError(null);
@@ -49,6 +52,8 @@ export default function Page() {
   };
 
   const loadReviews = () => {
+    if (id == null) return;
+
     apiFetch(`/api/v1/reviews/book/${id}`)
       .then((data) => {
         setLoadError(null);
@@ -60,6 +65,8 @@ export default function Page() {
   };
 
   useEffect(() => {
+    if (id == null) return;
+
     apiFetch(`/api/v1/books/${id}`)
       .then((data) => {
         setLoadError(null);
@@ -117,6 +124,7 @@ export default function Page() {
 
   const handleWriteSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (id == null) return;
 
     const form = e.currentTarget;
     const body = extractReviewFields(form);
@@ -164,7 +172,7 @@ export default function Page() {
   };
 
   const handleToggleWish = () => {
-    if (book == null) return;
+    if (book == null || id == null) return;
 
     apiFetch(`/api/v1/wishes/book/${id}`, {
       method: book.isWished ? "DELETE" : "POST",
@@ -213,6 +221,10 @@ export default function Page() {
         alert(`${error.resultCode} : ${error.message}`);
       });
   };
+
+  if (id == null) {
+    return <div>오류가 발생했습니다: 책 ID가 없습니다.</div>;
+  }
 
   if (loadError != null) {
     return (
@@ -281,14 +293,16 @@ export default function Page() {
         <div className="grid flex-1 gap-4 md:grid-cols-[minmax(0,1fr)_10rem]">
           <div className="flex min-w-0 flex-col gap-2">
             <h1 className="text-2xl font-bold">{book.title}</h1>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm theme-muted">
               {book.authors.join(", ") || "-"} · {book.publisher} ·{" "}
               {book.publishedDate}
             </div>
 
-            <p className="mt-1 text-sm text-gray-700">{book.description}</p>
+            <p className="mt-1 text-sm text-gray-700 dark:text-gray-200">
+              {book.description}
+            </p>
 
-            <div className="flex flex-wrap gap-2 text-sm text-blue-600">
+            <div className="flex flex-wrap gap-2 text-sm theme-tag">
               {book.tags.map((tag) => (
                 <span key={tag}>#{tag}</span>
               ))}
@@ -303,20 +317,20 @@ export default function Page() {
                 }`}
               >
                 {averageNumber != null ? (
-                  <RatingValue
-                    rating={averageNumber}
-                    starClassName="h-9 w-9"
-                  />
+                  <RatingValue rating={averageNumber} starClassName="h-9 w-9" />
                 ) : (
                   "-"
                 )}
               </div>
-              <div className="mt-1 text-sm text-gray-500">
+              <div className="mt-1 text-sm theme-muted">
                 리뷰 {book.reviewCount}개
               </div>
             </div>
             {book.rating && (
-              <RatingHistogram rating={book.rating} className="mt-1 w-full max-w-40" />
+              <RatingHistogram
+                rating={book.rating}
+                className="mt-1 w-full max-w-40"
+              />
             )}
           </div>
         </div>
@@ -336,9 +350,7 @@ export default function Page() {
         </div>
 
         {reviews.length === 0 && (
-          <div className="mt-2 text-sm text-gray-500">
-            아직 리뷰가 없습니다.
-          </div>
+          <div className="mt-2 text-sm theme-muted">아직 리뷰가 없습니다.</div>
         )}
 
         <ul className="mt-2 flex w-full flex-col">
@@ -382,7 +394,7 @@ export default function Page() {
                 </form>
               ) : (
                 <div className="flex items-start gap-3">
-                  <Link href={`/members/${review.reviewer.id}`}>
+                  <Link href={`/members/detail?id=${review.reviewer.id}`}>
                     <Avatar label={review.reviewer.githubId} />
                   </Link>
 
@@ -390,7 +402,7 @@ export default function Page() {
                     <div className="flex items-center gap-1">
                       <Link
                         className="font-semibold hover:underline"
-                        href={`/members/${review.reviewer.id}`}
+                        href={`/members/detail?id=${review.reviewer.id}`}
                       >
                         {review.reviewer.githubId ?? "탈퇴한 사용자"}
                       </Link>
@@ -412,14 +424,14 @@ export default function Page() {
                       )}
                     </div>
 
-                    <div className="flex gap-1 flex-wrap text-xs text-blue-600">
+                    <div className="flex flex-wrap gap-1 text-xs theme-tag">
                       {review.tags.map((tag) => (
                         <span key={tag}>#{tag}</span>
                       ))}
                     </div>
 
-                    <div className="text-sm mt-1">{review.content}</div>
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="mt-1 text-sm">{review.content}</div>
+                    <div className="mt-1 text-xs theme-subtle">
                       {review.createdDate}
                     </div>
 
@@ -459,5 +471,13 @@ export default function Page() {
         </ul>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>로딩중...</div>}>
+      <BookDetail />
+    </Suspense>
   );
 }

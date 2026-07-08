@@ -3,6 +3,7 @@ package com.back.global.security;
 import com.back.global.rsData.RsData;
 import com.back.standard.util.Ut;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -27,8 +29,11 @@ public class SecurityConfig {
     private final AuthenticationSuccessHandler customOAuth2LoginSuccessHandler;
     private final CustomOAuth2AuthorizationRequestResolver customOAuth2AuthorizationRequestResolver;
 
+    @Value("${custom.security.allowedOrigins}")
+    private String allowedOrigins;
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2LoginFailureHandler customOAuth2LoginFailureHandler) {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(
@@ -41,6 +46,7 @@ public class SecurityConfig {
                                         "/api/*/reviews/member/{id:\\d+}",
                                         "/api/*/books",
                                         "/api/*/books/{id:\\d+}",
+                                        "/api/*/books/rank",
                                         "/api/*/books/search"
                                 ).permitAll()
                                 .requestMatchers(
@@ -51,6 +57,18 @@ public class SecurityConfig {
                                         HttpMethod.POST,
                                         "/api/*/members"
                                 ).permitAll()
+                                .requestMatchers(
+                                        HttpMethod.PUT,
+                                        "/api/*/books/{id:\\d+}"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        HttpMethod.DELETE,
+                                        "/api/*/books/{id:\\d+}"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        "/api/*/members/admin",
+                                        "/api/*/members/admin/**"
+                                ).hasRole("ADMIN")
                                 .requestMatchers("/api/*/**").authenticated()
                                 .anyRequest().permitAll()
                 )
@@ -69,6 +87,7 @@ public class SecurityConfig {
                                 sessionManagement.sessionCreationPolicy(STATELESS))
                 .oauth2Login(oauth2Login -> oauth2Login
                         .successHandler(customOAuth2LoginSuccessHandler)
+                        .failureHandler(customOAuth2LoginFailureHandler)
                         .authorizationEndpoint(
                                 authorizationEndpoint -> authorizationEndpoint
                                         .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver)
@@ -117,7 +136,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 허용할 오리진 설정
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         configuration.setAllowCredentials(true);

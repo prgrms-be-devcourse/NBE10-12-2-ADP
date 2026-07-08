@@ -1,6 +1,7 @@
 package com.back.global.rq;
 
 import com.back.domain.member.entity.Member;
+import com.back.domain.member.entity.Role;
 import com.back.domain.member.service.MemberService;
 import com.back.global.security.SecurityUser;
 import jakarta.servlet.http.Cookie;
@@ -10,10 +11,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 
 @Component
@@ -24,8 +27,11 @@ public class Rq {
 
     private final MemberService memberService;
 
-    @Value("${server.ssl.enabled}")
+    @Value("${custom.security.cookieSecure}")
     private boolean isSecure;
+
+    @Value("${custom.security.cookieDomain}")
+    private String cookieDomain;
 
     public Member getActor() {
         return Optional.ofNullable(
@@ -36,8 +42,18 @@ public class Rq {
                 .map(Authentication::getPrincipal)
                 .filter(principal -> principal instanceof SecurityUser)
                 .map(principal -> (SecurityUser) principal)
-                .map(securityUser -> new Member(securityUser.getId(), securityUser.getUsername(), securityUser.getName()))
+                .map(securityUser -> new Member(
+                        securityUser.getId(),
+                        securityUser.getUsername(),
+                        securityUser.getName(),
+                        hasAdminAuthority(securityUser.getAuthorities()) ? Role.ADMIN : Role.USER
+                ))
                 .orElse(null);
+    }
+
+    private boolean hasAdminAuthority(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
     }
 
     public String getHeader(String name, String defaultValue) {
@@ -66,20 +82,25 @@ public class Rq {
                 .orElse(defaultValue);
     }
 
-    public void setCookie(String name, String value) {
+    public void setCookie(String name, String value, int maxAge) {
+
         if (value == null) value = "";
 
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setDomain("localhost");
+        cookie.setDomain(cookieDomain);
         cookie.setSecure(isSecure);
-        cookie.setAttribute("SameSite", "Strict");
+        cookie.setAttribute("SameSite", isSecure ? "None" : "Strict");
 
         if (value.isBlank()) cookie.setMaxAge(0);
-        else cookie.setMaxAge(60 * 60 * 24 * 365);
+        else cookie.setMaxAge(maxAge);
 
         resp.addCookie(cookie);
+    }
+
+    public void setCookie(String name, String value) {
+        setCookie(name, value, 60 * 60 * 24 * 365);
     }
 
     public void deleteCookie(String name) {

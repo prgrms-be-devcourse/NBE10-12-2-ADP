@@ -5,21 +5,24 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor
 public class Book extends BaseEntity {
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 
     @Column(unique = true)
     private String isbn;
 
+    @Column(columnDefinition = "LONGTEXT")
     private String authors;
 
     private LocalDateTime publishedDate;
@@ -31,6 +34,9 @@ public class Book extends BaseEntity {
     private double averageRating = 0.0;
 
     private int reviewCount = 0;
+
+    @Setter
+    private int viewCount = 0;
 
     public Book(String title, String description, String isbn,
                 String authors, LocalDateTime publishedDate,
@@ -62,5 +68,13 @@ public class Book extends BaseEntity {
         double totalRating = (this.averageRating * this.reviewCount) - deletedRating;
         this.reviewCount--;
         this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
+    }
+
+    public void modify(String title, String description, String authors, String publisher, String imgUrl) {
+        this.title = title;
+        this.description = description;
+        this.authors = authors;
+        this.publisher = publisher;
+        this.imgUrl = imgUrl;
     }
 }

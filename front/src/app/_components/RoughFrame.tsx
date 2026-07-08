@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 
 import rough from "roughjs/bin/rough";
 
+import { useTheme } from "@/lib/theme/ThemeProvider";
+
 type RoughFrameProps = {
   className?: string;
   variant?: "frame" | "highlight" | "divider" | "search" | "card" | "circle";
@@ -14,6 +16,7 @@ export default function RoughFrame({
   variant = "frame",
 }: RoughFrameProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -58,7 +61,7 @@ export default function RoughFrame({
           width + overrun,
           height / 2 - 1,
           {
-            stroke: "#1f1f1f",
+            stroke: theme === "dark" ? "#f4f1ea" : "#1f1f1f",
             strokeWidth: 1.25,
             roughness: 1.45,
             bowing: 1.4,
@@ -70,7 +73,7 @@ export default function RoughFrame({
           width + overrun,
           height / 2 + 1,
           {
-            stroke: "#1f1f1f",
+            stroke: theme === "dark" ? "#f4f1ea" : "#1f1f1f",
             strokeWidth: 0.75,
             roughness: 1.35,
             bowing: 1.2,
@@ -101,7 +104,7 @@ export default function RoughFrame({
             "Z",
           ].join(" "),
           {
-            stroke: "#1f1f1f",
+            stroke: theme === "dark" ? "#f4f1ea" : "#1f1f1f",
             strokeWidth: 1.4,
             roughness: 1.25,
             bowing: 1.3,
@@ -134,7 +137,7 @@ export default function RoughFrame({
             "Z",
           ].join(" "),
           {
-            stroke: "#1f1f1f",
+            stroke: theme === "dark" ? "#f4f1ea" : "#1f1f1f",
             strokeWidth: 1.4,
             roughness: 1.2,
             bowing: 1.2,
@@ -150,7 +153,7 @@ export default function RoughFrame({
         const inset = 1.5;
         const diameter = Math.max(0, Math.min(width, height) - inset * 2);
         const circle = rc.ellipse(width / 2, height / 2, diameter, diameter, {
-          stroke: "#1f1f1f",
+          stroke: theme === "dark" ? "#f4f1ea" : "#1f1f1f",
           strokeWidth: 1.7,
           roughness: 1.35,
           bowing: 1.1,
@@ -161,7 +164,7 @@ export default function RoughFrame({
       }
 
       const rect = rc.rectangle(3, 3, width - 6, height - 6, {
-        stroke: "#1f1f1f",
+        stroke: theme === "dark" ? "#f4f1ea" : "#1f1f1f",
         strokeWidth: 1.3,
         roughness: 1.1,
         bowing: 1.2,
@@ -178,13 +181,7 @@ export default function RoughFrame({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [variant]);
+  }, [theme, variant]);
 
-  return (
-    <svg
-      ref={svgRef}
-      aria-hidden="true"
-      className={className}
-    />
-  );
+  return <svg ref={svgRef} aria-hidden="true" className={className} />;
 }

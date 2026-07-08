@@ -12,6 +12,7 @@ type AuthContextType = {
   loginMember: LoginMember | null;
   isLogin: boolean;
   isLoginMemberPending: boolean;
+  isAdmin: boolean;
   refresh: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -21,11 +22,21 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loginMember, setLoginMember] = useState<LoginMember | null>(null);
   const [isLoginMemberPending, setIsLoginMemberPending] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const refresh = () => {
     return apiFetch(`/api/v1/members/me`)
-      .then((data) => setLoginMember(data))
-      .catch(() => setLoginMember(null))
+      .then((data) => {
+        setLoginMember(data);
+
+        return apiFetch(`/api/v1/members/admin?page=0&size=1`)
+          .then(() => setIsAdmin(true))
+          .catch(() => setIsAdmin(false));
+      })
+      .catch(() => {
+        setLoginMember(null);
+        setIsAdmin(false);
+      })
       .finally(() => setIsLoginMemberPending(false));
   };
 
@@ -36,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     return apiFetch(`/api/v1/members/logout`, { method: "DELETE" }).then(() => {
       setLoginMember(null);
+      setIsAdmin(false);
     });
   };
 
@@ -45,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loginMember,
         isLogin: loginMember != null,
         isLoginMemberPending,
+        isAdmin,
         refresh,
         logout,
       }}

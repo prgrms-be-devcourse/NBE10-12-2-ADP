@@ -13,11 +13,13 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Profile({"dev", "test"})
 @Configuration
 @RequiredArgsConstructor
 public class BaseInitData {
@@ -43,9 +45,11 @@ public class BaseInitData {
 
         Member memberSystem = memberService.join("system", "1234", null, "시스템", null);
         memberSystem.modifyRefreshToken(memberSystem.getUsername());
+        memberSystem.grantAdmin();
 
         Member memberAdmin = memberService.join("admin", "1234", null, "관리자", null);
         memberAdmin.modifyRefreshToken(memberAdmin.getUsername());
+        memberAdmin.grantAdmin();
 
         Member memberUser1 = memberService.join("user1", "1234", "githubuser1", null);
         memberUser1.modifyRefreshToken(memberUser1.getUsername());
