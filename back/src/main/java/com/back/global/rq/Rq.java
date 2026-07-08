@@ -27,7 +27,7 @@ public class Rq {
 
     private final MemberService memberService;
 
-    @Value("${server.ssl.enabled}")
+    @Value("${custom.security.cookieSecure}")
     private boolean isSecure;
 
     @Value("${custom.security.cookieDomain}")
@@ -91,7 +91,7 @@ public class Rq {
         cookie.setHttpOnly(true);
         cookie.setDomain(cookieDomain);
         cookie.setSecure(isSecure);
-        cookie.setAttribute("SameSite", "Strict");
+        cookie.setAttribute("SameSite", isSecure ? "None" : "Strict");
 
         if (value.isBlank()) cookie.setMaxAge(0);
         else cookie.setMaxAge(maxAge);
