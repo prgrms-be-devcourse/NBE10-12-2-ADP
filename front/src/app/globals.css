@@ -11,8 +11,8 @@
   --surface-transparent: transparent;
   --surface-muted-hover: #f3f4f6;
   --surface-hover: #f3f4f6;
-  --book-skeleton: #f7f8fa;
-  --book-skeleton-active: #f0f2f4;
+  --book-skeleton: #fafafa;
+  --book-skeleton-active: #f5f6f7;
 }
 
 :root[data-theme="dark"] {
@@ -46,12 +46,7 @@ a,
 button,
 input,
 textarea {
-  transition:
-    transform 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease;
+  transition: transform 160ms ease;
 }
 
 button:hover,
@@ -194,7 +189,8 @@ a:hover {
   justify-content: center;
   border-radius: 10px;
   background: var(--surface);
-  padding: 0.25rem 0.35rem;
+  padding: 0.35rem 0.5rem;
+  white-space: nowrap;
 }
 
 .rough-github-link:hover {
@@ -213,16 +209,37 @@ a:hover {
   object-fit: contain;
 }
 
+.rough-github-button-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.auth-action-enter {
+  animation: auth-action-fade-in 180ms ease-out;
+}
+
+@keyframes auth-action-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 :root[data-theme="dark"] .rough-github-image {
+  filter: brightness(0) invert(1);
+}
+
+:root[data-theme="dark"] .rough-github-button-icon {
   filter: brightness(0) invert(1);
 }
 
 :root[data-theme="dark"] .rough-github-inline-image {
   filter: brightness(0) invert(1);
-}
-
-:root[data-theme="dark"] .rough-github-link {
-  border: 1px solid color-mix(in srgb, var(--line) 22%, transparent);
 }
 
 .rough-github-inline {
@@ -280,9 +297,7 @@ a:hover {
   box-shadow:
     0 1px 4px rgb(17 24 39 / 0.04),
     0 10px 20px rgb(17 24 39 / 0.08);
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease;
+  transition: transform 160ms ease;
 }
 
 :root[data-theme="dark"] .rough-book-card {
@@ -434,6 +449,26 @@ a:hover {
 
 .theme-nav-button:hover {
   background: var(--surface-hover);
+}
+
+.theme-dark-only {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-light-only {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-dark-only {
+  display: block;
+}
+
+.theme-toggle-label::before {
+  content: "다크";
+}
+
+:root[data-theme="dark"] .theme-toggle-label::before {
+  content: "라이트";
 }
 
 .theme-nav-link {
