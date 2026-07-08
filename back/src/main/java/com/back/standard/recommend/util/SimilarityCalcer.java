@@ -12,7 +12,7 @@ public interface SimilarityCalcer {
 
     void setVectorA(Vector vector);
     void setVectorB(Vector vector);
-    double getCosineSimilarity();
+    double getSimilarity();
 
     List<Similar> getSimilarList(Vector target, Map<Long, Vector> matrix);
 }
