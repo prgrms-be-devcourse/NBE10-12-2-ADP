@@ -169,10 +169,7 @@ export default function Page() {
           </div>
         )}
         <div className="text-xs theme-muted">내가 준 평균 별점</div>
-        <RatingHistogram
-          rating={reviewData.rating}
-          className="mt-3 w-full"
-        />
+        <RatingHistogram rating={reviewData.rating} className="mt-3 w-full" />
 
         <RoughButton
           className="mt-4"
@@ -205,9 +202,7 @@ export default function Page() {
                 alt="내 서재 위젯"
               />
             ) : (
-              <span className="text-sm theme-muted">
-                위젯 정보가 없습니다
-              </span>
+              <span className="text-sm theme-muted">위젯 정보가 없습니다</span>
             )}
           </div>
           {loginMember?.widgetLink && (
@@ -227,9 +222,7 @@ export default function Page() {
             <button
               type="button"
               className={`px-3 py-2 text-sm ${
-                tab === "reviews"
-                  ? "theme-tab-active"
-                  : "theme-tab-inactive"
+                tab === "reviews" ? "theme-tab-active" : "theme-tab-inactive"
               }`}
               onClick={() => setTab("reviews")}
             >
@@ -248,9 +241,7 @@ export default function Page() {
             <button
               type="button"
               className={`px-3 py-2 text-sm ${
-                tab === "wishes"
-                  ? "theme-tab-active"
-                  : "theme-tab-inactive"
+                tab === "wishes" ? "theme-tab-active" : "theme-tab-inactive"
               }`}
               onClick={() => setTab("wishes")}
             >
@@ -270,9 +261,7 @@ export default function Page() {
         {tab === "reviews" && (
           <>
             {reviewData.results.length === 0 && (
-              <div className="text-sm theme-muted">
-                작성한 리뷰가 없습니다.
-              </div>
+              <div className="text-sm theme-muted">작성한 리뷰가 없습니다.</div>
             )}
 
             <ul className="flex w-full flex-col">

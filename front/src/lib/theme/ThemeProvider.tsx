@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useSyncExternalStore,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type Theme = "light" | "dark";
 
@@ -16,7 +10,6 @@ type ThemeContextType = {
 };
 
 const THEME_STORAGE_KEY = "readthem-theme";
-const THEME_CHANGE_EVENT = "readthem-theme-change";
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 function applyTheme(theme: Theme) {
@@ -33,39 +26,39 @@ function getPreferredTheme(): Theme {
     return storedTheme;
   }
 
+  const currentTheme = document.documentElement.dataset.theme;
+  if (currentTheme === "light" || currentTheme === "dark") {
+    return currentTheme;
+  }
+
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
 }
 
-function getThemeSnapshot(): Theme {
-  return getPreferredTheme();
-}
-
-function subscribe(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener(THEME_CHANGE_EVENT, callback);
-
-  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-  mediaQuery.addEventListener("change", callback);
-
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener(THEME_CHANGE_EVENT, callback);
-    mediaQuery.removeEventListener("change", callback);
-  };
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useSyncExternalStore(
-    subscribe,
-    getThemeSnapshot,
-    (): Theme => "light",
-  );
+  const [theme, setTheme] = useState<Theme>(() => getPreferredTheme());
 
   useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+    const nextTheme = getPreferredTheme();
+    applyTheme(nextTheme);
+
+    const handleThemeChange = () => {
+      const changedTheme = getPreferredTheme();
+      setTheme(changedTheme);
+      applyTheme(changedTheme);
+    };
+
+    window.addEventListener("storage", handleThemeChange);
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", handleThemeChange);
+
+    return () => {
+      window.removeEventListener("storage", handleThemeChange);
+      mediaQuery.removeEventListener("change", handleThemeChange);
+    };
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -73,13 +66,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       toggleTheme: () => {
         const nextTheme = theme === "light" ? "dark" : "light";
         window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-        window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+        applyTheme(nextTheme);
+        setTheme(nextTheme);
       },
     }),
     [theme],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

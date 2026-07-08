@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { apiFetch } from "@/lib/backend/client";
 
@@ -19,17 +19,18 @@ import ReviewFormModal from "@/app/_components/ReviewFormModal";
 import RoughButton from "@/app/_components/RoughButton";
 import RoughDivider from "@/app/_components/RoughDivider";
 import RoughFrame from "@/app/_components/RoughFrame";
-import RoughRatingInput from "@/app/_components/RoughRatingInput";
 import { RoughInput, RoughTextarea } from "@/app/_components/RoughInput";
+import RoughRatingInput from "@/app/_components/RoughRatingInput";
 
 type BookDetailDto = components["schemas"]["BookDetailDto"];
 type ReviewDto = components["schemas"]["ReviewDto"];
 
-export default function Page() {
+function BookDetail() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const { loginMember, isLogin } = useAuth();
 
-  const [id, setId] = useState<string | null>();
   const [book, setBook] = useState<BookDetailDto | null>(null);
   const [reviews, setReviews] = useState<ReviewDto[] | null>(null);
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
@@ -64,16 +65,7 @@ export default function Page() {
   };
 
   useEffect(() => {
-    setId(new URLSearchParams(window.location.search).get("id"));
-  }, []);
-
-  useEffect(() => {
-    if (id === undefined) return;
-
-    if (id === null) {
-      setLoadError("책 ID가 없습니다.");
-      return;
-    }
+    if (id == null) return;
 
     apiFetch(`/api/v1/books/${id}`)
       .then((data) => {
@@ -230,6 +222,10 @@ export default function Page() {
       });
   };
 
+  if (id == null) {
+    return <div>오류가 발생했습니다: 책 ID가 없습니다.</div>;
+  }
+
   if (loadError != null) {
     return (
       <div>오류가 발생했습니다: {loadError} (백엔드 확인이 필요합니다)</div>
@@ -321,10 +317,7 @@ export default function Page() {
                 }`}
               >
                 {averageNumber != null ? (
-                  <RatingValue
-                    rating={averageNumber}
-                    starClassName="h-9 w-9"
-                  />
+                  <RatingValue rating={averageNumber} starClassName="h-9 w-9" />
                 ) : (
                   "-"
                 )}
@@ -334,7 +327,10 @@ export default function Page() {
               </div>
             </div>
             {book.rating && (
-              <RatingHistogram rating={book.rating} className="mt-1 w-full max-w-40" />
+              <RatingHistogram
+                rating={book.rating}
+                className="mt-1 w-full max-w-40"
+              />
             )}
           </div>
         </div>
@@ -354,9 +350,7 @@ export default function Page() {
         </div>
 
         {reviews.length === 0 && (
-          <div className="mt-2 text-sm theme-muted">
-            아직 리뷰가 없습니다.
-          </div>
+          <div className="mt-2 text-sm theme-muted">아직 리뷰가 없습니다.</div>
         )}
 
         <ul className="mt-2 flex w-full flex-col">
@@ -477,5 +471,13 @@ export default function Page() {
         </ul>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>로딩중...</div>}>
+      <BookDetail />
+    </Suspense>
   );
 }

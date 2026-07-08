@@ -11,6 +11,8 @@
   --surface-transparent: transparent;
   --surface-muted-hover: #f3f4f6;
   --surface-hover: #f3f4f6;
+  --book-skeleton: #fafafa;
+  --book-skeleton-active: #f5f6f7;
 }
 
 :root[data-theme="dark"] {
@@ -24,6 +26,8 @@
   --surface-transparent: transparent;
   --surface-muted-hover: #2f2f2f;
   --surface-hover: #2f2f2f;
+  --book-skeleton: #171717;
+  --book-skeleton-active: #121212;
 }
 
 @theme inline {
@@ -42,12 +46,7 @@ a,
 button,
 input,
 textarea {
-  transition:
-    transform 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease;
+  transition: transform 160ms ease;
 }
 
 button:hover,
@@ -190,7 +189,8 @@ a:hover {
   justify-content: center;
   border-radius: 10px;
   background: var(--surface);
-  padding: 0.25rem 0.35rem;
+  padding: 0.35rem 0.5rem;
+  white-space: nowrap;
 }
 
 .rough-github-link:hover {
@@ -209,16 +209,37 @@ a:hover {
   object-fit: contain;
 }
 
+.rough-github-button-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.auth-action-enter {
+  animation: auth-action-fade-in 180ms ease-out;
+}
+
+@keyframes auth-action-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 :root[data-theme="dark"] .rough-github-image {
+  filter: brightness(0) invert(1);
+}
+
+:root[data-theme="dark"] .rough-github-button-icon {
   filter: brightness(0) invert(1);
 }
 
 :root[data-theme="dark"] .rough-github-inline-image {
   filter: brightness(0) invert(1);
-}
-
-:root[data-theme="dark"] .rough-github-link {
-  border: 1px solid color-mix(in srgb, var(--line) 22%, transparent);
 }
 
 .rough-github-inline {
@@ -269,16 +290,144 @@ a:hover {
 
 .rough-book-card {
   position: relative;
+  overflow: hidden;
   border: 0;
   border-radius: 12px;
   background: var(--surface-card);
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease;
+  box-shadow:
+    0 1px 4px rgb(17 24 39 / 0.04),
+    0 10px 20px rgb(17 24 39 / 0.08);
+  transition: transform 160ms ease;
+}
+
+:root[data-theme="dark"] .rough-book-card {
+  box-shadow:
+    0 1px 5px rgb(0 0 0 / 0.18),
+    0 10px 22px rgb(0 0 0 / 0.28);
 }
 
 .rough-book-card:hover {
   transform: translateY(-2px);
+}
+
+.book-scroll-fade {
+  --book-scroll-gutter: max(1rem, calc((100vw - 56rem) / 2 + 1rem));
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+
+.book-scroll-fade::before,
+.book-scroll-fade::after {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 30;
+  width: var(--book-scroll-gutter);
+  content: "";
+}
+
+.book-scroll-fade::before {
+  left: 0;
+  background: linear-gradient(to right, var(--background), transparent);
+}
+
+.book-scroll-fade::after {
+  right: 0;
+  background: linear-gradient(to left, var(--background), transparent);
+}
+
+.book-scroll-list {
+  padding-right: var(--book-scroll-gutter);
+  padding-left: var(--book-scroll-gutter);
+  scrollbar-width: none;
+}
+
+.book-scroll-list::-webkit-scrollbar {
+  display: none;
+}
+
+.book-scroll-list::after {
+  content: "";
+  flex: 0 0 48px;
+}
+
+.book-skeleton {
+  background-color: var(--book-skeleton);
+  animation: book-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes book-skeleton-pulse {
+  0%,
+  100% {
+    background-color: var(--book-skeleton);
+  }
+
+  50% {
+    background-color: var(--book-skeleton-active);
+  }
+}
+
+.book-title {
+  display: -webkit-box;
+  height: 3rem;
+  overflow: hidden;
+  padding: 0 0.25rem;
+  line-height: 1.5rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.book-rating {
+  display: block;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  margin-top: auto;
+  padding: 0 0.25rem;
+}
+
+.book-rank-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: linear-gradient(
+    to top right,
+    rgb(255 255 255 / 0.7),
+    rgb(255 255 255 / 0.24) 28%,
+    rgb(255 255 255 / 0.08) 48%,
+    transparent 72%
+  );
+}
+
+.book-rank-number {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.75rem;
+  z-index: 20;
+  color: #000000;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgb(255 255 255 / 0.55));
+}
+
+:root[data-theme="dark"] .book-rank-overlay {
+  background: linear-gradient(
+    to top right,
+    rgb(0 0 0 / 0.7),
+    rgb(0 0 0 / 0.24) 28%,
+    rgb(0 0 0 / 0.08) 48%,
+    transparent 72%
+  );
+}
+
+:root[data-theme="dark"] .book-rank-number {
+  color: #ffffff;
+  filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.55));
 }
 
 .rough-card-line {
@@ -289,6 +438,10 @@ a:hover {
     transform 160ms ease;
 }
 
+.rough-book-cover-line {
+  z-index: 2;
+}
+
 .theme-nav-button {
   border-radius: 0.5rem;
   padding: 0.5rem;
@@ -296,6 +449,26 @@ a:hover {
 
 .theme-nav-button:hover {
   background: var(--surface-hover);
+}
+
+.theme-dark-only {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-light-only {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-dark-only {
+  display: block;
+}
+
+.theme-toggle-label::before {
+  content: "다크";
+}
+
+:root[data-theme="dark"] .theme-toggle-label::before {
+  content: "라이트";
 }
 
 .theme-nav-link {
@@ -504,7 +677,10 @@ a:hover {
   align-items: center;
   justify-content: center;
   background:
-    linear-gradient(color-mix(in srgb, var(--surface-soft) 84%, transparent), color-mix(in srgb, var(--surface-soft) 84%, transparent)),
+    linear-gradient(
+      color-mix(in srgb, var(--surface-soft) 84%, transparent),
+      color-mix(in srgb, var(--surface-soft) 84%, transparent)
+    ),
     rgb(17 24 39 / 0.38);
   padding: 1rem;
 }
