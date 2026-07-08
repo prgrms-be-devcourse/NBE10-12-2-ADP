@@ -269,12 +269,22 @@ a:hover {
 
 .rough-book-card {
   position: relative;
+  overflow: hidden;
   border: 0;
   border-radius: 12px;
   background: var(--surface-card);
+  box-shadow:
+    0 1px 4px rgb(17 24 39 / 0.04),
+    0 10px 20px rgb(17 24 39 / 0.08);
   transition:
     transform 160ms ease,
     box-shadow 160ms ease;
+}
+
+:root[data-theme="dark"] .rough-book-card {
+  box-shadow:
+    0 1px 5px rgb(0 0 0 / 0.18),
+    0 10px 22px rgb(0 0 0 / 0.28);
 }
 
 .rough-book-card:hover {
@@ -283,32 +293,32 @@ a:hover {
 
 .book-scroll-fade {
   --book-scroll-gutter: max(1rem, calc((100vw - 56rem) / 2 + 1rem));
-  --book-scroll-fade-width: min(48px, var(--book-scroll-gutter));
   position: relative;
   left: 50%;
   width: 100vw;
   transform: translateX(-50%);
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent calc(var(--book-scroll-gutter) - var(--book-scroll-fade-width)),
-    #000 var(--book-scroll-gutter),
-    #000 calc(100% - var(--book-scroll-gutter)),
-    transparent
-      calc(
-        100% - var(--book-scroll-gutter) + var(--book-scroll-fade-width)
-      )
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent calc(var(--book-scroll-gutter) - var(--book-scroll-fade-width)),
-    #000 var(--book-scroll-gutter),
-    #000 calc(100% - var(--book-scroll-gutter)),
-    transparent
-      calc(
-        100% - var(--book-scroll-gutter) + var(--book-scroll-fade-width)
-      )
-  );
+}
+
+.book-scroll-fade::before,
+.book-scroll-fade::after {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 30;
+  width: var(--book-scroll-gutter);
+  content: "";
+}
+
+.book-scroll-fade::before {
+  left: 0;
+  background: linear-gradient(to right, var(--background), transparent);
+}
+
+.book-scroll-fade::after {
+  right: 0;
+  background: linear-gradient(to left, var(--background), transparent);
 }
 
 .book-scroll-list {
@@ -326,12 +336,72 @@ a:hover {
   flex: 0 0 48px;
 }
 
+.book-title {
+  display: -webkit-box;
+  min-height: 3rem;
+  overflow: hidden;
+  padding: 0 0.25rem;
+  line-height: 1.5rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.book-rating {
+  margin-top: auto;
+  padding: 0 0.25rem;
+}
+
+.book-rank-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: linear-gradient(
+    to top right,
+    rgb(255 255 255 / 0.7),
+    rgb(255 255 255 / 0.24) 28%,
+    rgb(255 255 255 / 0.08) 48%,
+    transparent 72%
+  );
+}
+
+.book-rank-number {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.75rem;
+  z-index: 20;
+  color: #000000;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgb(255 255 255 / 0.55));
+}
+
+:root[data-theme="dark"] .book-rank-overlay {
+  background: linear-gradient(
+    to top right,
+    rgb(0 0 0 / 0.7),
+    rgb(0 0 0 / 0.24) 28%,
+    rgb(0 0 0 / 0.08) 48%,
+    transparent 72%
+  );
+}
+
+:root[data-theme="dark"] .book-rank-number {
+  color: #ffffff;
+  filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.55));
+}
+
 .rough-card-line {
   inset: 0;
   opacity: 0.68;
   transition:
     opacity 160ms ease,
     transform 160ms ease;
+}
+
+.rough-book-cover-line {
+  z-index: 2;
 }
 
 .theme-nav-button {

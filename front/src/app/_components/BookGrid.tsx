@@ -20,40 +20,57 @@ export default function BookGrid({ books, layout = "grid" }: BookGridProps) {
 
   const listClassName =
     layout === "horizontal"
-      ? "book-scroll-list flex gap-4 overflow-x-auto py-2 pb-4"
+      ? "book-scroll-list flex gap-5 overflow-x-auto py-2 pb-4"
       : "grid grid-cols-2 gap-4 p-2 sm:grid-cols-4";
 
   const itemClassName =
     layout === "horizontal"
-      ? "group rough-book-card w-40 shrink-0 rounded-xl sm:w-44"
-      : "group rough-book-card rounded-xl";
+      ? "group flex w-44 shrink-0 flex-col sm:w-[185px]"
+      : "group flex flex-col";
+
+  const coverClassName =
+    layout === "horizontal"
+      ? "relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden rounded-xl bg-transparent"
+      : "relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden rounded-xl bg-transparent";
 
   const list = (
     <ul className={listClassName}>
-      {books.map((book) => (
+      {books.map((book, index) => (
         <li key={book.id} className={itemClassName}>
-          <RoughFrame
-            className="rough-overlay rough-card-line"
-            variant="card"
-          />
           <Link
             href={`/books/detail?id=${book.id}`}
-            className="relative z-10 flex flex-col gap-1 p-3"
+            className="flex h-full flex-col gap-2"
           >
-            <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg bg-transparent">
-              {book.imgUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={book.imgUrl}
-                  alt={book.title}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span className="text-sm text-gray-400">표지 없음</span>
-              )}
+            <div className="rough-book-card rounded-xl">
+              <RoughFrame
+                className="rough-overlay rough-card-line rough-book-cover-line"
+                variant="card"
+              />
+              <div className={coverClassName}>
+                {book.imgUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={book.imgUrl}
+                    alt={book.title}
+                    className="relative z-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm text-gray-400">표지 없음</span>
+                )}
+                {layout === "horizontal" && (
+                  <>
+                    <span className="book-rank-overlay" />
+                    <span className="book-rank-number">
+                      {index + 1}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
-            <span>{book.title}</span>
-            <span className={`font-bold ${ratingColor(book.averageRating)}`}>
+            <span className="book-title">{book.title}</span>
+            <span
+              className={`book-rating font-bold ${ratingColor(book.averageRating)}`}
+            >
               <RatingValue rating={book.averageRating} />
             </span>
           </Link>
