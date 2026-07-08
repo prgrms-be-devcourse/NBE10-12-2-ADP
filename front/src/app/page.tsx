@@ -11,14 +11,19 @@ import BookGrid from "@/app/_components/BookGrid";
 type BookDto = components["schemas"]["BookDto"];
 
 export default function Page() {
-  const [books, setBooks] = useState<BookDto[] | null>(null);
+  const [popularBooks, setPopularBooks] = useState<BookDto[] | null>(null);
+  const [topRatedBooks, setTopRatedBooks] = useState<BookDto[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch(`/api/v1/books/rank?type=reviewCount&page=0&size=10`)
-      .then((data) => {
+    Promise.all([
+      apiFetch(`/api/v1/books/rank?type=reviewCount&page=0&size=10`),
+      apiFetch(`/api/v1/books/rank?type=rating&page=0&size=10`),
+    ])
+      .then(([popularData, topRatedData]) => {
         setLoadError(null);
-        setBooks(data);
+        setPopularBooks(popularData);
+        setTopRatedBooks(topRatedData);
       })
       .catch((error) => {
         setLoadError(`${error.resultCode} : ${error.message}`);
@@ -31,12 +36,15 @@ export default function Page() {
     );
   }
 
-  if (books == null) return <div>로딩중...</div>;
+  if (popularBooks == null || topRatedBooks == null) return <div>로딩중...</div>;
 
   return (
     <>
       <h1 className="mt-4 mb-2 text-3xl font-bold">인기 도서</h1>
-      <BookGrid books={books} layout="horizontal" />
+      <BookGrid books={popularBooks} layout="horizontal" />
+
+      <h1 className="mt-8 mb-2 text-3xl font-bold">후기 좋은 도서</h1>
+      <BookGrid books={topRatedBooks} layout="horizontal" />
     </>
   );
 }
