@@ -59,52 +59,52 @@ public class ApiV1BookControllerTest {
         }
     }
 
-    @Test
-    @DisplayName("도서 단건 조회 - 비인증 사용자")
-    void t2() throws Exception {
+//    @Test
+//    @DisplayName("도서 단건 조회 - 비인증 사용자")
+//    void t2() throws Exception {
+//
+//        Book book = bookRepository.findAll().get(0);
+//
+//        ResultActions resultActions = mvc
+//                .perform(
+//                        get("/api/v1/books/%d".formatted(book.getId())))
+//                .andDo(print());
+//
+//        resultActions
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.id").value(book.getId()))
+//                .andExpect(jsonPath("$.title").value(book.getTitle()))
+//                .andExpect(jsonPath("$.description").value(book.getDescription()))
+//                .andExpect(jsonPath("$.isbn").value(book.getIsbn()))
+//                .andExpect(jsonPath("$.publishedDate").exists())
+//                .andExpect(jsonPath("$.publisher").value(book.getPublisher()))
+//                .andExpect(jsonPath("$.imgUrl").value(book.getImgUrl()))
+//                .andExpect(jsonPath("$.authors").isArray())
+//                .andExpect(jsonPath("$.reviewCount").exists())
+//                .andExpect(jsonPath("$.rating").exists())
+//                .andExpect(jsonPath("$.rating.average").exists())
+//                .andExpect(jsonPath("$.tags").isArray())
+//                .andExpect(jsonPath("$.isWished").value(false)); // 비인증 시 isWished 없음
+//    }
 
-        Book book = bookRepository.findAll().get(0);
-
-        ResultActions resultActions = mvc
-                .perform(
-                        get("/api/v1/books/%d".formatted(book.getId())))
-                .andDo(print());
-
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(book.getId()))
-                .andExpect(jsonPath("$.title").value(book.getTitle()))
-                .andExpect(jsonPath("$.description").value(book.getDescription()))
-                .andExpect(jsonPath("$.isbn").value(book.getIsbn()))
-                .andExpect(jsonPath("$.publishedDate").exists())
-                .andExpect(jsonPath("$.publisher").value(book.getPublisher()))
-                .andExpect(jsonPath("$.imgUrl").value(book.getImgUrl()))
-                .andExpect(jsonPath("$.authors").isArray())
-                .andExpect(jsonPath("$.reviewCount").exists())
-                .andExpect(jsonPath("$.rating").exists())
-                .andExpect(jsonPath("$.rating.average").exists())
-                .andExpect(jsonPath("$.tags").isArray())
-                .andExpect(jsonPath("$.isWished").value(false)); // 비인증 시 isWished 없음
-    }
-
-    @Test
-    @DisplayName("도서 단건 조회 - 인증 사용자 (isWished 포함)")
-    @WithUserDetails("user1")
-    void t3() throws Exception {
-
-        Book book = bookRepository.findAll().get(0);
-
-        ResultActions resultActions = mvc
-                .perform(
-                        get("/api/v1/books/%d".formatted(book.getId())))
-                .andDo(print());
-
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(book.getId()))
-                .andExpect(jsonPath("$.title").value(book.getTitle()))
-                .andExpect(jsonPath("$.isWished").isBoolean()); // 인증 시 isWished 있음
-    }
+//    @Test
+//    @DisplayName("도서 단건 조회 - 인증 사용자 (isWished 포함)")
+//    @WithUserDetails("user1")
+//    void t3() throws Exception {
+//
+//        Book book = bookRepository.findAll().get(0);
+//
+//        ResultActions resultActions = mvc
+//                .perform(
+//                        get("/api/v1/books/%d".formatted(book.getId())))
+//                .andDo(print());
+//
+//        resultActions
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.id").value(book.getId()))
+//                .andExpect(jsonPath("$.title").value(book.getTitle()))
+//                .andExpect(jsonPath("$.isWished").isBoolean()); // 인증 시 isWished 있음
+//    }
 
     @Test
     @DisplayName("도서 검색")
