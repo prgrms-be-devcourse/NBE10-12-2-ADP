@@ -36,15 +36,21 @@ export default function Page() {
     );
   }
 
-  if (popularBooks == null || topRatedBooks == null) return <div>로딩중...</div>;
-
   return (
     <>
       <h1 className="mt-4 mb-2 text-3xl font-bold">인기 도서</h1>
-      <BookGrid books={popularBooks} layout="horizontal" />
+      <BookGrid
+        books={popularBooks ?? undefined}
+        isLoading={popularBooks == null}
+        layout="horizontal"
+      />
 
       <h1 className="mt-8 mb-2 text-3xl font-bold">후기 좋은 도서</h1>
-      <BookGrid books={topRatedBooks} layout="horizontal" />
+      <BookGrid
+        books={topRatedBooks ?? undefined}
+        isLoading={topRatedBooks == null}
+        layout="horizontal"
+      />
     </>
   );
 }

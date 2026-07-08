@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import type { components } from "@/lib/backend/apiV1/schema";
 import { ratingColor } from "@/lib/ratingColor";
@@ -7,16 +10,146 @@ import RatingValue from "@/app/_components/RatingValue";
 import RoughFrame from "@/app/_components/RoughFrame";
 
 type BookDto = components["schemas"]["BookDto"];
+const skeletonClassName = "book-skeleton";
 
 type BookGridProps = {
-  books: BookDto[];
+  books?: BookDto[];
+  isLoading?: boolean;
   layout?: "grid" | "horizontal";
 };
 
-export default function BookGrid({ books, layout = "grid" }: BookGridProps) {
-  if (books.length === 0) {
-    return <div>도서가 없습니다.</div>;
-  }
+type BookGridItemProps = {
+  book: BookDto;
+  coverClassName: string;
+  index: number;
+  layout: "grid" | "horizontal";
+};
+
+function SkeletonCard({ coverClassName }: { coverClassName: string }) {
+  return (
+    <div className="flex h-full flex-col gap-2">
+      <div className={coverClassName}>
+        <div className={`h-full w-full rounded-xl ${skeletonClassName}`} />
+      </div>
+      <span className="book-title">
+        <span className={`block h-5 w-full rounded ${skeletonClassName}`} />
+        <span
+          className={`mt-2 block h-5 w-3/4 rounded ${skeletonClassName}`}
+        />
+      </span>
+      <span className="book-rating block h-6">
+        <span className={`block h-5 w-16 rounded ${skeletonClassName}`} />
+      </span>
+    </div>
+  );
+}
+
+function BookGridItem({
+  book,
+  coverClassName,
+  index,
+  layout,
+}: BookGridItemProps) {
+  return (
+    <Link
+      href={`/books/detail?id=${book.id}`}
+      className="flex h-full flex-col gap-2"
+    >
+      <div className="rough-book-card rounded-xl">
+        <RoughFrame
+          className="rough-overlay rough-card-line rough-book-cover-line"
+          variant="card"
+        />
+        <div className={coverClassName}>
+          {book.imgUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={book.imgUrl}
+              alt={book.title}
+              className="relative z-0 h-full w-full object-cover"
+            />
+          ) : (
+            <span className="text-sm text-gray-400">표지 없음</span>
+          )}
+          {layout === "horizontal" && (
+            <>
+              <span className="book-rank-overlay" />
+              <span className="book-rank-number">{index + 1}</span>
+            </>
+          )}
+        </div>
+      </div>
+      <span className="book-title">{book.title}</span>
+      <span
+        className={`book-rating font-bold ${ratingColor(book.averageRating)}`}
+      >
+        <RatingValue rating={book.averageRating} />
+      </span>
+    </Link>
+  );
+}
+
+export default function BookGrid({
+  books = [],
+  isLoading = false,
+  layout = "grid",
+}: BookGridProps) {
+  const [areImagesReady, setAreImagesReady] = useState(false);
+  const [isContentVisible, setIsContentVisible] = useState(false);
+
+  useEffect(() => {
+    if (isLoading || books.length === 0) {
+      setAreImagesReady(false);
+      return;
+    }
+
+    const imageUrls = books
+      .map((book) => book.imgUrl)
+      .filter((imgUrl): imgUrl is string => Boolean(imgUrl));
+
+    if (imageUrls.length === 0) {
+      setAreImagesReady(true);
+      return;
+    }
+
+    let isActive = true;
+    setAreImagesReady(false);
+
+    Promise.all(
+      imageUrls.map(
+        (imgUrl) =>
+          new Promise<void>((resolve) => {
+            const image = new Image();
+            image.onload = () => resolve();
+            image.onerror = () => resolve();
+            image.src = imgUrl;
+          }),
+      ),
+    ).then(() => {
+      if (isActive) {
+        setAreImagesReady(true);
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [books, isLoading]);
+
+  useEffect(() => {
+    if (isLoading || !areImagesReady) {
+      setIsContentVisible(false);
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      setIsContentVisible(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [areImagesReady, isLoading]);
 
   const listClassName =
     layout === "horizontal"
@@ -33,49 +166,44 @@ export default function BookGrid({ books, layout = "grid" }: BookGridProps) {
       ? "relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden rounded-xl bg-transparent"
       : "relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden rounded-xl bg-transparent";
 
+  const skeletonItems = Array.from({ length: books.length || 10 });
+
+  if (!isLoading && books.length === 0) {
+    return <div>도서가 없습니다.</div>;
+  }
+
   const list = (
     <ul className={listClassName}>
-      {books.map((book, index) => (
-        <li key={book.id} className={itemClassName}>
-          <Link
-            href={`/books/detail?id=${book.id}`}
-            className="flex h-full flex-col gap-2"
-          >
-            <div className="rough-book-card rounded-xl">
-              <RoughFrame
-                className="rough-overlay rough-card-line rough-book-cover-line"
-                variant="card"
-              />
-              <div className={coverClassName}>
-                {book.imgUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={book.imgUrl}
-                    alt={book.title}
-                    className="relative z-0 h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="text-sm text-gray-400">표지 없음</span>
-                )}
-                {layout === "horizontal" && (
-                  <>
-                    <span className="book-rank-overlay" />
-                    <span className="book-rank-number">
-                      {index + 1}
-                    </span>
-                  </>
-                )}
+      {isLoading
+        ? skeletonItems.map((_, index) => (
+            <li key={index} className={itemClassName} aria-hidden="true">
+              <SkeletonCard coverClassName={coverClassName} />
+            </li>
+          ))
+        : books.map((book, index) => (
+            <li key={book.id} className={`${itemClassName} relative`}>
+              <div
+                className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out ${
+                  isContentVisible ? "opacity-0" : "opacity-100"
+                }`}
+                aria-hidden="true"
+              >
+                <SkeletonCard coverClassName={coverClassName} />
               </div>
-            </div>
-            <span className="book-title">{book.title}</span>
-            <span
-              className={`book-rating font-bold ${ratingColor(book.averageRating)}`}
-            >
-              <RatingValue rating={book.averageRating} />
-            </span>
-          </Link>
-        </li>
-      ))}
+              <div
+                className={`transition-opacity duration-500 ease-out ${
+                  isContentVisible ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <BookGridItem
+                  book={book}
+                  coverClassName={coverClassName}
+                  index={index}
+                  layout={layout}
+                />
+              </div>
+            </li>
+          ))}
     </ul>
   );
 

@@ -11,6 +11,8 @@
   --surface-transparent: transparent;
   --surface-muted-hover: #f3f4f6;
   --surface-hover: #f3f4f6;
+  --book-skeleton: #f7f8fa;
+  --book-skeleton-active: #f0f2f4;
 }
 
 :root[data-theme="dark"] {
@@ -24,6 +26,8 @@
   --surface-transparent: transparent;
   --surface-muted-hover: #2f2f2f;
   --surface-hover: #2f2f2f;
+  --book-skeleton: #171717;
+  --book-skeleton-active: #121212;
 }
 
 @theme inline {
@@ -336,9 +340,25 @@ a:hover {
   flex: 0 0 48px;
 }
 
+.book-skeleton {
+  background-color: var(--book-skeleton);
+  animation: book-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes book-skeleton-pulse {
+  0%,
+  100% {
+    background-color: var(--book-skeleton);
+  }
+
+  50% {
+    background-color: var(--book-skeleton-active);
+  }
+}
+
 .book-title {
   display: -webkit-box;
-  min-height: 3rem;
+  height: 3rem;
   overflow: hidden;
   padding: 0 0.25rem;
   line-height: 1.5rem;
@@ -347,6 +367,9 @@ a:hover {
 }
 
 .book-rating {
+  display: block;
+  height: 1.5rem;
+  line-height: 1.5rem;
   margin-top: auto;
   padding: 0 0.25rem;
 }
