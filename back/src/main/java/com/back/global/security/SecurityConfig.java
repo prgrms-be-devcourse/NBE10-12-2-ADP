@@ -33,7 +33,7 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2LoginFailureHandler customOAuth2LoginFailureHandler) {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(
@@ -87,6 +87,7 @@ public class SecurityConfig {
                                 sessionManagement.sessionCreationPolicy(STATELESS))
                 .oauth2Login(oauth2Login -> oauth2Login
                         .successHandler(customOAuth2LoginSuccessHandler)
+                        .failureHandler(customOAuth2LoginFailureHandler)
                         .authorizationEndpoint(
                                 authorizationEndpoint -> authorizationEndpoint
                                         .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver)
