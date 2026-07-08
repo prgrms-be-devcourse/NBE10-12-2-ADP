@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com"
-version = "0.0.1-SNAPSHOT"
+version = "0.1.0"
 description = "back"
 
 java {
@@ -50,4 +50,14 @@ tasks.withType<Test> {
     useJUnitPlatform()
     // 실제 외부 API를 대량 호출하는 수동 실행용 스크립트라 기본 test 실행에서는 제외
     exclude("**/BookFetchBatchRunner.class", "**/ProgressCheck.class")
+}
+
+tasks.apply {
+    jar {
+        enabled = false
+    }
+    bootJar {
+        enabled = true
+        archiveFileName.set("application.jar")
+    }
 }
