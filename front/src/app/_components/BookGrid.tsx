@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+
+import { useEffect, useMemo, useState } from "react";
 
 import type { components } from "@/lib/backend/apiV1/schema";
 import { ratingColor } from "@/lib/ratingColor";
@@ -33,9 +34,7 @@ function SkeletonCard({ coverClassName }: { coverClassName: string }) {
       </div>
       <span className="book-title">
         <span className={`block h-5 w-full rounded ${skeletonClassName}`} />
-        <span
-          className={`mt-2 block h-5 w-3/4 rounded ${skeletonClassName}`}
-        />
+        <span className={`mt-2 block h-5 w-3/4 rounded ${skeletonClassName}`} />
       </span>
       <span className="book-rating block h-6">
         <span className={`block h-5 w-16 rounded ${skeletonClassName}`} />
@@ -50,12 +49,14 @@ function BookGridItem({
   index,
   layout,
 }: BookGridItemProps) {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
   return (
     <Link
       href={`/books/detail?id=${book.id}`}
       className="flex h-full flex-col gap-2"
     >
-      <div className="rough-book-card rounded-xl">
+      <div className="rough-book-card rounded-xl bg-white">
         <RoughFrame
           className="rough-overlay rough-card-line rough-book-cover-line"
           variant="card"
@@ -66,7 +67,10 @@ function BookGridItem({
             <img
               src={book.imgUrl}
               alt={book.title}
-              className="relative z-0 h-full w-full object-cover"
+              className={`relative z-0 h-full w-full object-cover transition-opacity duration-500 ease-out ${
+                isImageLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              onLoad={() => setIsImageLoaded(true)}
             />
           ) : (
             <span className="text-sm text-gray-400">표지 없음</span>
@@ -94,62 +98,29 @@ export default function BookGrid({
   isLoading = false,
   layout = "grid",
 }: BookGridProps) {
-  const [areImagesReady, setAreImagesReady] = useState(false);
-  const [isContentVisible, setIsContentVisible] = useState(false);
+  const [visibleContentKey, setVisibleContentKey] = useState("");
+
+  const contentKey = useMemo(
+    () => books.map((book) => `${book.id}:${book.imgUrl ?? ""}`).join("\n"),
+    [books],
+  );
+
+  const isContentVisible =
+    !isLoading && books.length > 0 && visibleContentKey === contentKey;
 
   useEffect(() => {
     if (isLoading || books.length === 0) {
-      setAreImagesReady(false);
-      return;
-    }
-
-    const imageUrls = books
-      .map((book) => book.imgUrl)
-      .filter((imgUrl): imgUrl is string => Boolean(imgUrl));
-
-    if (imageUrls.length === 0) {
-      setAreImagesReady(true);
-      return;
-    }
-
-    let isActive = true;
-    setAreImagesReady(false);
-
-    Promise.all(
-      imageUrls.map(
-        (imgUrl) =>
-          new Promise<void>((resolve) => {
-            const image = new Image();
-            image.onload = () => resolve();
-            image.onerror = () => resolve();
-            image.src = imgUrl;
-          }),
-      ),
-    ).then(() => {
-      if (isActive) {
-        setAreImagesReady(true);
-      }
-    });
-
-    return () => {
-      isActive = false;
-    };
-  }, [books, isLoading]);
-
-  useEffect(() => {
-    if (isLoading || !areImagesReady) {
-      setIsContentVisible(false);
       return;
     }
 
     const frameId = window.requestAnimationFrame(() => {
-      setIsContentVisible(true);
+      setVisibleContentKey(contentKey);
     });
 
     return () => {
       window.cancelAnimationFrame(frameId);
     };
-  }, [areImagesReady, isLoading]);
+  }, [books.length, contentKey, isLoading]);
 
   const listClassName =
     layout === "horizontal"
@@ -162,9 +133,7 @@ export default function BookGrid({
       : "group flex flex-col";
 
   const coverClassName =
-    layout === "horizontal"
-      ? "relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden rounded-xl bg-transparent"
-      : "relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden rounded-xl bg-transparent";
+    "relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden rounded-xl bg-white";
 
   const skeletonItems = Array.from({ length: books.length || 10 });
 
@@ -181,9 +150,12 @@ export default function BookGrid({
             </li>
           ))
         : books.map((book, index) => (
-            <li key={book.id} className={`${itemClassName} relative`}>
+            <li
+              key={`${book.id}:${book.imgUrl ?? ""}`}
+              className={`${itemClassName} relative`}
+            >
               <div
-                className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out ${
+                className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ease-out ${
                   isContentVisible ? "opacity-0" : "opacity-100"
                 }`}
                 aria-hidden="true"
@@ -191,7 +163,7 @@ export default function BookGrid({
                 <SkeletonCard coverClassName={coverClassName} />
               </div>
               <div
-                className={`transition-opacity duration-500 ease-out ${
+                className={`transition-opacity duration-300 ease-out ${
                   isContentVisible ? "opacity-100" : "opacity-0"
                 }`}
               >

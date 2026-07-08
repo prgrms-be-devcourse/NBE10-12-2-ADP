@@ -68,11 +68,7 @@ export default function Header() {
             aria-label="테마 전환"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/moon.svg"
-              alt=""
-              className="theme-light-only h-5 w-5"
-            />
+            <img src="/moon.svg" alt="" className="theme-light-only h-5 w-5" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/sun.svg" alt="" className="theme-dark-only h-5 w-5" />
             <span className="theme-toggle-label text-sm" />
