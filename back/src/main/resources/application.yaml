@@ -59,3 +59,4 @@ custom:
   security:
     allowedOrigins: ${CUSTOM__SECURITY__ALLOWED_ORIGINS}
     cookieDomain: ${CUSTOM__SECURITY__COOKIE_DOMAIN:localhost}
+    cookieSecure: false
