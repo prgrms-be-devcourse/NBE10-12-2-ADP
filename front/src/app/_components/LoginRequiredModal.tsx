@@ -5,13 +5,15 @@ import RoughFrame from "@/app/_components/RoughFrame";
 
 type LoginRequiredModalProps = {
   onCancel: () => void;
-  onLogin: () => void;
 };
 
 export default function LoginRequiredModal({
   onCancel,
-  onLogin,
 }: LoginRequiredModalProps) {
+  const handleGitHubLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/oauth2/authorization/github?redirectUrl=${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}`;
+  };
+
   return (
     <div
       className="rough-modal-backdrop"
@@ -25,8 +27,7 @@ export default function LoginRequiredModal({
           로그인이 필요한 기능입니다
         </h2>
         <p className="mt-2 text-sm text-gray-600">
-          이 기능을 사용하려면 로그인이 필요합니다. 로그인 페이지로
-          이동하시겠습니까?
+          이 기능을 사용하려면 로그인이 필요합니다. 로그인하시겠습니까?
         </p>
         <div className="mt-5 flex justify-end gap-2">
           <RoughButton
@@ -40,10 +41,18 @@ export default function LoginRequiredModal({
           <RoughButton
             roughSize="sm"
             tone="history"
+            className="flex items-center gap-1.5 whitespace-nowrap"
             type="button"
-            onClick={onLogin}
+            onClick={handleGitHubLogin}
+            aria-label="GitHub로 로그인"
           >
-            로그인 하러 가기
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="rough-github-button-icon shrink-0 !inline-block"
+              src="/github.svg"
+              alt=""
+            />
+            <span> GitHub로 로그인</span>
           </RoughButton>
         </div>
       </div>
