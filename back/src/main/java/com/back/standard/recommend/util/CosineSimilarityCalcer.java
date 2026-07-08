@@ -45,7 +45,7 @@ public class CosineSimilarityCalcer implements SimilarityCalcer {
         vectorBSqrMagnitude = getSqrMagnitude(sortedVectorB);
     }
 
-    public double getCosineSimilarity() {
+    public double getSimilarity() {
 
         int refA = 0;
         int refB = 0;
@@ -88,7 +88,7 @@ public class CosineSimilarityCalcer implements SimilarityCalcer {
                 })
                 .forEach(set -> {
                     setVectorB(set.getValue());
-                    similarList.add(new Similar(set.getKey(), getCosineSimilarity()));
+                    similarList.add(new Similar(set.getKey(), getSimilarity()));
                 });
 
         similarList.sort(Comparator.comparingDouble(a -> -a.score()));
