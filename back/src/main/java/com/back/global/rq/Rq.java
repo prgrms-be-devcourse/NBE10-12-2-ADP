@@ -30,6 +30,9 @@ public class Rq {
     @Value("${server.ssl.enabled}")
     private boolean isSecure;
 
+    @Value("${custom.security.cookieDomain}")
+    private String cookieDomain;
+
     public Member getActor() {
         return Optional.ofNullable(
                         SecurityContextHolder
@@ -86,7 +89,7 @@ public class Rq {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setDomain("localhost");
+        cookie.setDomain(cookieDomain);
         cookie.setSecure(isSecure);
         cookie.setAttribute("SameSite", "Strict");
 
