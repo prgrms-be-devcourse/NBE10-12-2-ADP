@@ -93,15 +93,16 @@ function BookDetail() {
     const tagsInput = form.elements.namedItem("tags") as HTMLInputElement;
 
     contentInput.value = contentInput.value.trim();
-
+    /*
     if (contentInput.value.length < 2) {
       alert("리뷰 내용을 2자 이상 입력해주세요.");
       contentInput.focus();
       return null;
     }
+    */
 
-    if (contentInput.value.length > 30) {
-      alert("리뷰 내용은 30자 이하로 입력해주세요.");
+    if (contentInput.value.length > 500) {
+      alert("리뷰 내용은 500자 이하로 입력해주세요.");
       contentInput.focus();
       return null;
     }
@@ -234,9 +235,7 @@ function BookDetail() {
 
   return (
     <div className="flex flex-col gap-6 p-4 max-w-3xl mx-auto w-full">
-      {showLoginModal && (
-        <LoginRequiredModal onCancel={closeLoginModal} />
-      )}
+      {showLoginModal && <LoginRequiredModal onCancel={closeLoginModal} />}
       {showWriteForm && (
         <ReviewFormModal
           onCancel={() => setShowWriteForm(false)}
