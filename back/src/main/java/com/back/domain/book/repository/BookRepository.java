@@ -17,7 +17,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query(value = """
             SELECT * FROM Book 
-            WHERE MATCH(title, description) AGAINST(:keyword IN BOOLEAN MODE)
+            WHERE MATCH(title, authors, publisher) AGAINST(:keyword IN BOOLEAN MODE)
             LIMIT :#{pageable.pageSize}
             OFFSET :#{pageable.offset}
             """,
