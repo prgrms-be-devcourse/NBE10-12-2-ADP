@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { Suspense, useEffect, useState } from "react";
 
@@ -26,7 +26,6 @@ type BookDetailDto = components["schemas"]["BookDetailDto"];
 type ReviewDto = components["schemas"]["ReviewDto"];
 
 function BookDetail() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const { loginMember, isLogin } = useAuth();
@@ -202,10 +201,6 @@ function BookDetail() {
     setShowLoginModal(false);
   };
 
-  const goToLogin = () => {
-    router.push("/members/login");
-  };
-
   const handleDelete = (reviewId: number) => {
     if (!confirm("리뷰를 삭제하시겠습니까?")) return;
 
@@ -240,7 +235,7 @@ function BookDetail() {
   return (
     <div className="flex flex-col gap-6 p-4 max-w-3xl mx-auto w-full">
       {showLoginModal && (
-        <LoginRequiredModal onCancel={closeLoginModal} onLogin={goToLogin} />
+        <LoginRequiredModal onCancel={closeLoginModal} />
       )}
       {showWriteForm && (
         <ReviewFormModal

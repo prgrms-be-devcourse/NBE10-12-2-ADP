@@ -39,11 +39,17 @@ public class BookViewsService {
     }
 
     public int getViewCount(Long bookId) {
-        Double score = redisTemplate.opsForZSet()
-                .score("viewCount", bookId.toString());
 
-        if (score != null) {
-            return score.intValue();
+        try {
+            Double score = redisTemplate.opsForZSet()
+                    .score("viewCount", bookId.toString());
+
+            if (score != null) {
+                return score.intValue();
+            }
+        } catch (Exception e) {
+            // log.warn(...)
+
         }
 
         return getDBViewCount(bookId);
@@ -52,85 +58,97 @@ public class BookViewsService {
 
     public List<BookDto> topViewedInLastHour(int page, int size) {
 
-        int start = page * size;
-        int end = start + size - 1;
+        try {
+            int start = page * size;
+            int end = start + size - 1;
 
-        LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = LocalDateTime.now();
 
-        List<String> keys = new ArrayList<>();
+            List<String> keys = new ArrayList<>();
 
-        for (int i = 0; i < 60; i++) {
-            String key = "viewCount:minute:%s".formatted(
-                    now.minusMinutes(i)
-                            .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
+            for (int i = 0; i < 60; i++) {
+                String key = "viewCount:minute:%s".formatted(
+                        now.minusMinutes(i)
+                                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
+                );
+
+                keys.add(key);
+            }
+
+            String tempKey = "viewCount:lastHour:temp:" + UUID.randomUUID();
+
+            redisTemplate.delete(tempKey);
+
+            redisTemplate.opsForZSet().unionAndStore(
+                    keys.getFirst(),
+                    keys.subList(1, keys.size()),
+                    tempKey
             );
 
-            keys.add(key);
-        }
+            redisTemplate.expire(tempKey, Duration.ofSeconds(10));
 
-        String tempKey = "viewCount:lastHour:temp:" + UUID.randomUUID();
+            Set<String> bookIds = redisTemplate.opsForZSet()
+                    .reverseRange(tempKey, start, end);
 
-        redisTemplate.delete(tempKey);
+            if (bookIds == null || bookIds.isEmpty()) {
+                return List.of();
+            }
 
-        redisTemplate.opsForZSet().unionAndStore(
-                keys.getFirst(),
-                keys.subList(1, keys.size()),
-                tempKey
-        );
-
-        redisTemplate.expire(tempKey, Duration.ofSeconds(10));
-
-        Set<String> bookIds = redisTemplate.opsForZSet()
-                .reverseRange(tempKey, start, end);
-
-        if (bookIds == null || bookIds.isEmpty()) {
+            return bookIds.stream()
+                    .map(bookId -> new BookDto(bookService.getPureBook(Long.parseLong(bookId))))
+                    .toList();
+        } catch (Exception e) {
             return List.of();
         }
-
-        return bookIds.stream()
-                .map(bookId -> new BookDto(bookService.getPureBook(Long.parseLong(bookId))))
-                .toList();
     }
 
     public void incrementViewCount(Long bookId) {
 
-        if (rq.getCookieValue("viewed:%d".formatted(bookId), "").equals("true")) {
-            return;
+        try {
+            if (rq.getCookieValue("viewed:%d".formatted(bookId), "").equals("true")) {
+                return;
+            }
+
+            if (redisTemplate.opsForZSet().score("viewCount", bookId.toString()) == null) {
+                redisTemplate.opsForZSet().add("viewCount", bookId.toString(), getDBViewCount(bookId));
+            }
+
+            redisTemplate.opsForZSet().incrementScore("viewCount", bookId.toString(), 1);
+
+            String minuteKey = getMinuteKey();
+            redisTemplate.opsForZSet().incrementScore(
+                    minuteKey, bookId.toString(), 1);
+            redisTemplate.expire(minuteKey, Duration.ofMinutes(70));
+
+            rq.setCookie("viewed:%d".formatted(bookId), "true", 60);
+        } catch (Exception e) {
+            updateViewCountInDb(bookId, getDBViewCount(bookId));
+
         }
-
-        if (redisTemplate.opsForZSet().score("viewCount", bookId.toString()) == null) {
-            redisTemplate.opsForZSet().add("viewCount", bookId.toString(), getDBViewCount(bookId));
-        }
-
-        redisTemplate.opsForZSet().incrementScore("viewCount", bookId.toString(), 1);
-
-        String minuteKey = getMinuteKey();
-        redisTemplate.opsForZSet().incrementScore(
-                minuteKey, bookId.toString(), 1);
-        redisTemplate.expire(minuteKey, Duration.ofMinutes(70));
-
-        rq.setCookie("viewed:%d".formatted(bookId), "true", 60);
-        ;
     }
 
     @Transactional
     public void updateViewCountInDb() {
-        Set<ZSetOperations.TypedTuple<String>> tuples =
-                redisTemplate.opsForZSet().rangeWithScores("viewCount", 0, -1);
+        try {
+            Set<ZSetOperations.TypedTuple<String>> tuples =
+                    redisTemplate.opsForZSet().rangeWithScores("viewCount", 0, -1);
 
-        if (tuples == null || tuples.isEmpty()) return;
+            if (tuples == null || tuples.isEmpty()) return;
 
-        for (ZSetOperations.TypedTuple<String> tuple : tuples) {
-            if (tuple.getValue() == null || tuple.getScore() == null) continue;
+            for (ZSetOperations.TypedTuple<String> tuple : tuples) {
+                if (tuple.getValue() == null || tuple.getScore() == null) continue;
 
-            try {
-                Long bookId = Long.parseLong(tuple.getValue());
-                int viewCount = tuple.getScore().intValue();
+                try {
+                    Long bookId = Long.parseLong(tuple.getValue());
+                    int viewCount = tuple.getScore().intValue();
 
-                updateViewCountInDb(bookId, viewCount);
-            } catch (Exception e) {
-                // log.warn(...)
+                    updateViewCountInDb(bookId, viewCount);
+                } catch (Exception e) {
+                    // log.warn(...)
+                }
             }
+        } catch (Exception e) {
+            // log.warn(...)
         }
     }
 

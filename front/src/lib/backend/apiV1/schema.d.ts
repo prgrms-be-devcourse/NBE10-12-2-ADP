@@ -547,6 +547,10 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["AdminMemberDto"][];
@@ -554,10 +558,22 @@ export interface components {
             number?: number;
             first?: boolean;
             last?: boolean;
+            empty?: boolean;
+        };
+        PageableObject: {
+            paged?: boolean;
             /** Format: int32 */
-            numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
+            pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
             sort?: components["schemas"]["SortObject"];
+            unpaged?: boolean;
+            /** Format: int64 */
+            offset?: number;
+        };
+        SortObject: {
+            sorted?: boolean;
+            unsorted?: boolean;
             empty?: boolean;
         };
         BookDetailDto: {
@@ -584,6 +600,10 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["BookDto"][];
@@ -591,10 +611,6 @@ export interface components {
             number?: number;
             first?: boolean;
             last?: boolean;
-            /** Format: int32 */
-            numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
     };
