@@ -462,10 +462,10 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["AdminReviewDto"][];
@@ -476,19 +476,19 @@ export interface components {
             empty?: boolean;
         };
         PageableObject: {
+            sort?: components["schemas"]["SortObject"];
             paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
             unpaged?: boolean;
-            sort?: components["schemas"]["SortObject"];
             /** Format: int64 */
             offset?: number;
         };
         SortObject: {
-            sorted?: boolean;
             unsorted?: boolean;
+            sorted?: boolean;
             empty?: boolean;
         };
         MemberWithUsernameAndWidgetLinkDto: {
@@ -515,10 +515,10 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["AdminMemberDto"][];
@@ -552,10 +552,10 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["BookDto"][];

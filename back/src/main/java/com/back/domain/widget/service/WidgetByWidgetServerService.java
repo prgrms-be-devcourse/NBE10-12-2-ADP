@@ -20,7 +20,7 @@ import java.util.List;
 public class WidgetByWidgetServerService {
 
     record WidgetRenderRequest(
-            int reviewCount,
+            long reviewCount,
             long reviewWithContentCount,
             int wishCount,
             List<BookItem> books
@@ -40,14 +40,12 @@ public class WidgetByWidgetServerService {
 
     public String createWidget(String githubId) {
         Member member = memberService.findByGithubId(githubId);
-        List<Review> reviews = reviewService.findByMember(member);
+        List<Review> reviews = reviewService
+                .getByMember(member, 0, VISIBLE_BOOK_MAX_COUNT)
+                .stream().toList();
 
-        int reviewCount = reviews.size();
-
-        long reviewWithContentCount = reviews.stream()
-                .filter(review -> review.getContent() != null)
-                .filter(review -> !review.getContent().isBlank())
-                .count();
+        long reviewCount = reviewService.getReviewCountByMember(member);
+        long reviewWithContentCount = reviewService.getReviewWithContentCountByMember(member);
 
         int wishCount = wishService.findByMember(member).size();
 
