@@ -36,19 +36,20 @@ export default function Header() {
 
   return (
     <header className="relative">
-      <nav className="mx-auto flex w-full max-w-4xl items-center justify-between gap-2 px-4 py-2">
-        <div className="flex w-64 shrink-0 justify-start">
-          <Link href="/" className="shrink-0 text-xl font-bold">
+      <nav className="mx-auto flex w-full max-w-4xl items-center gap-3 px-4 py-2">
+        <div className="shrink-0">
+          <Link href="/" className="shrink-0 text-xl font-bold whitespace-nowrap">
             READTHEM.md
           </Link>
         </div>
 
         <form
-          className="flex w-full max-w-xs shrink-0 items-center gap-1"
+          className="flex min-w-0 flex-1 items-center gap-1"
           onSubmit={handleSearch}
         >
-          <label className="flex-1">
+          <label className="min-w-0 flex-1">
             <RoughInput
+              wrapperClassName="w-full"
               type="text"
               placeholder="제목/저자 검색"
               value={searchTerm}
@@ -56,15 +57,19 @@ export default function Header() {
               maxLength={100}
             />
           </label>
-          <RoughButton className="shrink-0 px-2" roughSize="sm" type="submit">
+          <RoughButton
+            className="shrink-0 whitespace-nowrap px-2"
+            roughSize="sm"
+            type="submit"
+          >
             검색
           </RoughButton>
         </form>
 
-        <div className="flex w-64 shrink-0 items-center justify-end gap-2">
+        <div className="flex shrink-0 items-center justify-end gap-2 whitespace-nowrap">
           <button
             type="button"
-            className="theme-nav-button grid w-20 grid-cols-[1.25rem_2.25rem] items-center gap-2"
+            className="theme-nav-button grid w-20 shrink-0 grid-cols-[1.25rem_2.25rem] items-center gap-2"
             onClick={toggleTheme}
             aria-label="테마 전환"
           >
@@ -109,10 +114,13 @@ export default function Header() {
           )}
 
           {!isLoginMemberPending && isLogin && (
-            <div className="auth-action-enter flex items-center gap-2">
-              <span className="p-2">{loginMember?.username}님</span>
-              <Link href="/mypage" className="theme-nav-link">
-                마이페이지
+            <div className="auth-action-enter flex min-w-0 items-center gap-2 whitespace-nowrap">
+              <Link
+                href="/mypage"
+                className="theme-nav-link min-w-0 max-w-[10rem] truncate"
+                title={loginMember?.username ? `${loginMember.username}님` : ""}
+              >
+                {loginMember?.username}님
               </Link>
               {isAdmin && (
                 <Link href="/admin" className="theme-nav-link">

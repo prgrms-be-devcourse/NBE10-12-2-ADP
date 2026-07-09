@@ -34,12 +34,6 @@ public class ApiV1BookController {
     private final BookRankService bookRankService;
     private final BookViewsService bookViewsService;
 
-    @GetMapping
-    @Operation(summary = "도서 다건 조회")
-    public List<BookDto> getBooks() {
-        return bookService.getBooks();
-    }
-
     @GetMapping("/admin")
     @Operation(summary = "도서 다건 조회 (관리자)")
     @SecurityRequirement(name = "bearerAuth")
@@ -59,8 +53,11 @@ public class ApiV1BookController {
 
     @GetMapping("/search")
     @Operation(summary = "도서 검색")
-    public List<BookDto> search(@RequestParam @NotBlank String searchTerm) {
-        return bookService.search(searchTerm);
+    public List<BookDto> search(
+            @RequestParam @NotBlank String searchTerm,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return bookService.search(searchTerm, page, size);
     }
 
     @GetMapping("/recommend")

@@ -21,8 +21,11 @@ import RoughDivider from "@/app/_components/RoughDivider";
 import RoughFrame from "@/app/_components/RoughFrame";
 import { RoughInput, RoughTextarea } from "@/app/_components/RoughInput";
 import RoughRatingInput from "@/app/_components/RoughRatingInput";
+import { RoughStarIcon } from "@/app/_components/RatingValue";
+import { ratingFillColor } from "@/lib/ratingColor";
 
 type BookDetailDto = components["schemas"]["BookDetailDto"];
+type BookDto = components["schemas"]["BookDto"];
 type ReviewDto = components["schemas"]["ReviewDto"];
 
 function BookDetail() {
@@ -32,8 +35,10 @@ function BookDetail() {
 
   const [book, setBook] = useState<BookDetailDto | null>(null);
   const [reviews, setReviews] = useState<ReviewDto[] | null>(null);
+  const [recommendBooks, setRecommendBooks] = useState<BookDto[] | null>(null);
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [recommendError, setRecommendError] = useState<string | null>(null);
   const [showWriteForm, setShowWriteForm] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -63,6 +68,24 @@ function BookDetail() {
       });
   };
 
+  const loadRecommendBooks = () => {
+    if (!isLogin) {
+      setRecommendBooks([]);
+      setRecommendError(null);
+      return;
+    }
+
+    apiFetch("/api/v1/books/recommend")
+      .then((data) => {
+        setRecommendError(null);
+        setRecommendBooks(data);
+      })
+      .catch((error) => {
+        setRecommendError(`${error.resultCode} : ${error.message}`);
+        setRecommendBooks([]);
+      });
+  };
+
   useEffect(() => {
     if (id == null) return;
 
@@ -85,6 +108,10 @@ function BookDetail() {
       });
   }, [id]);
 
+  useEffect(() => {
+    loadRecommendBooks();
+  }, [isLogin]);
+
   const extractReviewFields = (form: HTMLFormElement) => {
     const ratingInput = form.elements.namedItem("rating") as HTMLInputElement;
     const contentInput = form.elements.namedItem(
@@ -93,15 +120,16 @@ function BookDetail() {
     const tagsInput = form.elements.namedItem("tags") as HTMLInputElement;
 
     contentInput.value = contentInput.value.trim();
-
+    /*
     if (contentInput.value.length < 2) {
       alert("리뷰 내용을 2자 이상 입력해주세요.");
       contentInput.focus();
       return null;
     }
+    */
 
-    if (contentInput.value.length > 30) {
-      alert("리뷰 내용은 30자 이하로 입력해주세요.");
+    if (contentInput.value.length > 500) {
+      alert("리뷰 내용은 500자 이하로 입력해주세요.");
       contentInput.focus();
       return null;
     }
@@ -234,9 +262,7 @@ function BookDetail() {
 
   return (
     <div className="flex flex-col gap-6 p-4 max-w-3xl mx-auto w-full">
-      {showLoginModal && (
-        <LoginRequiredModal onCancel={closeLoginModal} />
-      )}
+      {showLoginModal && <LoginRequiredModal onCancel={closeLoginModal} />}
       {showWriteForm && (
         <ReviewFormModal
           onCancel={() => setShowWriteForm(false)}
@@ -330,6 +356,79 @@ function BookDetail() {
           </div>
         </div>
       </div>
+
+      {isLogin && (
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-lg font-bold">추천 도서</h2>
+            <span className="text-sm theme-muted">
+              {recommendBooks?.length ?? 0}권
+            </span>
+          </div>
+
+          {recommendBooks == null ? (
+            <div className="mt-2 text-sm theme-muted">
+              추천 도서를 불러오는 중...
+            </div>
+          ) : recommendBooks.length === 0 ? (
+            <div className="mt-2 text-sm theme-muted">
+              아직 추천할 도서가 없어요.
+              {recommendError && (
+                <span className="ml-1">({recommendError})</span>
+              )}
+            </div>
+          ) : (
+            <ul
+              className="book-scroll-list mt-3 flex gap-3 overflow-x-auto py-2 pb-4"
+            >
+              {recommendBooks.map((recommendBook) => (
+                <li key={recommendBook.id} className="min-w-0 shrink-0">
+                  <Link
+                    className="group flex h-full w-24 flex-col gap-1.5"
+                    href={`/books/detail?id=${recommendBook.id}`}
+                  >
+                    <div className="rough-book-card rounded-xl bg-white">
+                      <RoughFrame
+                        className="rough-overlay rough-card-line rough-book-cover-line"
+                        variant="card"
+                      />
+                      <div className="flex aspect-[2/3] w-full items-center justify-center overflow-hidden bg-white">
+                        {recommendBook.imgUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={recommendBook.imgUrl}
+                            alt={recommendBook.title}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-sm text-gray-400">
+                            표지 없음
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="min-w-0 px-1">
+                      <div className="truncate text-sm font-semibold leading-snug">
+                        {recommendBook.title}
+                      </div>
+                      <div className="mt-1 flex items-center gap-1 text-xs theme-muted">
+                        <span className="relative inline-block h-3.5 w-3.5 shrink-0">
+                          <RoughStarIcon
+                            fill={ratingFillColor(recommendBook.averageRating)}
+                            className="rough-overlay"
+                          />
+                        </span>
+                        <span>{recommendBook.averageRating.toFixed(1)}</span>
+                      </div>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div>
         <div className="flex flex-wrap items-center gap-2">
