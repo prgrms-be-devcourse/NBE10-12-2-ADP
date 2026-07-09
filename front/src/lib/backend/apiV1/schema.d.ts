@@ -129,38 +129,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["session"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["healthCheck"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/wishes/mine": {
         parameters: {
             query?: never;
@@ -494,6 +462,10 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["AdminReviewDto"][];
@@ -501,27 +473,23 @@ export interface components {
             number?: number;
             first?: boolean;
             last?: boolean;
-            /** Format: int32 */
-            numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         PageableObject: {
-            /** Format: int64 */
-            offset?: number;
-            /** Format: int32 */
-            pageSize?: number;
+            paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
-            paged?: boolean;
-            sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            pageSize?: number;
             unpaged?: boolean;
+            sort?: components["schemas"]["SortObject"];
+            /** Format: int64 */
+            offset?: number;
         };
         SortObject: {
-            empty?: boolean;
             sorted?: boolean;
             unsorted?: boolean;
+            empty?: boolean;
         };
         MemberWithUsernameAndWidgetLinkDto: {
             /** Format: int64 */
@@ -548,9 +516,9 @@ export interface components {
             /** Format: int32 */
             totalPages?: number;
             pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             numberOfElements?: number;
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["AdminMemberDto"][];
@@ -558,22 +526,6 @@ export interface components {
             number?: number;
             first?: boolean;
             last?: boolean;
-            empty?: boolean;
-        };
-        PageableObject: {
-            paged?: boolean;
-            /** Format: int32 */
-            pageNumber?: number;
-            /** Format: int32 */
-            pageSize?: number;
-            sort?: components["schemas"]["SortObject"];
-            unpaged?: boolean;
-            /** Format: int64 */
-            offset?: number;
-        };
-        SortObject: {
-            sorted?: boolean;
-            unsorted?: boolean;
             empty?: boolean;
         };
         BookDetailDto: {
@@ -601,9 +553,9 @@ export interface components {
             /** Format: int32 */
             totalPages?: number;
             pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             numberOfElements?: number;
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["BookDto"][];
@@ -924,46 +876,6 @@ export interface operations {
             };
         };
     };
-    session: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
-    healthCheck: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     getWishes: {
         parameters: {
             query?: never;
@@ -1118,6 +1030,8 @@ export interface operations {
         parameters: {
             query: {
                 searchTerm: string;
+                page?: number;
+                size?: number;
             };
             header?: never;
             path?: never;
