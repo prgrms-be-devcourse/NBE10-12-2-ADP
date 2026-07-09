@@ -72,7 +72,7 @@ export default function Page() {
     if (isLoginMemberPending) return;
 
     if (!isLogin) {
-      router.replace(`/members/login`);
+      router.replace(`/`);
       return;
     }
 
