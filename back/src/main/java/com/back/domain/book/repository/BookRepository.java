@@ -21,6 +21,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             LIMIT :#{pageable.pageSize}
             OFFSET :#{pageable.offset}
             """,
+            countQuery = """
+            SELECT COUNT(*)
+            FROM Book
+            WHERE MATCH(title, authors, publisher) AGAINST(:keyword IN BOOLEAN MODE)
+            """,
             nativeQuery = true
     )
     Page<Book> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
