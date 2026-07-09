@@ -44,7 +44,6 @@ public class SecurityConfig {
                                         "/api/*/widgets/{githubId}",
                                         "/api/*/reviews/book/{id:\\d+}",
                                         "/api/*/reviews/member/{id:\\d+}",
-                                        "/api/*/books",
                                         "/api/*/books/{id:\\d+}",
                                         "/api/*/books/rank",
                                         "/api/*/books/search"
@@ -68,6 +67,10 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/api/*/members/admin",
                                         "/api/*/members/admin/**"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        "/api/*/reviews/admin",
+                                        "/api/*/reviews/admin/**"
                                 ).hasRole("ADMIN")
                                 .requestMatchers("/api/*/**").authenticated()
                                 .anyRequest().permitAll()

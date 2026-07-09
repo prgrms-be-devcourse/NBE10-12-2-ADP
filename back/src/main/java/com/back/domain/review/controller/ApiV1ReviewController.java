@@ -2,6 +2,7 @@ package com.back.domain.review.controller;
 
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
+import com.back.domain.review.dto.AdminReviewDto;
 import com.back.domain.review.dto.ReviewDto;
 import com.back.domain.review.entity.Review;
 import com.back.domain.review.service.ReviewService;
@@ -16,6 +17,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,6 +78,16 @@ public class ApiV1ReviewController {
     @SecurityRequirement(name = "bearerAuth")
     public ReviewsByMemberDto mine() {
         return getReviewsByMember(rq.getActor().getId());
+    }
+
+    @GetMapping("/admin")
+    @Operation(summary = "리뷰 다건 조회 (관리자)")
+    @SecurityRequirement(name = "bearerAuth")
+    public Page<AdminReviewDto> getReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return reviewService.getAll(page, size).map(AdminReviewDto::new);
     }
 
     public record PostReviewsReqBody(

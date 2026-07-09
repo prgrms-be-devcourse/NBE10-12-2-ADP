@@ -34,12 +34,6 @@ public class ApiV1BookController {
     private final BookRankService bookRankService;
     private final BookViewsService bookViewsService;
 
-    @GetMapping
-    @Operation(summary = "도서 다건 조회")
-    public List<BookDto> getBooks() {
-        return bookService.getBooks();
-    }
-
     @GetMapping("/admin")
     @Operation(summary = "도서 다건 조회 (관리자)")
     @SecurityRequirement(name = "bearerAuth")
