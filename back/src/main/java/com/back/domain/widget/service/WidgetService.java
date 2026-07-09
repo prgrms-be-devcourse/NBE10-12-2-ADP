@@ -24,11 +24,13 @@ public class WidgetService {
 
     public String createWidget(String githubId) {
         Member member = memberService.findByGithubId(githubId);
-        List<Review> reviews = reviewService.findByMember(member);
+        List<Review> reviews = reviewService
+                .getByMember(member, 0, VISIBLE_BOOK_MAX_COUNT)
+                .stream().toList();
 
         StringBuilder bookComponentsStringBuilder = new StringBuilder();
-        int reviewCount = reviews.size();
-        long reviewWithContentCount = 0L;
+        long reviewCount = reviewService.getReviewCountByMember(member);
+        long reviewWithContentCount = reviewService.getReviewWithContentCountByMember(member);
         int wishCount = wishService.findByMember(member).size();
 
         int startIndex = Math.max(0, reviews.size() - VISIBLE_BOOK_MAX_COUNT);
@@ -42,8 +44,6 @@ public class WidgetService {
             String color = "pink";
             String title = currentReview.getBook().getTitle();
             boolean hasContent = !currentReview.getContent().isBlank();
-
-            if (hasContent) reviewWithContentCount++;
 
             StringBuilder lineComponentsStringBuilder = new StringBuilder();
             for (int j = 0; j < 8; j++) {

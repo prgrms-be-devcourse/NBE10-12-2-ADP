@@ -127,4 +127,12 @@ public class ReviewService {
     public List<Review> getPureReviewAll() {
         return reviewRepository.findAll();
     }
+
+    public long getReviewCountByMember(Member member) {
+        return reviewRepository.countByReviewer(member);
+    }
+
+    public long getReviewWithContentCountByMember(Member member) {
+        return reviewRepository.countByReviewerAndContentNot(member, "");
+    }
 }
