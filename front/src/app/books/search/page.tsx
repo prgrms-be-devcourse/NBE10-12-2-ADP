@@ -20,13 +20,19 @@ function SearchResults() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (searchTerm.trim().length === 0) return;
+    if (searchTerm.trim().length === 0) {
+      setBooks(null);
+      setLoadError(null);
+      return;
+    }
+
+    setBooks(null);
+    setLoadError(null);
 
     apiFetch(
       `/api/v1/books/search?searchTerm=${encodeURIComponent(searchTerm)}`,
     )
       .then((data) => {
-        setLoadError(null);
         setBooks(data);
       })
       .catch((error) => {
