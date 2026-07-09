@@ -129,6 +129,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["session"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["healthCheck"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/wishes/mine": {
         parameters: {
             query?: never;
@@ -180,6 +212,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reviews/admin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 리뷰 다건 조회 (관리자) */
+        get: operations["getReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/members/{id}": {
         parameters: {
             query?: never;
@@ -223,23 +272,6 @@ export interface paths {
         };
         /** 회원 다건 조회 (관리자) */
         get: operations["getMembers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/books": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 도서 다건 조회 */
-        get: operations["getBooks"];
         put?: never;
         post?: never;
         delete?: never;
@@ -305,7 +337,7 @@ export interface paths {
             cookie?: never;
         };
         /** 도서 다건 조회 (관리자) */
-        get: operations["getBooks_1"];
+        get: operations["getBooks"];
         put?: never;
         post?: never;
         delete?: never;
@@ -445,6 +477,52 @@ export interface components {
             };
             results: components["schemas"]["ReviewDto"][];
         };
+        AdminReviewDto: {
+            /** Format: int64 */
+            id: number;
+            bookTitle: string;
+            /** Format: float */
+            rating: number;
+            content: string;
+            /** Format: date-time */
+            createdDate: string;
+            reviewer: components["schemas"]["MemberDto"];
+            tags: string[];
+        };
+        PageAdminReviewDto: {
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            /** Format: int32 */
+            size?: number;
+            content?: components["schemas"]["AdminReviewDto"][];
+            /** Format: int32 */
+            number?: number;
+            first?: boolean;
+            last?: boolean;
+            /** Format: int32 */
+            numberOfElements?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
+            empty?: boolean;
+        };
+        PageableObject: {
+            /** Format: int64 */
+            offset?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            pageNumber?: number;
+            paged?: boolean;
+            sort?: components["schemas"]["SortObject"];
+            unpaged?: boolean;
+        };
+        SortObject: {
+            empty?: boolean;
+            sorted?: boolean;
+            unsorted?: boolean;
+        };
         MemberWithUsernameAndWidgetLinkDto: {
             /** Format: int64 */
             id: number;
@@ -469,34 +547,18 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["AdminMemberDto"][];
             /** Format: int32 */
             number?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
-            empty?: boolean;
-        };
-        PageableObject: {
-            /** Format: int64 */
-            offset?: number;
-            unpaged?: boolean;
             sort?: components["schemas"]["SortObject"];
-            paged?: boolean;
-            /** Format: int32 */
-            pageNumber?: number;
-            /** Format: int32 */
-            pageSize?: number;
-        };
-        SortObject: {
             empty?: boolean;
-            unsorted?: boolean;
-            sorted?: boolean;
         };
         BookDetailDto: {
             /** Format: int64 */
@@ -522,17 +584,17 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["BookDto"][];
             /** Format: int32 */
             number?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
     };
@@ -846,6 +908,46 @@ export interface operations {
             };
         };
     };
+    session: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    healthCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getWishes: {
         parameters: {
             query?: never;
@@ -904,6 +1006,29 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["ReviewsByMemberDto"];
+                };
+            };
+        };
+    };
+    getReviews: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["PageAdminReviewDto"];
                 };
             };
         };
@@ -969,26 +1094,6 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["PageAdminMemberDto"];
-                };
-            };
-        };
-    };
-    getBooks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BookDto"][];
                 };
             };
         };
@@ -1059,7 +1164,7 @@ export interface operations {
             };
         };
     };
-    getBooks_1: {
+    getBooks: {
         parameters: {
             query?: {
                 page?: number;

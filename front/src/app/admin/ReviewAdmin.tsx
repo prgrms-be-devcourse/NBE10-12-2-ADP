@@ -10,29 +10,19 @@ import { ratingColor } from "@/lib/ratingColor";
 import RatingValue from "@/app/_components/RatingValue";
 import RoughButton from "@/app/_components/RoughButton";
 
-type BookDto = components["schemas"]["BookDto"];
-type ReviewDto = components["schemas"]["ReviewDto"];
+type PageAdminReviewDto = components["schemas"]["PageAdminReviewDto"];
 
 export default function ReviewAdmin() {
-  const [books, setBooks] = useState<BookDto[] | null>(null);
-  const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
-  const [reviews, setReviews] = useState<ReviewDto[] | null>(null);
+  const [pageData, setPageData] = useState<PageAdminReviewDto | null>(null);
+  const [pageNumber, setPageNumber] = useState(0);
 
-  useEffect(() => {
-    apiFetch(`/api/v1/books`).then((data: BookDto[]) => {
-      setBooks(data);
-      if (data.length > 0) setSelectedBookId(data[0].id);
-    });
-  }, []);
-
-  const loadReviews = (bookId: number) => {
-    apiFetch(`/api/v1/reviews/book/${bookId}`).then(setReviews);
+  const loadReviews = (page: number) => {
+    apiFetch(`/api/v1/reviews/admin?page=${page}&size=10`).then(setPageData);
   };
 
   useEffect(() => {
-    if (selectedBookId == null) return;
-    loadReviews(selectedBookId);
-  }, [selectedBookId]);
+    loadReviews(pageNumber);
+  }, [pageNumber]);
 
   const handleDelete = (reviewId: number) => {
     if (!confirm("이 리뷰를 삭제하시겠습니까?")) return;
@@ -40,39 +30,24 @@ export default function ReviewAdmin() {
     apiFetch(`/api/v1/reviews/${reviewId}`, { method: "DELETE" })
       .then((data) => {
         alert(data.message);
-        if (selectedBookId != null) loadReviews(selectedBookId);
+        loadReviews(pageNumber);
       })
       .catch((error) => {
         alert(`${error.resultCode} : ${error.message}`);
       });
   };
 
-  if (books == null) return <div>로딩중...</div>;
+  if (pageData == null) return <div>로딩중...</div>;
+
+  const reviews = pageData.content ?? [];
 
   return (
     <div className="flex flex-col gap-4">
-      <label className="flex items-center gap-2 text-sm">
-        도서 선택
-        <select
-          className="sketch-input p-1"
-          value={selectedBookId ?? ""}
-          onChange={(e) => setSelectedBookId(Number(e.target.value))}
-        >
-          {books.map((book) => (
-            <option key={book.id} value={book.id}>
-              {book.title}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      {reviews == null && <div>로딩중...</div>}
-
-      {reviews != null && reviews.length === 0 && (
+      {reviews.length === 0 && (
         <div className="text-sm theme-muted">리뷰가 없습니다.</div>
       )}
 
-      {reviews != null && reviews.length > 0 && (
+      {reviews.length > 0 && (
         <ul className="sketch-panel flex flex-col p-2">
           {reviews.map((review) => (
             <li
@@ -80,7 +55,8 @@ export default function ReviewAdmin() {
               className="flex items-start gap-3 border-b py-2 last:border-b-0"
             >
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-semibold">
+                <div className="text-sm font-semibold">{review.bookTitle}</div>
+                <div className="text-xs theme-muted">
                   {review.reviewer.githubId ?? "탈퇴한 사용자"}
                 </div>
                 <div className="text-sm">{review.content}</div>
@@ -107,6 +83,28 @@ export default function ReviewAdmin() {
           ))}
         </ul>
       )}
+
+      <div className="flex items-center gap-2">
+        <RoughButton
+          roughSize="sm"
+          type="button"
+          disabled={pageData.first}
+          onClick={() => setPageNumber((p) => Math.max(0, p - 1))}
+        >
+          이전
+        </RoughButton>
+        <span className="text-sm">
+          {(pageData.number ?? 0) + 1} / {pageData.totalPages ?? 1}
+        </span>
+        <RoughButton
+          roughSize="sm"
+          type="button"
+          disabled={pageData.last}
+          onClick={() => setPageNumber((p) => p + 1)}
+        >
+          다음
+        </RoughButton>
+      </div>
     </div>
   );
 }
