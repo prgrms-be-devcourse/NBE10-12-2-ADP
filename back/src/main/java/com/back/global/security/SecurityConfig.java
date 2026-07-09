@@ -44,7 +44,6 @@ public class SecurityConfig {
                                         "/api/*/widgets/{githubId}",
                                         "/api/*/reviews/book/{id:\\d+}",
                                         "/api/*/reviews/member/{id:\\d+}",
-                                        "/api/*/books",
                                         "/api/*/books/{id:\\d+}",
                                         "/api/*/books/rank",
                                         "/api/*/books/search"

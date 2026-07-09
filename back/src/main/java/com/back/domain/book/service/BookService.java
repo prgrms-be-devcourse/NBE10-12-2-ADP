@@ -48,12 +48,6 @@ public class BookService {
         bookRepository.delete(book);
     }
 
-    public List<BookDto> getBooks() {
-        return bookRepository.findAll().stream()
-                .map(book -> new BookDto(book))
-                .toList();
-    }
-
     public Page<BookDto> getBooks(int page, int size) {
         return bookRepository
                 .findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")))

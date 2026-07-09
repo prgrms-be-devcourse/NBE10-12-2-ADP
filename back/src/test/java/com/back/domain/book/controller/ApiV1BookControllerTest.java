@@ -38,28 +38,6 @@ public class ApiV1BookControllerTest {
     private BookRepository bookRepository;
 
     @Test
-    @DisplayName("도서 다건 조회")
-    void t1() throws Exception {
-
-        List<Book> expectedBooks = bookRepository.findAll();
-
-        ResultActions resultActions = mvc
-                .perform(
-                        get("/api/v1/books"))
-                .andDo(print());
-
-        for (int i = 0; i < expectedBooks.size(); i++) {
-            Book expected = expectedBooks.get(i);
-
-            resultActions
-                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(expected.getId()))
-                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(expected.getTitle()))
-                    .andExpect(jsonPath("$[%d].imgUrl".formatted(i)).value(expected.getImgUrl()))
-                    .andExpect(jsonPath("$[%d].averageRating".formatted(i)).value(expected.getAverageRating()));
-        }
-    }
-
-    @Test
     @DisplayName("도서 단건 조회 - 비인증 사용자")
     void t2() throws Exception {
 
