@@ -12,6 +12,7 @@ import com.back.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +92,17 @@ public class BookService {
         return new BookDetailDto(book, isWished, ratingMap, getBookTags(book));
     }
 
-    public List<BookDto> search(String searchTerm) {
+    public List<BookDto> search(String searchTerm, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        try {
+            return bookRepository.searchByKeyword(searchTerm, pageable)
+                    .stream().map(BookDto::new).toList();
+        } catch (Exception e) {
+            // handler();
+        }
+
         return bookRepository.findByTitleContaining(searchTerm).stream()
                 .map(BookDto::new)
                 .toList();
