@@ -56,24 +56,10 @@ public class Book extends BaseEntity {
         this.imgUrl = imgUrl;
     }
 
-    // 새 리뷰 등록 시 평균 별점, 리뷰 수 갱신
-    public void addReviewRating(float newRating) {
-        double totalRating = (this.averageRating * this.reviewCount) + newRating;
-        this.reviewCount++;
-        // 반올림
-        this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
-    }
-
-    // 기존 리뷰 삭제되었을 때 평점 갱신
-    public void removeReviewRating(float deletedRating) {
-        if (this.reviewCount <= 1) {
-            this.reviewCount = 0;
-            this.averageRating = 0.0;
-            return;
-        }
-        double totalRating = (this.averageRating * this.reviewCount) - deletedRating;
-        this.reviewCount--;
-        this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
+    // 리뷰 등록/수정/삭제 후 실제 리뷰 데이터를 기준으로 평균 별점, 리뷰 수 갱신
+    public void refreshRating(double averageRating, int reviewCount) {
+        this.reviewCount = reviewCount;
+        this.averageRating = reviewCount == 0 ? 0.0 : Math.round(averageRating * 10.0) / 10.0;
     }
 
     public void modify(String title, String description, String authors, String publisher, String imgUrl) {
