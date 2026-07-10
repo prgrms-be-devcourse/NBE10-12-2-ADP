@@ -64,7 +64,7 @@ public class ReviewService {
         Review review = reviewRepository.save(new Review(book, actor, rating, comment,
                 tags.stream().map(tagService::findByNameOrSave).toList()));
 
-        book.addReviewRating(rating);
+        refreshBookRating(book);
 
         return review;
     }
@@ -101,14 +101,10 @@ public class ReviewService {
             throw new ServiceException("403-1", "수정 권한이 없습니다.");
         }
 
-        float oldRating = review.getRating();
-
         review.modify(rating, content,
                 tags.stream().map(tagService::findByNameOrSave).toList());
 
-        Book book = review.getBook();
-        book.removeReviewRating(oldRating);
-        book.addReviewRating(rating);
+        refreshBookRating(review.getBook());
     }
 
     @Transactional
@@ -119,9 +115,15 @@ public class ReviewService {
         }
 
         Book book = review.getBook();
-        book.removeReviewRating(review.getRating());
-
         reviewRepository.delete(review);
+
+        refreshBookRating(book);
+    }
+
+    private void refreshBookRating(Book book) {
+        double averageRating = reviewRepository.getAverageRatingByBook(book);
+        int reviewCount = reviewRepository.countByBook(book);
+        book.refreshRating(averageRating, reviewCount);
     }
 
     public List<Review> getPureReviewAll() {

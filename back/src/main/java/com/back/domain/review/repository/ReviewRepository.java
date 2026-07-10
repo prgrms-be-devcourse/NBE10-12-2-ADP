@@ -31,6 +31,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT COALESCE(AVG(r.rating), 0.0) FROM Review r WHERE r.reviewer = :member")
     double getAverageRatingByMember(Member member);
 
+    @Query("SELECT COALESCE(AVG(r.rating), 0.0) FROM Review r WHERE r.book = :book")
+    double getAverageRatingByBook(@Param("book") Book book);
+
+    int countByBook(Book book);
+
     Optional<Review> findFirstByOrderByIdDesc();
 
     int countByBookAndRating(Book book, float rating);
